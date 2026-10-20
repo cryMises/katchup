@@ -1,5 +1,31 @@
-/* KATCHUP — the shared control surface. The toast arrives with js/ui.js; later slices add keycaps, stamps
-   and sidebar items here. */
+/* KATCHUP — the shared control surface: keycap buttons, stamp badge, focus affordances, toast, sidebar items.
+   Card/chip/meter styles are NOT here on purpose — they arrive with the views that use them. */
+
+/* ---- chunky keycap buttons (one elevation rule) ---- */
+.btn-keycap{position:relative;border:2.5px solid var(--cocoa);border-radius:9999px;box-shadow:0 4px 0 var(--cocoa);
+  transform:translateY(0);transition:transform 90ms cubic-bezier(.34,1.56,.64,1),box-shadow 90ms;user-select:none}
+.btn-keycap:hover{transform:translateY(-1px);box-shadow:0 5px 0 var(--cocoa)}
+.btn-keycap:active,.btn-keycap.active-key{transform:translateY(3px)!important;box-shadow:0 1px 0 var(--cocoa)!important}
+.btn-keycap-sm{position:relative;border:2px solid var(--cocoa);border-radius:9999px;box-shadow:0 3px 0 var(--cocoa);
+  transform:translateY(0);transition:transform 90ms cubic-bezier(.34,1.56,.64,1),box-shadow 90ms;user-select:none}
+.btn-keycap-sm:hover{transform:translateY(-1px);box-shadow:0 4px 0 var(--cocoa)}
+.btn-keycap-sm:active{transform:translateY(2px)!important;box-shadow:0 1px 0 var(--cocoa)!important}
+.btn-keycap svg,.btn-keycap-sm svg{flex:0 0 auto}
+
+/* ---- rubber stamp badge: base look only; the replay when it appears belongs to the later motion slice ---- */
+.rubber-stamp{display:inline-flex;align-items:center;font-family:var(--display);font-weight:800;font-size:0.65625rem;
+  letter-spacing:.05em;text-transform:uppercase;padding:3px 9px;border:2px solid var(--cocoa);border-radius:9999px;
+  box-shadow:0 2px 0 var(--cocoa);transform:rotate(-2deg);white-space:nowrap}
+
+/* ---- focus affordance: chips and role="button" cards are clickable without being <button> ---- */
+[role="button"]:focus-visible{outline:3px solid var(--red-ink)!important;outline-offset:3px!important}
 
 /* ---- toast: it is cocoa filled, so the red keyline ring disappears on it — white is the only ink that reads there ---- */
 #toastActionBtn:focus-visible{outline-color:#fff!important}
+
+/* ---- sidebar nav items: the desktop rail collapses to icons only ---- */
+@media (min-width:1024px){
+  #mainSidebar.sidebar-collapsed{width:5.25rem!important}
+  #mainSidebar.sidebar-collapsed .sidebar-text{display:none!important}
+  #mainSidebar.sidebar-collapsed .sidebar-nav-item{justify-content:center!important;padding-left:0!important;padding-right:0!important}
+}

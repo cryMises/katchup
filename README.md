@@ -11,6 +11,8 @@ of the seven content categories (Edukasi, Gaya Hidup, Berita, Politik, Humor, Bu
 - Branded boot sequence (K-A-T-C-H-U-P) that hands off after 2.1s, dot-paper shell, and the four view
   containers: Ringkasan Tren, Analisis Konten, Rekomendasi Ide, Ide Tersimpan.
 - Toast notifications with an optional undo action, and a screen-reader status region.
+- Desktop sidebar, phone drawer, four-way view switching with 1–4 keyboard shortcuts, and per-view scroll
+  memory.
 
 ## How it works
 

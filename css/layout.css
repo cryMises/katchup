@@ -1,8 +1,20 @@
-/* KATCHUP — page shell, header, view panels, static footer, opening loader. */
+/* KATCHUP — page shell: two-column frame, sidebar drawer, bottom nav, view panels, static footer, opening loader. */
 
-/* ---- view switcher (v01 ships the markup; nav arrives in v02) ---- */
+/* ---- view switcher: inactive panels are display:none, so js/nav.js remembers each one's scroll offset ---- */
 .view-panel{display:none}
 .view-panel.active{display:flex}
+
+/* ---- two-column shell (>=1024px): the sidebar is a sticky rail, the panels scroll beside it ---- */
+/* below 1024px the sidebar is an off-canvas drawer: js/nav.js keeps it `inert` while closed, so its nav items
+   and its toggle are not reachable off-canvas, and #sidebarBackdrop is the pointer-only scrim that closes it. */
+@media (max-width:1023px){
+  #mainSidebar{position:fixed!important;top:0;bottom:0;left:0;z-index:70;transform:translateX(-100%);box-shadow:8px 0 26px rgba(46,30,20,.28)}
+  #mainSidebar.mobile-open{transform:translateX(0)}
+  /* the fixed bottom nav overlays the scroll container, so the clearance belongs on the panel itself.
+     It used to sit on <body>, which stacked ~156px of dead scroll space. */
+  main.view-panel{padding-bottom:calc(92px + env(safe-area-inset-bottom))}
+  #mobileBottomNav{padding-bottom:calc(.625rem + env(safe-area-inset-bottom))}
+}
 
 /* ---- KETCHY the Tomato flipbook mascot: 4 hand-drawn SVG frames, stepped like a GIF ---- */
 .ketchy{position:relative;display:inline-block;width:var(--kw,76px);height:var(--kw,76px)}

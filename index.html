@@ -36,13 +36,18 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
 }}};
 </script>
 </head>
-<body class="w-full min-h-screen flex flex-col items-stretch overflow-x-hidden relative">
+<body class="w-full min-h-screen flex lg:flex-row items-stretch overflow-x-hidden relative">
 <!-- keyboard users: jump past the header straight into the page. Revealed by translate, not
      sr-only/not-sr-only: that pair also resets padding and would flatten the button -->
 <a href="#contentArea" id="skipLink" class="absolute top-0 left-2 z-[95] -translate-y-[200%] focus:translate-y-2 transition-transform px-3 py-2 bg-pop-yellow text-cocoa border-2 border-cocoa rounded-full font-headline text-xs font-extrabold uppercase">Lewati ke konten</a>
 
-<!-- ===== inline SVG sprite: KETCHY the Tomato flipbook frames ===== -->
+<!-- ===== inline SVG sprite: hand-drawn doodle glyphs (no icon fonts) + KETCHY the Tomato flipbook frames ===== -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="d-radar" viewBox="0 0 24 24"><path d="M12 3.2a8.8 8.8 0 1 0 8.6 10.6"/><path d="M12 12l6.4-3.6"/><circle cx="12" cy="12" r="2.6"/></symbol>
+  <symbol id="d-bars" viewBox="0 0 24 24"><path d="M5.5 19.5v-8M12 19.5V4.5M18.5 19.5v-5"/></symbol>
+  <symbol id="d-spark" viewBox="0 0 24 24"><path d="M12 3.5 13.7 9 19 10.7 13.7 12.4 12 18l-1.7-5.6L5 10.7 10.3 9z"/></symbol>
+  <symbol id="d-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="d-save" viewBox="0 0 24 24"><path d="M6.5 4h11v16l-5.5-4-5.5 4z"/></symbol>
   <symbol id="ketchy-1" viewBox="0 0 100 100">
     <!-- shoes -->
     <ellipse cx="37" cy="93" rx="7.5" ry="4" fill="#FFCE00" stroke="#2E1E14" stroke-width="3.5"/>
@@ -160,6 +165,91 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
   <button id="toastActionBtn" type="button" class="hidden pointer-events-auto px-2.5 py-1 bg-pop-yellow text-cocoa border-2 border-cocoa rounded-full font-headline text-[0.65625rem] font-extrabold uppercase shrink-0">URUNGKAN</button>
 </div>
 
+<!-- scrim: only the drawer's own close paths (a nav pick, Escape, a tap here) flip it back off -->
+<div id="sidebarBackdrop" class="fixed inset-0 bg-[#2E1E14]/45 z-[65] hidden lg:hidden" aria-hidden="true" onclick="toggleMobileSidebar(false)"></div>
+
+<!-- ===== SCRAPBOOK SPINE (sidebar) ===== -->
+<aside id="mainSidebar" class="w-[272px] min-h-screen shrink-0 bg-white border-r-2 border-cocoa flex flex-col justify-between relative z-[70] lg:sticky lg:top-0 lg:h-screen self-stretch transition-all duration-200">
+  <div class="flex flex-col flex-1 min-h-0">
+
+    <div class="p-3.5 border-b-2 border-cocoa flex items-center justify-between gap-2">
+      <span class="w-5 h-5 shrink-0 rounded border-2 border-cocoa bg-pop-yellow flex items-center justify-center p-0.5" aria-hidden="true">
+        <svg viewBox="0 0 100 100" class="w-full h-full"><use href="#ketchy-1"></use></svg>
+      </span>
+      <span class="sidebar-text eyebrow">RADAR KREATOR ID</span>
+      <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-spark"></use></svg>
+    </div>
+
+    <div id="brandToggleContainer" class="p-4 border-b-2 border-cocoa sidebar-header-box cursor-pointer select-none flex items-center gap-3" title="Buka/tutup menu">
+      <button id="sidebarLogoBtn" aria-label="Buka/tutup menu" class="w-12 h-12 shrink-0 bg-pop-yellow border-2 border-cocoa rounded-2xl shadow-[0_3px_0_#2E1E14] overflow-hidden p-0.5 btn-keycap-sm">
+        <svg viewBox="0 0 100 100" class="w-full h-full rounded-xl"><use href="#ketchy-1"></use></svg>
+      </button>
+      <div class="sidebar-text min-w-0">
+        <div class="flex items-center gap-2">
+          <span class="font-headline text-xl font-extrabold uppercase tracking-wide truncate">KATCHUP</span>
+          <span class="washi-tape text-[0.625rem] py-0 px-2">KONTEN</span>
+        </div>
+        <span class="text-[0.65625rem] font-bold text-on-surface-variant uppercase tracking-wider">Radar ide konten Instagram</span>
+      </div>
+    </div>
+
+    <!-- honest state for this level: the radar is not connected to anything yet (js/data.js owns the labels later) -->
+    <div class="p-3.5 border-b-2 border-cocoa sidebar-text">
+      <div class="flex items-center justify-between gap-2 border-2 border-cocoa rounded-full px-3 py-2 bg-cream">
+        <span class="flex items-center gap-2 min-w-0">
+          <span id="telemetryLedDot" class="w-3 h-3 shrink-0 inline-block bg-pop-yellow jewel-led"></span>
+          <span id="telemetryStatusLabel" class="font-headline text-[0.6875rem] font-extrabold uppercase truncate">RADAR: BELUM DIMUAT</span>
+        </span>
+        <span class="font-headline text-[0.625rem] font-extrabold uppercase shrink-0 text-on-surface-variant">mingguan</span>
+      </div>
+    </div>
+
+    <nav class="p-3.5 flex flex-col gap-3 flex-1 overflow-y-auto" aria-label="Halaman">
+      <span class="eyebrow sidebar-text px-1">Halaman</span>
+      <button id="navHome" title="[1] Ringkasan Tren" onclick="switchView('home');"
+        class="sidebar-nav-item w-full flex items-center justify-between px-4 py-3 font-headline text-xs font-black tracking-wider uppercase text-left cursor-pointer btn-keycap bg-white text-cocoa">
+        <span class="flex items-center gap-2.5 min-w-0">
+          <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-radar"></use></svg>
+          <span class="sidebar-text truncate">RINGKASAN TREN</span>
+        </span>
+        <span class="sidebar-text text-[0.625rem] opacity-60">[1]</span>
+      </button>
+      <button id="navAnalytics" title="[2] Analisis Format & Audio" onclick="switchView('analytics');"
+        class="sidebar-nav-item w-full flex items-center justify-between px-4 py-3 font-headline text-xs font-black tracking-wider uppercase text-left cursor-pointer btn-keycap bg-white text-cocoa">
+        <span class="flex items-center gap-2.5 min-w-0">
+          <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-bars"></use></svg>
+          <span class="sidebar-text truncate">ANALISIS KONTEN</span>
+        </span>
+        <span class="sidebar-text text-[0.625rem] opacity-60">[2]</span>
+      </button>
+      <button id="navTopics" title="[3] Rekomendasi Ide Konten" onclick="switchView('topics');"
+        class="sidebar-nav-item w-full flex items-center justify-between px-4 py-3 font-headline text-xs font-black tracking-wider uppercase text-left cursor-pointer btn-keycap bg-white text-cocoa">
+        <span class="flex items-center gap-2.5 min-w-0">
+          <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-spark"></use></svg>
+          <span class="sidebar-text truncate">REKOMENDASI IDE</span>
+        </span>
+        <span class="sidebar-text text-[0.625rem] opacity-60">[3]</span>
+      </button>
+      <button id="navSaved" title="[4] Ide Tersimpan" onclick="switchView('saved');"
+        class="sidebar-nav-item w-full flex items-center justify-between px-4 py-3 font-headline text-xs font-black tracking-wider uppercase text-left cursor-pointer btn-keycap bg-white text-cocoa">
+        <span class="flex items-center gap-2.5 min-w-0">
+          <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-save"></use></svg>
+          <span class="sidebar-text truncate">IDE TERSIMPAN</span>
+          <span id="navSavedCount" class="sidebar-text hidden px-1.5 py-0.5 leading-none bg-pop-mint border-2 border-cocoa text-[0.625rem] rounded-full"></span>
+        </span>
+        <span class="sidebar-text text-[0.625rem] opacity-60">[4]</span>
+      </button>
+    </nav>
+
+    <div class="p-3.5 border-t-2 border-cocoa sidebar-text">
+      <div class="flex items-center justify-between font-headline text-[0.6875rem] font-extrabold uppercase">
+        <span>KATCHUP STUDIO</span><span class="text-red-ink">4 SUMBER</span>
+      </div>
+      <div class="eyebrow mt-0.5">Data publik Instagram Indonesia</div>
+    </div>
+  </div>
+</aside>
+
 <!-- ===== MAIN SCRAPBOOK PAGE ===== -->
 <div id="contentArea" tabindex="-1" class="flex-1 min-w-0 flex flex-col overflow-x-hidden">
   <!-- app-state announcements: the visible panels swap without changing the view title, so the states report here -->
@@ -167,6 +257,10 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
 
   <header class="min-h-[66px] w-full px-4 sm:px-6 border-b-2 border-cocoa bg-white flex items-center justify-between gap-3 shrink-0 z-20 sticky top-0">
     <div class="flex items-center gap-3 min-w-0">
+      <button id="mobileMenuBtn" aria-label="Buka menu" aria-controls="mainSidebar" aria-expanded="false" onclick="toggleMobileSidebar(true)"
+        class="lg:hidden w-11 h-11 shrink-0 bg-cream btn-keycap-sm flex items-center justify-center">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><use href="#d-menu"></use></svg>
+      </button>
       <div class="min-w-0" aria-live="polite" aria-atomic="true">
         <div class="flex items-center gap-2.5">
           <span class="w-7 h-7 rounded-lg border-2 border-cocoa bg-pop-yellow shrink-0 flex items-center justify-center p-0.5" aria-hidden="true">
@@ -256,7 +350,37 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
 
 </div>
 
+<!-- ===== mobile bottom nav: the drawer's shortcut bar, phones only ===== -->
+<div id="mobileBottomNav" role="navigation" aria-label="Navigasi utama" class="lg:hidden fixed bottom-0 left-0 right-0 z-[74] bg-white border-t-2 border-cocoa p-2.5 flex items-center justify-around gap-2">
+  <button id="mobileNavHome" onclick="switchView('home');"
+    class="flex-1 py-2 px-1 bg-cream text-cocoa font-black uppercase btn-keycap-sm flex flex-col items-center justify-center">
+    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-radar"></use></svg>
+    <span class="text-[0.625rem] mt-0.5">TREN</span>
+  </button>
+  <button id="mobileNavAnalytics" onclick="switchView('analytics');"
+    class="flex-1 py-2 px-1 bg-cream text-cocoa font-black uppercase btn-keycap-sm flex flex-col items-center justify-center">
+    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-bars"></use></svg>
+    <span class="text-[0.625rem] mt-0.5">ANALISIS</span>
+  </button>
+  <button id="mobileNavTopics" onclick="switchView('topics');"
+    class="flex-1 py-2 px-1 bg-cream text-cocoa font-black uppercase btn-keycap-sm flex flex-col items-center justify-center">
+    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-spark"></use></svg>
+    <span class="text-[0.625rem] mt-0.5">IDE</span>
+  </button>
+  <button id="mobileNavSaved" onclick="switchView('saved');"
+    class="flex-1 py-2 px-1 bg-cream text-cocoa font-black uppercase btn-keycap-sm flex flex-col items-center justify-center">
+    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-save"></use></svg>
+    <span class="text-[0.625rem] mt-0.5">SIMPAN</span>
+  </button>
+</div>
+
+<!-- Scripts this page needs (classic, deferred, in this order):
+     js/ui.js   — setText, function hideToast, function showToast (undo button), boot loader dismissal
+     js/nav.js  — function saveViewScroll / restoreViewScroll, function switchView, toggleMobileSidebar,
+                  function syncSidebarInert, the Escape-closes-drawer path, hotkeys 1/2/3/4
+     js/app.js  — DOM-ready glue only: boot dismissal, drawer inert on resize, sidebar toggle wiring. No data, no render. -->
 <script src="js/ui.js" defer></script>
+<script src="js/nav.js" defer></script>
 <script src="js/app.js" defer></script>
 </body>
 </html>
