@@ -1,0 +1,48 @@
+/* KATCHUP — page shell, header, view panels, static footer, opening loader. */
+
+/* ---- view switcher (v01 ships the markup; nav arrives in v02) ---- */
+.view-panel{display:none}
+.view-panel.active{display:flex}
+
+/* ---- KETCHY the Tomato flipbook mascot: 4 hand-drawn SVG frames, stepped like a GIF ---- */
+.ketchy{position:relative;display:inline-block;width:var(--kw,76px);height:var(--kw,76px)}
+/* One cadence for every mascot: 2.4s reads as movement, .72s reads as a flicker. */
+.ketchy .flip-frame{position:absolute;inset:0;width:100%;height:100%;opacity:0;
+  animation-duration:2.4s;animation-iteration-count:infinite;animation-timing-function:steps(1,end)}
+.ketchy .flip-frame:nth-child(1){animation-name:flipA}
+.ketchy .flip-frame:nth-child(2){animation-name:flipB}
+.ketchy .flip-frame:nth-child(3){animation-name:flipC}
+.ketchy .flip-frame:nth-child(4){animation-name:flipD}
+/* A lone flip-frame would only strobe: flipA holds it visible for 25% of the loop, so the mascot blinks
+   on and off instead of moving. Hold it solid — declared after the nth-child rules so animation-name:none
+   wins over animation-name:flipA (equal specificity, later wins). */
+.ketchy .flip-frame:only-child{animation:none;opacity:1}
+@keyframes flipA{0%,25%{opacity:1}26%,100%{opacity:0}}
+@keyframes flipB{0%,25%{opacity:0}26%,50%{opacity:1}51%,100%{opacity:0}}
+@keyframes flipC{0%,50%{opacity:0}51%,75%{opacity:1}76%,100%{opacity:0}}
+@keyframes flipD{0%,75%{opacity:0}76%,100%{opacity:1}}
+
+/* ---- opening loader: K-A-T-C-H-U-P bounces in, then splats ---- */
+.boot{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:var(--cream);
+  animation:bootOut .45s ease 1.65s forwards}
+.boot-word{display:flex;font-family:var(--display);font-weight:800;font-size:clamp(34px,11vw,64px);line-height:1;color:var(--red);text-shadow:0 4px 0 var(--cocoa)}
+.boot-letter{display:inline-block;opacity:0;transform:translateY(-64px) scale(.6);animation:letterDrop .5s cubic-bezier(.34,1.56,.64,1) forwards}
+@keyframes letterDrop{0%{opacity:0;transform:translateY(-64px) scale(.6)}60%{opacity:1;transform:translateY(7px) scale(1.14)}100%{opacity:1;transform:translateY(0) scale(1)}}
+.boot-splat{width:14px;height:14px;background:var(--red);border:0 solid var(--cocoa);border-radius:46% 54% 62% 38%/52% 46% 54% 48%;
+  animation:splatGrow .45s cubic-bezier(.34,1.56,.64,1) 1.12s forwards}
+@keyframes splatGrow{to{width:168px;height:46px;border-width:3px}}
+.boot-sub{margin:6px 0 0;font-size:0.8125rem;font-weight:700;color:var(--ink-soft)}
+@keyframes bootOut{to{opacity:0;visibility:hidden}}
+
+/* ---- static page footer: one line, no data, no actions ---- */
+.page-foot{display:flex;align-items:center;justify-content:space-between;gap:10px 16px;flex-wrap:wrap;
+  padding:10px 16px calc(10px + env(safe-area-inset-bottom));border-top:2px solid var(--cocoa);
+  background:var(--panel);flex-shrink:0}
+
+@media (prefers-reduced-motion: reduce){
+  .boot{animation:none;display:none}
+  .boot-letter,.boot-splat{animation:none;opacity:1;transform:none}
+  .ketchy .flip-frame{animation:none}
+  .ketchy .flip-frame:nth-child(2),.ketchy .flip-frame:nth-child(3),.ketchy .flip-frame:nth-child(4){display:none}
+  .ketchy .flip-frame:nth-child(1){opacity:1}
+}

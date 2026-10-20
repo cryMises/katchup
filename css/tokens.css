@@ -1,0 +1,13 @@
+/* KATCHUP — design tokens, copied from the original app's :root. */
+:root{
+  --cream:#FBF3E4; --panel:#FFFFFF; --cocoa:#2E1E14; --ink-soft:#6A5344;
+  --red:#FF4949; --mint:#2FE0A8; --blue:#5B8CFF; --yellow:#FFCE00; --pink:#FF7BB8; --orange:#FF8A3D;
+  --line:rgba(46,30,20,.18);
+  --r:18px; --elev:0 5px 0 var(--cocoa); --elev-sm:0 3px 0 var(--cocoa);
+  --display:'Baloo 2',system-ui,sans-serif; --body:'Nunito',system-ui,sans-serif; --marker:'Permanent Marker',cursive;
+  --cat:#5B8CFF;
+  /* ink variants for CSS / inline styles (markup uses the -ink Tailwind colours instead) */
+  --red-ink:#C03030; --green-ink:#0A7D57;
+  /* two easings for the whole deck: --pop overshoots (playful), --settle decelerates (readable) */
+  --pop:cubic-bezier(.34,1.56,.64,1); --settle:cubic-bezier(.22,1,.36,1);
+}

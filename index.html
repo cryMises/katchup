@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="id" class="w-full h-full">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>KATCHUP — Radar Ide Konten Kreator Indonesia</title>
+
+<meta name="theme-color" content="#FBF3E4">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Katchup">
+
+<!-- Type: 'Baloo 2' chunky rounded Latin display (marker feel) for headlines/buttons;
+     'Nunito' humanist rounded sans for body; 'Permanent Marker' literal hand-drawn marker for section titles.
+     Material Symbols loads ONLY for category chips + the copy/chat (copy/detail) affordances. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&family=Permanent+Marker&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1" rel="stylesheet">
+
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/layout.css">
+
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+tailwind.config = { darkMode:"class", theme:{ extend:{
+  colors:{ marshmallow:"#FBF3E4", cream:"#FBF3E4", panel:"#FFFFFF", cocoa:"#2E1E14",
+    "pop-red":"#FF4949", "pop-yellow":"#FFCE00", "pop-mint":"#2FE0A8", "pop-blue":"#5B8CFF", "pop-pink":"#FF7BB8", "pop-orange":"#FF8A3D",
+    /* ink variants of the same hues for text on light surfaces (the pop-* fills above are surfaces, not ink) */
+    "red-ink":"#C03030", "blue-ink":"#2E5FD0", "green-ink":"#0A7D57",
+    "on-surface-variant":"#6A5344", outline:"#9E8472" },
+  fontFamily:{ display:["Baloo 2","system-ui","sans-serif"], headline:["Baloo 2","system-ui","sans-serif"], body:["Nunito","system-ui","sans-serif"], marker:["Permanent Marker","cursive"] },
+  borderRadius:{ "4xl":"2rem" }
+}}};
+</script>
+</head>
+<body class="w-full min-h-screen flex flex-col items-stretch overflow-x-hidden relative">
+<!-- keyboard users: jump past the header straight into the page. Revealed by translate, not
+     sr-only/not-sr-only: that pair also resets padding and would flatten the button -->
+<a href="#contentArea" id="skipLink" class="absolute top-0 left-2 z-[95] -translate-y-[200%] focus:translate-y-2 transition-transform px-3 py-2 bg-pop-yellow text-cocoa border-2 border-cocoa rounded-full font-headline text-xs font-extrabold uppercase">Lewati ke konten</a>
+
+<!-- ===== inline SVG sprite: KETCHY the Tomato flipbook frames ===== -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="ketchy-1" viewBox="0 0 100 100">
+    <!-- shoes -->
+    <ellipse cx="37" cy="93" rx="7.5" ry="4" fill="#FFCE00" stroke="#2E1E14" stroke-width="3.5"/>
+    <ellipse cx="63" cy="93" rx="7.5" ry="4" fill="#FFCE00" stroke="#2E1E14" stroke-width="3.5"/>
+    <!-- plump tomato body -->
+    <path d="M50 23 C36 17 12 24 10 50 C8 75 26 92 50 92 C74 92 92 75 90 50 C88 24 64 17 50 23 Z" fill="#FF4949" stroke="#2E1E14" stroke-width="4" stroke-linejoin="round"/>
+    <!-- glossy reflection highlight -->
+    <path d="M20 38 C15 48 16 62 22 72" fill="none" stroke="#FFFFFF" stroke-width="4.5" stroke-linecap="round" opacity="0.6"/>
+    <circle cx="26" cy="34" r="2.5" fill="#FFFFFF" opacity="0.6"/>
+    <!-- green stem & 5-leaf crown (calyx) -->
+    <path d="M50 22 C50 12 54 6 61 4" fill="none" stroke="#2E1E14" stroke-width="4.5" stroke-linecap="round"/>
+    <path d="M50 22 C50 13 53 7 60 5" fill="none" stroke="#2FE0A8" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M50 22 Q40 13 35 9 Q43 17 45 21 Q30 17 20 22 Q34 26 44 25 Q38 33 36 36 Q45 30 49 25 Q50 35 50 35 Q51 25 55 25 Q59 30 64 36 Q62 26 56 25 Q66 26 80 22 Q70 17 55 21 Q57 17 65 9 Q60 13 50 22 Z" fill="#2FE0A8" stroke="#2E1E14" stroke-width="3.5" stroke-linejoin="round"/>
+    <!-- eyes -->
+    <ellipse cx="38" cy="54" rx="4" ry="5.5" fill="#2E1E14"/><circle cx="36.5" cy="52" r="1.8" fill="#FFFFFF"/>
+    <ellipse cx="62" cy="54" rx="4" ry="5.5" fill="#2E1E14"/><circle cx="60.5" cy="52" r="1.8" fill="#FFFFFF"/>
+    <!-- rosy cheeks -->
+    <circle cx="27" cy="62" r="4.5" fill="#FF7BB8" opacity="0.9"/>
+    <circle cx="73" cy="62" r="4.5" fill="#FF7BB8" opacity="0.9"/>
+    <!-- cheerful smile with tongue -->
+    <path d="M43 62 Q50 72 57 62" fill="#2E1E14" stroke="#2E1E14" stroke-width="3" stroke-linecap="round"/>
+    <path d="M46 64 Q50 71 54 64" fill="#FF7BB8"/>
+    <!-- arms -->
+    <path d="M12 56 Q4 64 7 73" fill="none" stroke="#2E1E14" stroke-width="4" stroke-linecap="round"/>
+    <path d="M88 56 Q96 64 93 73" fill="none" stroke="#2E1E14" stroke-width="4" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="ketchy-2" viewBox="0 0 100 100">
+    <ellipse cx="37" cy="94" rx="8" ry="3.5" fill="#FFCE00" stroke="#2E1E14" stroke-width="3.5"/>
+    <ellipse cx="63" cy="94" rx="8" ry="3.5" fill="#FFCE00" stroke="#2E1E14" stroke-width="3.5"/>
+    <path d="M50 24 C36 18 11 25 9 51 C7 76 25 93 50 93 C75 93 93 76 91 51 C89 25 64 18 50 24 Z" fill="#FF4949" stroke="#2E1E14" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M19 40 C14 50 15 63 21 73" fill="none" stroke="#FFFFFF" stroke-width="4.5" stroke-linecap="round" opacity="0.6"/>
+    <circle cx="25" cy="36" r="2.5" fill="#FFFFFF" opacity="0.6"/>
+    <path d="M50 23 C50 13 54 7 61 5" fill="none" stroke="#2E1E14" stroke-width="4.5" stroke-linecap="round"/>
+    <path d="M50 23 C50 14 53 8 60 6" fill="none" stroke="#2FE0A8" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M50 23 Q40 14 35 10 Q43 18 45 22 Q30 18 20 23 Q34 27 44 26 Q38 34 36 37 Q45 31 49 26 Q50 36 50 36 Q51 26 55 26 Q59 31 64 37 Q62 27 56 26 Q66 27 80 23 Q70 18 55 22 Q57 18 65 10 Q60 14 50 23 Z" fill="#2FE0A8" stroke="#2E1E14" stroke-width="3.5" stroke-linejoin="round"/>
+    <!-- happy squint eyes ^ ^ -->
+    <path d="M33 55 Q38 49 43 55" fill="none" stroke="#2E1E14" stroke-width="3.5" stroke-linecap="round"/>
+    <path d="M57 55 Q62 49 67 55" fill="none" stroke="#2E1E14" stroke-width="3.5" stroke-linecap="round"/>
+    <circle cx="26" cy="61" r="5" fill="#FF7BB8" opacity="0.9"/>
+    <circle cx="74" cy="61" r="5" fill="#FF7BB8" opacity="0.9"/>
+    <path d="M44 63 Q50 69 56 63" fill="none" stroke="#2E1E14" stroke-width="3.5" stroke-linecap="round"/>
+    <!-- arms resting -->
+    <path d="M11 57 Q4 66 11 73" fill="none" stroke="#2E1E14" stroke-width="4" stroke-linecap="round"/>
+    <path d="M89 57 Q96 66 89 73" fill="none" stroke="#2E1E14" stroke-width="4" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="ketchy-3" viewBox="0 0 100 100">
+    <!-- jump lift shoes -->
+    <ellipse cx="36" cy="91" rx="7" ry="4" fill="#FFCE00" stroke="#2E1E14" stroke-width="3.5"/>
+    <ellipse cx="64" cy="91" rx="7" ry="4" fill="#FFCE00" stroke="#2E1E14" stroke-width="3.5"/>
+    <path d="M50 23 C36 17 12 24 10 50 C8 75 26 92 50 92 C74 92 92 75 90 50 C88 24 64 17 50 23 Z" fill="#FF4949" stroke="#2E1E14" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M20 38 C15 48 16 62 22 72" fill="none" stroke="#FFFFFF" stroke-width="4.5" stroke-linecap="round" opacity="0.6"/>
+    <circle cx="26" cy="34" r="2.5" fill="#FFFFFF" opacity="0.6"/>
+    <path d="M50 22 C50 12 54 6 61 4" fill="none" stroke="#2E1E14" stroke-width="4.5" stroke-linecap="round"/>
+    <path d="M50 22 C50 13 53 7 60 5" fill="none" stroke="#2FE0A8" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M50 22 Q40 13 35 9 Q43 17 45 21 Q30 17 20 22 Q34 26 44 25 Q38 33 36 36 Q45 30 49 25 Q50 35 50 35 Q51 25 55 25 Q59 30 64 36 Q62 26 56 25 Q66 26 80 22 Q70 17 55 21 Q57 17 65 9 Q60 13 50 22 Z" fill="#2FE0A8" stroke="#2E1E14" stroke-width="3.5" stroke-linejoin="round"/>
+    <!-- excited eyes -->
+    <ellipse cx="38" cy="51" rx="4.5" ry="6" fill="#2E1E14"/><circle cx="36" cy="49" r="2" fill="#FFFFFF"/>
+    <ellipse cx="62" cy="51" rx="4.5" ry="6" fill="#2E1E14"/><circle cx="60" cy="49" r="2" fill="#FFFFFF"/>
+    <!-- open cheering mouth -->
+    <path d="M42 61 Q50 78 58 61 Z" fill="#2E1E14" stroke="#2E1E14" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M45 67 Q50 76 55 67 Z" fill="#FF7BB8"/>
+    <circle cx="26" cy="61" r="5" fill="#FF7BB8" opacity="0.9"/>
+    <circle cx="74" cy="61" r="5" fill="#FF7BB8" opacity="0.9"/>
+    <!-- cheering hands up \o/ -->
+    <path d="M13 52 Q5 36 12 24" fill="none" stroke="#2E1E14" stroke-width="4" stroke-linecap="round"/>
+    <path d="M87 52 Q95 36 88 24" fill="none" stroke="#2E1E14" stroke-width="4" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="ketchy-4" viewBox="0 0 100 100">
+    <ellipse cx="37" cy="93" rx="7.5" ry="4" fill="#FFCE00" stroke="#2E1E14" stroke-width="3.5"/>
+    <ellipse cx="63" cy="93" rx="7.5" ry="4" fill="#FFCE00" stroke="#2E1E14" stroke-width="3.5"/>
+    <path d="M50 23 C36 17 12 24 10 50 C8 75 26 92 50 92 C74 92 92 75 90 50 C88 24 64 17 50 23 Z" fill="#FF4949" stroke="#2E1E14" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M20 38 C15 48 16 62 22 72" fill="none" stroke="#FFFFFF" stroke-width="4.5" stroke-linecap="round" opacity="0.6"/>
+    <circle cx="26" cy="34" r="2.5" fill="#FFFFFF" opacity="0.6"/>
+    <path d="M50 22 C50 12 54 6 61 4" fill="none" stroke="#2E1E14" stroke-width="4.5" stroke-linecap="round"/>
+    <path d="M50 22 C50 13 53 7 60 5" fill="none" stroke="#2FE0A8" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M50 22 Q40 13 35 9 Q43 17 45 21 Q30 17 20 22 Q34 26 44 25 Q38 33 36 36 Q45 30 49 25 Q50 35 50 35 Q51 25 55 25 Q59 30 64 36 Q62 26 56 25 Q66 26 80 22 Q70 17 55 21 Q57 17 65 9 Q60 13 50 22 Z" fill="#2FE0A8" stroke="#2E1E14" stroke-width="3.5" stroke-linejoin="round"/>
+    <!-- winking eye + wide eye -->
+    <path d="M33 54 Q38 48 43 54" fill="none" stroke="#2E1E14" stroke-width="3.5" stroke-linecap="round"/>
+    <ellipse cx="62" cy="54" rx="4" ry="5.5" fill="#2E1E14"/><circle cx="60.5" cy="52" r="1.8" fill="#FFFFFF"/>
+    <!-- cheeky grin -->
+    <path d="M44 63 Q52 71 59 62" fill="none" stroke="#2E1E14" stroke-width="3.5" stroke-linecap="round"/>
+    <circle cx="26" cy="62" r="4.5" fill="#FF7BB8" opacity="0.9"/>
+    <circle cx="73" cy="62" r="4.5" fill="#FF7BB8" opacity="0.9"/>
+    <!-- waving hand -->
+    <path d="M12 56 Q5 64 12 70" fill="none" stroke="#2E1E14" stroke-width="4" stroke-linecap="round"/>
+    <path d="M88 52 Q98 38 93 25" fill="none" stroke="#2E1E14" stroke-width="4" stroke-linecap="round"/>
+  </symbol>
+</svg>
+
+<!-- ===== OPENING LOADER: Ketchy Tomato + K-A-T-C-H-U-P bounces in, then splats ===== -->
+<div id="bootLoader" class="boot">
+  <div class="ketchy mb-1" style="--kw:84px" aria-hidden="true">
+    <svg class="flip-frame" viewBox="0 0 100 100"><use href="#ketchy-1"></use></svg>
+    <svg class="flip-frame" viewBox="0 0 100 100"><use href="#ketchy-2"></use></svg>
+    <svg class="flip-frame" viewBox="0 0 100 100"><use href="#ketchy-3"></use></svg>
+    <svg class="flip-frame" viewBox="0 0 100 100"><use href="#ketchy-4"></use></svg>
+  </div>
+  <div class="boot-word">
+    <span class="boot-letter" style="animation-delay:.00s">K</span>
+    <span class="boot-letter" style="animation-delay:.08s">A</span>
+    <span class="boot-letter" style="animation-delay:.16s">T</span>
+    <span class="boot-letter" style="animation-delay:.24s">C</span>
+    <span class="boot-letter" style="animation-delay:.32s">H</span>
+    <span class="boot-letter" style="animation-delay:.40s">U</span>
+    <span class="boot-letter" style="animation-delay:.48s">P</span>
+  </div>
+  <div class="boot-splat"></div>
+  <p class="boot-sub">Ketchy sedang bersiap, sebentar ya...</p>
+</div>
+
+<!-- ===== MAIN SCRAPBOOK PAGE ===== -->
+<div id="contentArea" tabindex="-1" class="flex-1 min-w-0 flex flex-col overflow-x-hidden">
+
+  <header class="min-h-[66px] w-full px-4 sm:px-6 border-b-2 border-cocoa bg-white flex items-center justify-between gap-3 shrink-0 z-20 sticky top-0">
+    <div class="flex items-center gap-3 min-w-0">
+      <div class="min-w-0" aria-live="polite" aria-atomic="true">
+        <div class="flex items-center gap-2.5">
+          <span class="w-7 h-7 rounded-lg border-2 border-cocoa bg-pop-yellow shrink-0 flex items-center justify-center p-0.5" aria-hidden="true">
+            <svg viewBox="0 0 100 100" class="w-full h-full"><use href="#ketchy-1"></use></svg>
+          </span>
+          <h1 id="viewTitle" class="font-headline text-base sm:text-lg font-extrabold uppercase tracking-wide truncate">RINGKASAN TREN</h1>
+        </div>
+        <p id="viewSubtitle" class="text-[0.71875rem] font-bold text-on-surface-variant truncate hidden sm:block">Radar ide konten Instagram Indonesia</p>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2.5 shrink-0">
+      <span class="hidden md:inline-flex items-center gap-1.5 border-2 border-cocoa rounded-full px-3 py-1 bg-cream font-headline text-[0.6875rem] font-extrabold uppercase">
+        DATA: <strong class="text-red-ink">MINGGUAN</strong>
+        <span class="text-on-surface-variant normal-case">· belum dimuat</span>
+      </span>
+    </div>
+  </header>
+
+  <!-- ================= HALAMAN 1: RINGKASAN TREN ================= -->
+  <main id="view-home" class="view-panel active flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-8 flex-col w-full">
+    <div class="mag spread">
+      <section>
+        <span class="washi-tape">EDISI MINGGU INI</span>
+        <h2 class="marker mt-4" style="--rule:#FF4949">RINGKASAN TREN</h2>
+        <p class="note mt-3">Di sini bakal ada rangkuman tren Instagram mingguan: sound yang sedang naik, perbandingan Reels vs foto, dan ide konten yang siap dipakai.</p>
+      </section>
+      <hr class="rule-doodle">
+      <section>
+        <p class="note">Belum ada data untuk ditampilkan. Ringkasan tren akan muncul di sini.</p>
+      </section>
+    </div>
+  </main>
+
+  <!-- ================= HALAMAN 2: ANALISIS KONTEN ================= -->
+  <main id="view-analytics" class="view-panel flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-8 flex-col w-full">
+    <div class="mag spread">
+      <section>
+        <span class="washi-tape washi-tape-blue">ANGKA MINGGUAN</span>
+        <h2 class="marker mt-4" style="--rule:#5B8CFF">ANALISIS KONTEN</h2>
+        <p class="note mt-3">Di sini bakal ada angka utama, perbandingan Reels vs foto, dan daftar sound yang paling sering dipakai.</p>
+      </section>
+      <hr class="rule-doodle">
+      <section>
+        <p class="note">Belum ada angka untuk ditampilkan.</p>
+      </section>
+    </div>
+  </main>
+
+  <!-- ================= HALAMAN 3: REKOMENDASI IDE KONTEN ================= -->
+  <main id="view-topics" class="view-panel flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-8 flex-col w-full">
+    <div class="mag spread">
+      <section>
+        <span class="washi-tape washi-tape-pink">7 KATEGORI</span>
+        <h2 class="marker mt-4" style="--rule:#FF7BB8">REKOMENDASI IDE</h2>
+        <p class="note mt-3">Di sini bakal ada ide konten per kategori, lengkap dengan perkiraan likes dan hook yang bisa langsung disalin.</p>
+      </section>
+      <hr class="rule-doodle">
+      <section>
+        <p class="note">Belum ada ide untuk ditampilkan.</p>
+      </section>
+    </div>
+  </main>
+
+  <!-- ================= HALAMAN 4: IDE TERSIMPAN ================= -->
+  <main id="view-saved" class="view-panel flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-8 flex-col w-full">
+    <div class="mag spread">
+      <section>
+        <span class="washi-tape washi-tape-mint">SIMPAN</span>
+        <h2 class="marker mt-4" style="--rule:#2FE0A8">IDE TERSIMPAN</h2>
+        <p class="note mt-3">Hook yang kamu tandai akan tersimpan di perangkat ini, jadi tetap aman saat data diperbarui.</p>
+      </section>
+      <hr class="rule-doodle">
+      <section>
+        <p class="note">Belum ada ide tersimpan.</p>
+      </section>
+    </div>
+  </main>
+
+  <footer class="page-foot">
+    <span class="flex items-center gap-2 font-headline text-[0.6875rem] font-extrabold uppercase">
+      <span class="w-2.5 h-2.5 bg-pop-mint jewel-led inline-block shrink-0"></span>
+      Rangka tampilan · data belum dimuat
+    </span>
+    <span class="eyebrow">KATCHUP STUDIO · Data publik Instagram Indonesia</span>
+  </footer>
+
+</div>
+
+<script src="js/app.js" defer></script>
+</body>
+</html>
