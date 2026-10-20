@@ -1,0 +1,5 @@
+/* KATCHUP — the shared control surface. The toast arrives with js/ui.js; later slices add keycaps, stamps
+   and sidebar items here. */
+
+/* ---- toast: it is cocoa filled, so the red keyline ring disappears on it — white is the only ink that reads there ---- */
+#toastActionBtn:focus-visible{outline-color:#fff!important}
