@@ -48,6 +48,8 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
   <symbol id="d-spark" viewBox="0 0 24 24"><path d="M12 3.5 13.7 9 19 10.7 13.7 12.4 12 18l-1.7-5.6L5 10.7 10.3 9z"/></symbol>
   <symbol id="d-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
   <symbol id="d-save" viewBox="0 0 24 24"><path d="M6.5 4h11v16l-5.5-4-5.5 4z"/></symbol>
+  <symbol id="d-sync" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20.5 3.5v5h-5"/></symbol>
+  <symbol id="d-refresh" viewBox="0 0 24 24"><path d="M19.5 12a7.5 7.5 0 1 1-2.4-5.6"/><path d="M20 3v5h-5"/></symbol>
   <symbol id="ketchy-1" viewBox="0 0 100 100">
     <!-- shoes -->
     <ellipse cx="37" cy="93" rx="7.5" ry="4" fill="#FFCE00" stroke="#2E1E14" stroke-width="3.5"/>
@@ -193,7 +195,7 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
       </div>
     </div>
 
-    <!-- honest state for this level: the radar is not connected to anything yet (js/data.js owns the labels later) -->
+    <!-- honest state: js/data.js writes this telemetry (label + LED) from the current fetch state -->
     <div class="p-3.5 border-b-2 border-cocoa sidebar-text">
       <div class="flex items-center justify-between gap-2 border-2 border-cocoa rounded-full px-3 py-2 bg-cream">
         <span class="flex items-center gap-2 min-w-0">
@@ -273,12 +275,57 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
     </div>
 
     <div class="flex items-center gap-2.5 shrink-0">
+      <button onclick="refreshLiveTopics()" title="Perbarui data [R]" aria-label="Perbarui data"
+        class="px-4 py-2 bg-pop-red text-cocoa btn-keycap font-headline text-xs font-extrabold uppercase tracking-wide flex items-center gap-2">
+        <svg id="syncIcon" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-sync"></use></svg>
+        <span class="hidden sm:inline">PERBARUI</span>
+      </button>
       <span class="hidden md:inline-flex items-center gap-1.5 border-2 border-cocoa rounded-full px-3 py-1 bg-cream font-headline text-[0.6875rem] font-extrabold uppercase">
         DATA: <strong class="text-red-ink">MINGGUAN</strong>
-        <span class="text-on-surface-variant normal-case">· belum dimuat</span>
+        <span id="dataClock" class="text-on-surface-variant normal-case">· ditarik --</span>
       </span>
     </div>
   </header>
+
+  <!-- stale-data banner: only when the last fetch failed and what is on screen comes from the local cache -->
+  <div id="cacheBanner" class="hidden items-center justify-between gap-3 flex-wrap px-4 sm:px-6 py-2.5 bg-pop-yellow border-b-2 border-cocoa">
+    <span class="flex items-center gap-2 font-headline text-[0.6875rem] font-extrabold uppercase">
+      <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-refresh"></use></svg>
+      Data tersimpan · <span id="cacheBannerTime">baru saja</span>
+    </span>
+    <button onclick="refreshLiveTopics()" class="px-3 py-1.5 bg-white btn-keycap-sm font-headline text-[0.6875rem] font-extrabold uppercase">COBA PERBARUI</button>
+  </div>
+
+  <!-- data loading strip: replaces every panel until a payload lands (nothing here renders before data) -->
+  <div id="loadingState" class="hidden flex-1 flex-col items-center justify-center gap-4 p-10 text-center">
+    <div class="ketchy" style="--kw:72px" aria-hidden="true">
+      <svg class="flip-frame" viewBox="0 0 100 100"><use href="#ketchy-1"></use></svg>
+      <svg class="flip-frame" viewBox="0 0 100 100"><use href="#ketchy-2"></use></svg>
+      <svg class="flip-frame" viewBox="0 0 100 100"><use href="#ketchy-3"></use></svg>
+      <svg class="flip-frame" viewBox="0 0 100 100"><use href="#ketchy-4"></use></svg>
+    </div>
+    <h2 class="marker marker-sm" style="--rule:#FFCE00">SEDANG MENGAMBIL DATA</h2>
+    <div class="w-64 max-w-full h-4 bg-white border-2 border-cocoa rounded-full p-[3px] relative overflow-hidden">
+      <div class="h-full w-10 bg-pop-yellow rounded-full border border-cocoa scanner-dot"></div>
+    </div>
+    <p class="note max-w-xs">Ketchy sedang mengambil data tren. Butuh beberapa detik.</p>
+  </div>
+
+  <!-- data error state: the fetch failed and there is no cached payload to fall back on -->
+  <div id="errorState" class="hidden flex-1 flex-col items-center justify-center gap-4 p-10 text-center">
+    <div class="ketchy" style="--kw:76px" aria-hidden="true">
+      <svg class="flip-frame" viewBox="0 0 100 100"><use href="#ketchy-1"></use></svg>
+      <svg class="flip-frame" viewBox="0 0 100 100"><use href="#ketchy-2"></use></svg>
+      <svg class="flip-frame" viewBox="0 0 100 100"><use href="#ketchy-3"></use></svg>
+      <svg class="flip-frame" viewBox="0 0 100 100"><use href="#ketchy-4"></use></svg>
+    </div>
+    <h2 class="marker marker-sm" style="--rule:#FF4949">RADAR TERPUTUS</h2>
+    <p id="errorMessage" class="note max-w-sm">Server data tidak bisa dihubungi. Cek koneksi, lalu coba lagi.</p>
+    <button onclick="initApp()" class="mt-1 px-5 py-2.5 bg-pop-yellow btn-keycap font-headline text-xs font-extrabold uppercase tracking-wide flex items-center gap-2">
+      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-refresh"></use></svg>
+      COBA MUAT ULANG
+    </button>
+  </div>
 
   <!-- ================= HALAMAN 1: RINGKASAN TREN ================= -->
   <main id="view-home" class="view-panel active flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-8 flex-col w-full">
@@ -290,7 +337,8 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
       </section>
       <hr class="rule-doodle">
       <section>
-        <p class="note">Belum ada data untuk ditampilkan. Ringkasan tren akan muncul di sini.</p>
+        <p class="note">Rangkuman lengkapnya menyusul. Sementara itu, kamu bisa lihat ringkasan data yang baru ditarik radar.</p>
+        <p class="note mt-2" data-summary>Menunggu data radar...</p>
       </section>
     </div>
   </main>
@@ -305,7 +353,8 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
       </section>
       <hr class="rule-doodle">
       <section>
-        <p class="note">Belum ada angka untuk ditampilkan.</p>
+        <p class="note">Belum ada angka untuk ditampilkan. Untuk sekarang, baru jumlah data yang berhasil dibaca.</p>
+        <p class="note mt-2" data-summary>Menunggu data radar...</p>
       </section>
     </div>
   </main>
@@ -320,7 +369,8 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
       </section>
       <hr class="rule-doodle">
       <section>
-        <p class="note">Belum ada ide untuk ditampilkan.</p>
+        <p class="note">Daftar ide menyusul. Untuk sekarang, baru jumlah ide dan kategori yang terbaca radar.</p>
+        <p class="note mt-2" data-summary>Menunggu data radar...</p>
       </section>
     </div>
   </main>
@@ -335,7 +385,8 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
       </section>
       <hr class="rule-doodle">
       <section>
-        <p class="note">Belum ada ide tersimpan.</p>
+        <p class="note">Belum ada ide tersimpan. Hook baru bisa ditandai setelah daftar ide tersedia.</p>
+        <p class="note mt-2" data-summary>Menunggu data radar...</p>
       </section>
     </div>
   </main>
@@ -343,7 +394,7 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
   <footer class="page-foot">
     <span class="flex items-center gap-2 font-headline text-[0.6875rem] font-extrabold uppercase">
       <span class="w-2.5 h-2.5 bg-pop-mint jewel-led inline-block shrink-0"></span>
-      Rangka tampilan · data belum dimuat
+      <span id="pageFootDitarik">Data radar · ditarik -- · update tiap Senin</span>
     </span>
     <span class="eyebrow">KATCHUP STUDIO · Data publik Instagram Indonesia</span>
   </footer>
@@ -375,14 +426,16 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
 </div>
 
 <!-- Scripts this page needs (classic, deferred, in this order):
-     js/config.js — API base/endpoints, cache keys, category labels, API_DATA seed
-     js/utils.js  — fmt/fmt1/fmtClock/fmtAgo, escapeHtml/escapeJsString/escapeJsArg, inkOn, readJson/writeJson
-     js/ui.js   — setText, function hideToast, function showToast (undo button), boot loader dismissal
-     js/nav.js  — function saveViewScroll / restoreViewScroll, function switchView, toggleMobileSidebar,
-                  function syncSidebarInert, the Escape-closes-drawer path, hotkeys 1/2/3/4
-     js/app.js  — DOM-ready glue only: boot dismissal, drawer inert on resize, sidebar toggle wiring. No data, no render. -->
+     js/config.js — API_BASE, endpoints, storage keys, category labels
+     js/utils.js  — fmt/fmt1, fmtClock/fmtAgo, escapeHtml/escapeJsArg/escapeJsString, inkOn, readJson/writeJson
+     js/data.js   — the four fetches + validation, the 7-day cache, loading/ready/stale/error, refresh, data counts
+     js/ui.js     — setText, setA11yStatus, function hideToast, function showToast (undo button), boot dismissal
+     js/nav.js    — function saveViewScroll / restoreViewScroll, function switchView, toggleMobileSidebar,
+                    function syncSidebarInert, the Escape-closes-drawer path, hotkeys 1/2/3/4 and R
+     js/app.js    — DOM-ready glue only: initApp() (one load path), boot dismissal, drawer inert on resize -->
 <script src="js/config.js" defer></script>
 <script src="js/utils.js" defer></script>
+<script src="js/data.js" defer></script>
 <script src="js/ui.js" defer></script>
 <script src="js/nav.js" defer></script>
 <script src="js/app.js" defer></script>

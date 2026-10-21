@@ -46,6 +46,13 @@
 .boot-sub{margin:6px 0 0;font-size:0.8125rem;font-weight:700;color:var(--ink-soft)}
 @keyframes bootOut{to{opacity:0;visibility:hidden}}
 
+/* ---- data states: the loading scanner and the stale banner's one entrance.
+   The scanner makes 3 bounded passes, then rests — the motion rule allows finiteness, not endless loops. ---- */
+@keyframes scanPass{0%,100%{transform:translateX(0)}50%{transform:translateX(510%)}}
+.scanner-dot{animation:scanPass 1.15s var(--settle) 3}
+@keyframes dropIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:none}}
+.drop-in{animation:dropIn .28s var(--settle) both}
+
 /* ---- static page footer: one line, no data, no actions ---- */
 .page-foot{display:flex;align-items:center;justify-content:space-between;gap:10px 16px;flex-wrap:wrap;
   padding:10px 16px calc(10px + env(safe-area-inset-bottom));border-top:2px solid var(--cocoa);
@@ -53,6 +60,7 @@
 
 @media (prefers-reduced-motion: reduce){
   .boot{animation:none;display:none}
+  .scanner-dot,.drop-in{animation:none}
   .boot-letter,.boot-splat{animation:none;opacity:1;transform:none}
   .ketchy .flip-frame{animation:none}
   .ketchy .flip-frame:nth-child(2),.ketchy .flip-frame:nth-child(3),.ketchy .flip-frame:nth-child(4){display:none}

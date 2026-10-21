@@ -10,6 +10,14 @@ function setText(id, text) {
   if (el && el.innerText !== text) el.innerText = text;
 }
 
+/* The visible panels appear/disappear without changing the view title, so loading/ready/error report here instead.
+   Paths that already raise a toast (refresh, cached fallback) stay silent on purpose — two announcements of the
+   same event read as chatter. */
+function setA11yStatus(text) {
+  const el = document.getElementById('a11yStatus');
+  if (el) el.innerText = text;
+}
+
 /* ================= BOOT LOADER: K-A-T-C-H-U-P lalu splat ================= */
 function dismissBootLoader() {
   const boot = document.getElementById('bootLoader');

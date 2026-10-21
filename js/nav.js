@@ -37,9 +37,9 @@ function switchView(view) {
   if (viewChanged) saveViewScroll(currentView);
   currentView = view;
 
-  Object.keys(VIEW_META).forEach(function (v) {
-    document.getElementById('view-' + v).classList.toggle('active', v === view);
-  });
+  /* which panel is allowed to show is the data layer's call: nothing here renders before a payload lands, so
+     loading/error take the screen and paintDataState() re-marks the current view (it also repaints the clock) */
+  paintDataState();
   /* one pass marks the current page on every nav item, sidebar rail and bottom bar alike */
   NAV_ITEMS.forEach(function (row) {
     const on = row[0] === view;
@@ -85,13 +85,14 @@ function toggleSidebarState() {
 }
 
 /* ================= HOTKEYS ================= */
-/* 1 / 2 / 3 / 4 switch pages. R (perbarui) and M (efek suara) are deliberately absent — those features
-   arrive in later slices, so binding them now would call a function this level does not ship. */
+/* 1 / 2 / 3 / 4 switch pages, R pulls the payload again. M (efek suara) is deliberately absent — that slice
+   has not shipped yet, so binding it now would call a function this level does not have. */
 const HOTKEY_VIEWS = { '1': 'home', '2': 'analytics', '3': 'topics', '4': 'saved' };
 window.addEventListener('keydown', function (e) {
   if (e.ctrlKey || e.metaKey || e.altKey) return;
   if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName) || e.target.isContentEditable) return;
   if (HOTKEY_VIEWS[e.key]) { switchView(HOTKEY_VIEWS[e.key]); return; }
+  if (e.key === 'r' || e.key === 'R') { refreshLiveTopics(); return; }
   if (e.key === 'Escape' && isMobileSidebarOpen) {
     toggleMobileSidebar(false);
     const menuBtn = document.getElementById('mobileMenuBtn');
