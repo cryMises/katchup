@@ -13,6 +13,7 @@ of the seven content categories (Edukasi, Gaya Hidup, Berita, Politik, Humor, Bu
 - Toast notifications with an optional undo action, and a screen-reader status region.
 - Desktop sidebar, phone drawer, four-way view switching with 1–4 keyboard shortcuts, and per-view scroll
   memory.
+- Shared helpers for `id-ID` numbers and HTML/JS escaping, so API text is never trusted as markup.
 
 ## How it works
 

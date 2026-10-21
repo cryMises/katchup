@@ -375,10 +375,14 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
 </div>
 
 <!-- Scripts this page needs (classic, deferred, in this order):
+     js/config.js — API base/endpoints, cache keys, category labels, API_DATA seed
+     js/utils.js  — fmt/fmt1/fmtClock/fmtAgo, escapeHtml/escapeJsString/escapeJsArg, inkOn, readJson/writeJson
      js/ui.js   — setText, function hideToast, function showToast (undo button), boot loader dismissal
      js/nav.js  — function saveViewScroll / restoreViewScroll, function switchView, toggleMobileSidebar,
                   function syncSidebarInert, the Escape-closes-drawer path, hotkeys 1/2/3/4
      js/app.js  — DOM-ready glue only: boot dismissal, drawer inert on resize, sidebar toggle wiring. No data, no render. -->
+<script src="js/config.js" defer></script>
+<script src="js/utils.js" defer></script>
 <script src="js/ui.js" defer></script>
 <script src="js/nav.js" defer></script>
 <script src="js/app.js" defer></script>
