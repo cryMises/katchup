@@ -10,12 +10,14 @@ of the seven content categories (Edukasi, Gaya Hidup, Berita, Politik, Humor, Bu
 
 - Branded boot sequence (K-A-T-C-H-U-P) that hands off after 2.1s, dot-paper shell, and the four view
   containers: Ringkasan Tren, Analisis Konten, Rekomendasi Ide, Ide Tersimpan.
-- Toast notifications with an optional undo action, and a screen-reader status region.
+- Toast notifications with an optional undo action, a screen-reader status region, and reduced-motion-aware
+  entrances.
 - Desktop sidebar, phone drawer, four-way view switching with 1–4 keyboard shortcuts, and per-view scroll
   memory.
 - Shared helpers for `id-ID` numbers and HTML/JS escaping, so API text is never trusted as markup.
 - Live payload from four endpoints fetched in parallel, status and content type checked, the last good
   payload cached for seven days, and stale data labelled as such.
+- KPI strip, Reels-vs-photo split, and per-format totals from the sampled weekly scrapes.
 
 ## How it works
 

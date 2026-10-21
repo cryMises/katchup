@@ -22,6 +22,8 @@
 <link rel="stylesheet" href="css/base.css">
 <link rel="stylesheet" href="css/layout.css">
 <link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/views.css">
+<link rel="stylesheet" href="css/motion.css">
 
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <script id="tailwind-config">
@@ -50,6 +52,10 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
   <symbol id="d-save" viewBox="0 0 24 24"><path d="M6.5 4h11v16l-5.5-4-5.5 4z"/></symbol>
   <symbol id="d-sync" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20.5 3.5v5h-5"/></symbol>
   <symbol id="d-refresh" viewBox="0 0 24 24"><path d="M19.5 12a7.5 7.5 0 1 1-2.4-5.6"/><path d="M20 3v5h-5"/></symbol>
+  <symbol id="d-heart" viewBox="0 0 24 24"><path d="M12 20s-7-4.6-7-9.4A4.1 4.1 0 0 1 12 7.6a4.1 4.1 0 0 1 7 3C19 15.4 12 20 12 20z"/></symbol>
+  <symbol id="d-stack" viewBox="0 0 24 24"><rect x="4" y="9" width="16" height="11" rx="2"/><path d="M7 6h10M9 3h6"/></symbol>
+  <symbol id="d-chat" viewBox="0 0 24 24"><path d="M20 12a7.5 7.5 0 0 1-7.5 7.5H9l-4.5 3v-4.6A7.5 7.5 0 0 1 12 4.5 7.5 7.5 0 0 1 20 12z"/></symbol>
+  <symbol id="d-play" viewBox="0 0 24 24"><path d="M8 5.5v13l10-6.5z"/></symbol>
   <symbol id="ketchy-1" viewBox="0 0 100 100">
     <!-- shoes -->
     <ellipse cx="37" cy="93" rx="7.5" ry="4" fill="#FFCE00" stroke="#2E1E14" stroke-width="3.5"/>
@@ -346,15 +352,27 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
   <!-- ================= HALAMAN 2: ANALISIS KONTEN ================= -->
   <main id="view-analytics" class="view-panel flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-8 flex-col w-full">
     <div class="mag spread">
-      <section>
-        <span class="washi-tape washi-tape-blue">ANGKA MINGGUAN</span>
-        <h2 class="marker mt-4" style="--rule:#5B8CFF">ANALISIS KONTEN</h2>
-        <p class="note mt-3">Di sini bakal ada angka utama, perbandingan Reels vs foto, dan daftar sound yang paling sering dipakai.</p>
+      <section data-reveal>
+        <span class="washi-tape washi-tape-blue">SAMPEL MINGGUAN</span>
+        <h2 class="marker mt-4" style="--rule:#FF4949">ANGKA UTAMA</h2>
+        <p class="note mt-3">Rekap dari semua minggu dalam sampel radar. Angka di halaman ini dijumlah dari setiap minggu pengambilan data, jadi bukan angka satu minggu.</p>
+        <div id="kpiRow" class="flex flex-col mt-3"></div>
       </section>
+
       <hr class="rule-doodle">
-      <section>
-        <p class="note">Belum ada angka untuk ditampilkan. Untuk sekarang, baru jumlah data yang berhasil dibaca.</p>
-        <p class="note mt-2" data-summary>Menunggu data radar...</p>
+
+      <section data-reveal>
+        <h2 class="marker" style="--rule:#5B8CFF">PERBANDINGAN REELS VS FOTO</h2>
+        <p class="note mt-2">Kedua bar membaca data yang sama, jadi porsi Reels dan foto selalu berjumlah 100% dari sampel.</p>
+        <div id="formatCompare" class="flex flex-col mt-4"></div>
+      </section>
+
+      <hr class="rule-doodle">
+
+      <section data-reveal>
+        <h2 class="marker" style="--rule:#2FE0A8">TOP 5 SOUND VIRAL</h2>
+        <p class="note mt-2">Sound yang paling sering muncul di konten dengan likes tinggi.</p>
+        <p id="musicPlaceholder" class="note mt-3">Daftar sound lengkap menyusul. Untuk sekarang, baru sound teratas yang tampil di kartu angka utama.</p>
       </section>
     </div>
   </main>
@@ -429,15 +447,21 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
      js/config.js — API_BASE, endpoints, storage keys, category labels
      js/utils.js  — fmt/fmt1, fmtClock/fmtAgo, escapeHtml/escapeJsArg/escapeJsString, inkOn, readJson/writeJson
      js/data.js   — the four fetches + validation, the 7-day cache, loading/ready/stale/error, refresh, data counts
-     js/ui.js     — setText, setA11yStatus, function hideToast, function showToast (undo button), boot dismissal
+     js/ui.js     — setText, setA11yStatus, function hideToast, function showToast (undo button), boot dismissal,
+                    reveal observer, pop-in cleanup
      js/nav.js    — function saveViewScroll / restoreViewScroll, function switchView, toggleMobileSidebar,
                     function syncSidebarInert, the Escape-closes-drawer path, hotkeys 1/2/3/4 and R
+     js/stats.js  — function computeTypeStats (pure /type totals) plus /topic delta rows
+     js/analytics.js — function renderKpis, function renderFormatCompare, function renderLedMeter,
+                    function renderAnalytics
      js/app.js    — DOM-ready glue only: initApp() (one load path), boot dismissal, drawer inert on resize -->
 <script src="js/config.js" defer></script>
 <script src="js/utils.js" defer></script>
 <script src="js/data.js" defer></script>
 <script src="js/ui.js" defer></script>
 <script src="js/nav.js" defer></script>
+<script src="js/stats.js" defer></script>
+<script src="js/analytics.js" defer></script>
 <script src="js/app.js" defer></script>
 </body>
 </html>

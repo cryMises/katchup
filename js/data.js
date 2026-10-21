@@ -87,6 +87,8 @@ function showApp() {
   if (!_isRefreshingTopics) setA11yStatus('Data tren sudah siap.');
   updateLinkStatus('ready');
   paintDataState();
+  /* the numbers are painted once the payload is on screen; a refresh re-runs this with the new rows */
+  renderAnalytics();
 }
 /* same as showApp(), except the payload came from the local cache and the fetch genuinely failed */
 function showStale() {
@@ -95,6 +97,7 @@ function showStale() {
   if (!_staleTimer) _staleTimer = setInterval(paintFreshness, 60000);
   updateLinkStatus('stale');
   paintDataState();
+  renderAnalytics();
 }
 function showError(message) {
   stopStaleClock();

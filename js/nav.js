@@ -51,7 +51,13 @@ function switchView(view) {
   setText('viewTitle', VIEW_META[view].title);
   setText('viewSubtitle', VIEW_META[view].subtitle);
   closeMobileSidebar();
-  if (viewChanged) restoreViewScroll(view);
+  /* a page that becomes visible replays its entrances; a same-view refresh leaves the reader's sections alone */
+  if (viewChanged) {
+    const panel = document.getElementById('view-' + view);
+    if (panel) panel.querySelectorAll('[data-reveal].revealed').forEach(function (el) { el.classList.remove('revealed'); });
+    restoreViewScroll(view);
+  }
+  if (dataStatus === 'ready' || dataStatus === 'stale') triggerReveal();
 }
 
 /* ================= SIDEBAR ================= */

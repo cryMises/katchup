@@ -1,0 +1,38 @@
+/* KATCHUP — motion: entrances and state changes only, all on the two easings from tokens.css.
+   No infinite loops here; the mascot flipbook in layout.css is the one deliberate exception. */
+
+/* ---- scroll reveal: a section (and its paused cascade) waits until it is actually on screen ---- */
+[data-reveal]{opacity:0;transform:translateY(10px) scale(.985);transition:opacity .22s ease-out,transform .22s var(--pop)}
+[data-reveal].revealed{opacity:1;transform:none}
+
+/* rendered lists cascade in 45ms apart; children wait (paused) until their section reveals, so the cascade
+   plays exactly when the user can see it. The animationend handler in js/ui.js drops the fill afterwards, so
+   :hover/:active transforms on the same element keep working. */
+@keyframes popIn{from{opacity:0;transform:translateY(14px) scale(.95)}to{opacity:1;transform:none}}
+.pop-in{animation:popIn .42s var(--pop) both;animation-delay:calc(var(--i,0) * 45ms);animation-play-state:paused}
+[data-reveal].revealed .pop-in{animation-play-state:running}
+
+/* VU segments light up left-to-right in one quick scan each time the meter is (re)drawn */
+@keyframes ledOn{from{opacity:.2;transform:scaleY(.35)}to{opacity:1;transform:none}}
+.vu-scale>span{animation:ledOn .3s var(--settle) both;animation-delay:calc(var(--i,0) * 12ms)}
+
+/* ---- data states: the loading scanner makes 3 bounded passes, then rests ---- */
+@keyframes scanPass{0%,100%{transform:translateX(0)}50%{transform:translateX(510%)}}
+.scanner-dot{animation:scanPass 1.15s var(--settle) 3}
+
+/* toast / header entrance. The dedicated rubber-stamp keyframe is a later slice; until then the toast takes
+   the plain pop beat, which still reads as "a thing landed". */
+.stamped{animation:popIn .28s var(--pop)}
+
+/* the stale banner materialises out of a display:none flip, so it gets its one entrance each time it shows */
+@keyframes dropIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:none}}
+.drop-in{animation:dropIn .28s var(--settle) both}
+
+/* topic chips pop when picked (the chips themselves ship with the ideas slice) */
+@keyframes chipOn{from{transform:scale(.86) rotate(-4deg)}to{transform:scale(1) rotate(0)}}
+
+@media (prefers-reduced-motion: reduce){
+  [data-reveal]{opacity:1!important;transform:none!important;transition:none!important}
+  .pop-in,.vu-scale>span,.stamped,.scanner-dot,.drop-in{animation:none}
+  .graph-bar-fill,.fmt-segment-v,.fmt-segment-i{transition:none}
+}

@@ -65,3 +65,32 @@ function showToast(message, isSuccess, action) {
   clearTimeout(toastTimeout);
   toastTimeout = setTimeout(hideToast, (action || !ok) ? 6000 : 2400);
 }
+
+/* ================= MOTION PLUMBING ================= */
+/* entrance fills are dropped once they have played, so :hover/:active transforms on the same element work again */
+document.addEventListener('animationend', function (e) {
+  if (e.animationName !== 'popIn') return;
+  e.target.classList.remove('pop-in');
+  e.target.classList.remove('stamped');
+});
+
+/* Sections and rendered lists wait at opacity 0 until they are actually on screen. Re-observed on every data
+   render and view switch; already revealed sections are left alone. */
+let _revealObserver = null;
+function initScrollReveal() {
+  if (_revealObserver) _revealObserver.disconnect();
+  if (prefersReducedMotion || !('IntersectionObserver' in window)) {
+    document.querySelectorAll('[data-reveal]').forEach(function (el) { el.classList.add('revealed'); });
+    return;
+  }
+  _revealObserver = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) { entry.target.classList.add('revealed'); _revealObserver.unobserve(entry.target); }
+    });
+  }, { threshold: 0.05 });
+  document.querySelectorAll('[data-reveal]:not(.revealed)').forEach(function (el) { _revealObserver.observe(el); });
+}
+/* double rAF: the nodes have to be laid out (and the panel displayed) before the observer can see them */
+function triggerReveal() {
+  requestAnimationFrame(function () { requestAnimationFrame(initScrollReveal); });
+}
