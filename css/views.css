@@ -1,5 +1,5 @@
-/* KATCHUP — the analytics view's own layout: the KPI "ledger" strip, the segmented tape and the dual bars.
-   Copied from the single-file app (its KPI card is .ledger, its dual bar is made of .graph-* rows). */
+/* KATCHUP — the analytics view's own layout: the KPI "ledger" strip, the segmented tape, the dual bars and
+   the TOP 5 sound trays. Copied from the single-file app (its KPI card is .ledger, its sound card .music-card). */
 
 /* ---- KPI strip: journal ledger rows, flat and ruled, no card-in-card ---- */
 .ledger{padding:14px 0;border-bottom:2px dashed var(--line)}
@@ -56,3 +56,10 @@
 .deck-groove{box-shadow:inset 0 3px 6px rgba(46,30,20,.13),inset 0 0 0 2px rgba(46,30,20,.09);border-radius:1.25rem}
 .vu-scale{background-color:#463225}
 .led-off{background:rgba(255,255,255,.11)}
+
+/* ---- viral sound cards: high-contrast paper trays (NOT plain white) ---- */
+.music-card{
+  background:#CDEEDD;
+  box-shadow:inset 0 3px 0 rgba(46,30,20,.18),inset 0 0 0 2px rgba(46,30,20,.10),0 4px 0 var(--cocoa);
+}
+.music-card.is-playing{background:#BCE9D3;box-shadow:inset 0 3px 0 rgba(46,30,20,.18),inset 0 0 0 2px rgba(46,30,20,.10),0 5px 0 var(--red)}

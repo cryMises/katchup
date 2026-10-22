@@ -1,7 +1,7 @@
 'use strict';
 
 /* Analytics view: the KPI ledger, the Reels-vs-Foto compare and the shared LED renderer.
-   Sound playback and the TOP 5 cards are a later slice, so this file renders numbers only. */
+   The TOP 5 list itself belongs to js/music.js; the KPI card and that list read the one topMusicTracks() order. */
 
 let _currentGraphMode = 'posts';
 let _lastStats = null;
@@ -9,11 +9,6 @@ let _lastStats = null;
 /* id-ID formatting for shares: "45,6%", never "45.6%" */
 function pct1(n) { return (Number(n) || 0).toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 }); }
 function pct0(n) { return (Number(n) || 0).toLocaleString('id-ID', { maximumFractionDigits: 0 }); }
-
-/* the top-5 view of /music by likes — the later sound list and this KPI card read the same order */
-function topMusicTracks() {
-  return [].concat(API_DATA.music).sort(function (a, b) { return b.likeAmount - a.likeAmount; }).slice(0, 5);
-}
 
 /* bars/segments render at 0 width and grow into place (re-grows every time the metric switches) */
 function growBars(root) {
@@ -218,5 +213,6 @@ function renderAnalytics() {
   const topMusic = topMusicTracks();
   renderKpis(stats, topMusic);
   renderFormatCompare(stats);
+  renderMusicList(topMusic);
   triggerReveal();
 }

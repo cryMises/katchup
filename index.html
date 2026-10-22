@@ -6,6 +6,8 @@
 <title>KATCHUP — Radar Ide Konten Kreator Indonesia</title>
 
 <meta name="theme-color" content="#FBF3E4">
+<!-- no icon file ships until the PWA slice; an empty data icon keeps the browser from logging a favicon 404 -->
+<link rel="icon" href="data:,">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Katchup">
@@ -56,6 +58,7 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
   <symbol id="d-stack" viewBox="0 0 24 24"><rect x="4" y="9" width="16" height="11" rx="2"/><path d="M7 6h10M9 3h6"/></symbol>
   <symbol id="d-chat" viewBox="0 0 24 24"><path d="M20 12a7.5 7.5 0 0 1-7.5 7.5H9l-4.5 3v-4.6A7.5 7.5 0 0 1 12 4.5 7.5 7.5 0 0 1 20 12z"/></symbol>
   <symbol id="d-play" viewBox="0 0 24 24"><path d="M8 5.5v13l10-6.5z"/></symbol>
+  <symbol id="d-pause" viewBox="0 0 24 24"><path d="M9 5v14M15 5v14"/></symbol>
   <symbol id="d-note" viewBox="0 0 24 24"><path d="M9 17V5l10-2v12"/><circle cx="6.6" cy="17.4" r="2.6"/><circle cx="16.6" cy="15.4" r="2.6"/></symbol>
   <symbol id="ketchy-1" viewBox="0 0 100 100">
     <!-- shoes -->
@@ -385,7 +388,10 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
       <section data-reveal>
         <h2 class="marker" style="--rule:#2FE0A8">TOP 5 SOUND VIRAL</h2>
         <p class="note mt-2">Sound yang paling sering muncul di konten dengan likes tinggi.</p>
-        <p id="musicPlaceholder" class="note mt-3">Daftar sound lengkap menyusul. Untuk sekarang, baru sound teratas yang tampil di kartu angka utama.</p>
+        <p class="note mt-2">Tombol DENGAR memutar preview langsung di halaman ini. Kalau link preview tidak tersedia atau sudah kedaluwarsa, Katchup membunyikan nada pengganti singkat.</p>
+        <!-- Shared preview player: a real, attached element — iOS Safari is unreliable with a detached audio element. -->
+        <audio id="musicPlayer" preload="metadata"></audio>
+        <div id="musicList" class="flex flex-col gap-4 mt-4"></div>
       </section>
     </div>
   </main>
@@ -461,6 +467,7 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
      js/utils.js  — fmt/fmt1, fmtClock/fmtAgo, escapeHtml/escapeJsArg/escapeJsString, inkOn, readJson/writeJson
      js/data.js   — the four fetches + validation, the 7-day cache, loading/ready/stale/error, refresh, data counts
      js/audio.js  — the Web Audio FX engine (click/snap/thud/cue), lazy context, mute persistence, hotkey M
+     js/music.js  — the TOP 5 list, the shared <audio> player, cueTrack, LED bars, expiry-safe play()
      js/ui.js     — setText, setA11yStatus, function hideToast, function showToast (undo button), boot dismissal,
                     reveal observer, pop-in cleanup
      js/nav.js    — function saveViewScroll / restoreViewScroll, function switchView, toggleMobileSidebar,
@@ -473,6 +480,7 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
 <script src="js/utils.js" defer></script>
 <script src="js/data.js" defer></script>
 <script src="js/audio.js" defer></script>
+<script src="js/music.js" defer></script>
 <script src="js/ui.js" defer></script>
 <script src="js/nav.js" defer></script>
 <script src="js/stats.js" defer></script>

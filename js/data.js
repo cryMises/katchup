@@ -37,6 +37,9 @@ async function fetchEndpoint(name) {
 }
 
 function applyApiData(payload) {
+  /* a payload swap owns the sound list from here on: stop the old preview before the new rows render, or a
+     cached track keeps playing under a list that no longer shows it (js/music.js owns the player) */
+  stopMusicPlayback();
   API_DATA = {
     music: Array.isArray(payload.music) ? payload.music : [],
     topic: Array.isArray(payload.topic) ? payload.topic : [],

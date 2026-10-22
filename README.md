@@ -19,6 +19,8 @@ of the seven content categories (Edukasi, Gaya Hidup, Berita, Politik, Humor, Bu
   payload cached for seven days, and stale data labelled as such.
 - KPI strip, Reels-vs-photo split, and per-format totals from the sampled weekly scrapes.
 - Synthesised UI sounds — no audio assets — with a mute switch that survives reloads.
+- Top-5 sounds by likes with an inline preview player; tracks without a playable URL fall back to an
+  honest cue tone instead of pretending.
 
 ## How it works
 
