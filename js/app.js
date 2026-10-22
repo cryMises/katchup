@@ -1,6 +1,6 @@
 'use strict';
 
-/* v03 app.js is glue only: the chrome's first paint, and the one load path
+/* app.js is glue only: the chrome's first paint, and the one load path
    (loading -> fetch -> counts -> ready, or cache -> stale, or error). No features live here. */
 
 async function initApp() {
@@ -23,6 +23,7 @@ async function initApp() {
 
 function initChrome() {
   dismissBootLoader();
+  updateAudioFxButtonState();     // the persisted mute choice has to show before the first click
   switchView(currentView);       // marks the current page on both nav bars before the first interaction
   initApp();
   /* the sidebar masthead is the drawer's close affordance on phones and the rail's collapse toggle on desktop */

@@ -91,14 +91,15 @@ function toggleSidebarState() {
 }
 
 /* ================= HOTKEYS ================= */
-/* 1 / 2 / 3 / 4 switch pages, R pulls the payload again. M (efek suara) is deliberately absent — that slice
-   has not shipped yet, so binding it now would call a function this level does not have. */
+/* 1 / 2 / 3 / 4 switch pages, R pulls the payload again, M toggles the sound FX. All of them are ignored while
+   the reader is typing in a field. */
 const HOTKEY_VIEWS = { '1': 'home', '2': 'analytics', '3': 'topics', '4': 'saved' };
 window.addEventListener('keydown', function (e) {
   if (e.ctrlKey || e.metaKey || e.altKey) return;
   if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName) || e.target.isContentEditable) return;
-  if (HOTKEY_VIEWS[e.key]) { switchView(HOTKEY_VIEWS[e.key]); return; }
-  if (e.key === 'r' || e.key === 'R') { refreshLiveTopics(); return; }
+  if (HOTKEY_VIEWS[e.key]) { switchView(HOTKEY_VIEWS[e.key]); playMechanicalClick(); return; }
+  if (e.key === 'r' || e.key === 'R') { refreshLiveTopics(); playMechanicalClick(); return; }
+  if (e.key === 'm' || e.key === 'M') { toggleAudioFx(); return; }
   if (e.key === 'Escape' && isMobileSidebarOpen) {
     toggleMobileSidebar(false);
     const menuBtn = document.getElementById('mobileMenuBtn');

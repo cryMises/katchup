@@ -18,6 +18,7 @@ of the seven content categories (Edukasi, Gaya Hidup, Berita, Politik, Humor, Bu
 - Live payload from four endpoints fetched in parallel, status and content type checked, the last good
   payload cached for seven days, and stale data labelled as such.
 - KPI strip, Reels-vs-photo split, and per-format totals from the sampled weekly scrapes.
+- Synthesised UI sounds — no audio assets — with a mute switch that survives reloads.
 
 ## How it works
 
@@ -50,4 +51,5 @@ Then open <http://localhost:8080>. Serving matters: the data fetch needs an http
 
 - Vanilla HTML, CSS and JS; Tailwind CDN runtime plus a custom stylesheet.
 - No npm, no bundler, no framework.
+- Web Audio for the UI sounds — synthesised at runtime, no audio files.
 - localStorage for the payload cache.

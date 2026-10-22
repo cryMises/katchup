@@ -56,6 +56,7 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
   <symbol id="d-stack" viewBox="0 0 24 24"><rect x="4" y="9" width="16" height="11" rx="2"/><path d="M7 6h10M9 3h6"/></symbol>
   <symbol id="d-chat" viewBox="0 0 24 24"><path d="M20 12a7.5 7.5 0 0 1-7.5 7.5H9l-4.5 3v-4.6A7.5 7.5 0 0 1 12 4.5 7.5 7.5 0 0 1 20 12z"/></symbol>
   <symbol id="d-play" viewBox="0 0 24 24"><path d="M8 5.5v13l10-6.5z"/></symbol>
+  <symbol id="d-note" viewBox="0 0 24 24"><path d="M9 17V5l10-2v12"/><circle cx="6.6" cy="17.4" r="2.6"/><circle cx="16.6" cy="15.4" r="2.6"/></symbol>
   <symbol id="ketchy-1" viewBox="0 0 100 100">
     <!-- shoes -->
     <ellipse cx="37" cy="93" rx="7.5" ry="4" fill="#FFCE00" stroke="#2E1E14" stroke-width="3.5"/>
@@ -214,7 +215,7 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
 
     <nav class="p-3.5 flex flex-col gap-3 flex-1 overflow-y-auto" aria-label="Halaman">
       <span class="eyebrow sidebar-text px-1">Halaman</span>
-      <button id="navHome" title="[1] Ringkasan Tren" onclick="switchView('home');"
+      <button id="navHome" title="[1] Ringkasan Tren" onclick="switchView('home'); playMechanicalClick();"
         class="sidebar-nav-item w-full flex items-center justify-between px-4 py-3 font-headline text-xs font-black tracking-wider uppercase text-left cursor-pointer btn-keycap bg-white text-cocoa">
         <span class="flex items-center gap-2.5 min-w-0">
           <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-radar"></use></svg>
@@ -222,7 +223,7 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
         </span>
         <span class="sidebar-text text-[0.625rem] opacity-60">[1]</span>
       </button>
-      <button id="navAnalytics" title="[2] Analisis Format & Audio" onclick="switchView('analytics');"
+      <button id="navAnalytics" title="[2] Analisis Format & Audio" onclick="switchView('analytics'); playMechanicalClick();"
         class="sidebar-nav-item w-full flex items-center justify-between px-4 py-3 font-headline text-xs font-black tracking-wider uppercase text-left cursor-pointer btn-keycap bg-white text-cocoa">
         <span class="flex items-center gap-2.5 min-w-0">
           <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-bars"></use></svg>
@@ -230,7 +231,7 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
         </span>
         <span class="sidebar-text text-[0.625rem] opacity-60">[2]</span>
       </button>
-      <button id="navTopics" title="[3] Rekomendasi Ide Konten" onclick="switchView('topics');"
+      <button id="navTopics" title="[3] Rekomendasi Ide Konten" onclick="switchView('topics'); playMechanicalClick();"
         class="sidebar-nav-item w-full flex items-center justify-between px-4 py-3 font-headline text-xs font-black tracking-wider uppercase text-left cursor-pointer btn-keycap bg-white text-cocoa">
         <span class="flex items-center gap-2.5 min-w-0">
           <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-spark"></use></svg>
@@ -238,7 +239,7 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
         </span>
         <span class="sidebar-text text-[0.625rem] opacity-60">[3]</span>
       </button>
-      <button id="navSaved" title="[4] Ide Tersimpan" onclick="switchView('saved');"
+      <button id="navSaved" title="[4] Ide Tersimpan" onclick="switchView('saved'); playMechanicalClick();"
         class="sidebar-nav-item w-full flex items-center justify-between px-4 py-3 font-headline text-xs font-black tracking-wider uppercase text-left cursor-pointer btn-keycap bg-white text-cocoa">
         <span class="flex items-center gap-2.5 min-w-0">
           <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-save"></use></svg>
@@ -248,6 +249,18 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
         <span class="sidebar-text text-[0.625rem] opacity-60">[4]</span>
       </button>
     </nav>
+
+    <div class="p-3.5 border-t-2 border-cocoa sidebar-text flex flex-col gap-2">
+      <span class="eyebrow px-1">Efek suara · tombol M</span>
+      <button id="audioFxToggleBtn" type="button" aria-pressed="true" onclick="toggleAudioFx()" title="Nyalakan/matikan efek suara [M]"
+        class="w-full flex items-center justify-between gap-2 px-3.5 py-2 bg-white btn-keycap-sm font-headline text-xs font-extrabold uppercase">
+        <span class="flex items-center gap-2">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-note"></use></svg>
+          <span>EFEK SUARA</span>
+        </span>
+        <span id="audioFxStatus" class="px-2 py-0.5 bg-pop-mint rounded-full border-2 border-cocoa text-[0.625rem]">AKTIF</span>
+      </button>
+    </div>
 
     <div class="p-3.5 border-t-2 border-cocoa sidebar-text">
       <div class="flex items-center justify-between font-headline text-[0.6875rem] font-extrabold uppercase">
@@ -281,7 +294,7 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
     </div>
 
     <div class="flex items-center gap-2.5 shrink-0">
-      <button onclick="refreshLiveTopics()" title="Perbarui data [R]" aria-label="Perbarui data"
+      <button onclick="refreshLiveTopics(); playMechanicalClick();" title="Perbarui data [R]" aria-label="Perbarui data"
         class="px-4 py-2 bg-pop-red text-cocoa btn-keycap font-headline text-xs font-extrabold uppercase tracking-wide flex items-center gap-2">
         <svg id="syncIcon" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-sync"></use></svg>
         <span class="hidden sm:inline">PERBARUI</span>
@@ -299,7 +312,7 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
       <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-refresh"></use></svg>
       Data tersimpan · <span id="cacheBannerTime">baru saja</span>
     </span>
-    <button onclick="refreshLiveTopics()" class="px-3 py-1.5 bg-white btn-keycap-sm font-headline text-[0.6875rem] font-extrabold uppercase">COBA PERBARUI</button>
+    <button onclick="refreshLiveTopics(); playMechanicalClick();" class="px-3 py-1.5 bg-white btn-keycap-sm font-headline text-[0.6875rem] font-extrabold uppercase">COBA PERBARUI</button>
   </div>
 
   <!-- data loading strip: replaces every panel until a payload lands (nothing here renders before data) -->
@@ -327,7 +340,7 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
     </div>
     <h2 class="marker marker-sm" style="--rule:#FF4949">RADAR TERPUTUS</h2>
     <p id="errorMessage" class="note max-w-sm">Server data tidak bisa dihubungi. Cek koneksi, lalu coba lagi.</p>
-    <button onclick="initApp()" class="mt-1 px-5 py-2.5 bg-pop-yellow btn-keycap font-headline text-xs font-extrabold uppercase tracking-wide flex items-center gap-2">
+    <button onclick="initApp(); playMechanicalClick();" class="mt-1 px-5 py-2.5 bg-pop-yellow btn-keycap font-headline text-xs font-extrabold uppercase tracking-wide flex items-center gap-2">
       <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-refresh"></use></svg>
       COBA MUAT ULANG
     </button>
@@ -421,22 +434,22 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
 
 <!-- ===== mobile bottom nav: the drawer's shortcut bar, phones only ===== -->
 <div id="mobileBottomNav" role="navigation" aria-label="Navigasi utama" class="lg:hidden fixed bottom-0 left-0 right-0 z-[74] bg-white border-t-2 border-cocoa p-2.5 flex items-center justify-around gap-2">
-  <button id="mobileNavHome" onclick="switchView('home');"
+  <button id="mobileNavHome" onclick="switchView('home'); playMechanicalClick();"
     class="flex-1 py-2 px-1 bg-cream text-cocoa font-black uppercase btn-keycap-sm flex flex-col items-center justify-center">
     <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-radar"></use></svg>
     <span class="text-[0.625rem] mt-0.5">TREN</span>
   </button>
-  <button id="mobileNavAnalytics" onclick="switchView('analytics');"
+  <button id="mobileNavAnalytics" onclick="switchView('analytics'); playMechanicalClick();"
     class="flex-1 py-2 px-1 bg-cream text-cocoa font-black uppercase btn-keycap-sm flex flex-col items-center justify-center">
     <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-bars"></use></svg>
     <span class="text-[0.625rem] mt-0.5">ANALISIS</span>
   </button>
-  <button id="mobileNavTopics" onclick="switchView('topics');"
+  <button id="mobileNavTopics" onclick="switchView('topics'); playMechanicalClick();"
     class="flex-1 py-2 px-1 bg-cream text-cocoa font-black uppercase btn-keycap-sm flex flex-col items-center justify-center">
     <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-spark"></use></svg>
     <span class="text-[0.625rem] mt-0.5">IDE</span>
   </button>
-  <button id="mobileNavSaved" onclick="switchView('saved');"
+  <button id="mobileNavSaved" onclick="switchView('saved'); playMechanicalClick();"
     class="flex-1 py-2 px-1 bg-cream text-cocoa font-black uppercase btn-keycap-sm flex flex-col items-center justify-center">
     <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-save"></use></svg>
     <span class="text-[0.625rem] mt-0.5">SIMPAN</span>
@@ -447,10 +460,11 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
      js/config.js — API_BASE, endpoints, storage keys, category labels
      js/utils.js  — fmt/fmt1, fmtClock/fmtAgo, escapeHtml/escapeJsArg/escapeJsString, inkOn, readJson/writeJson
      js/data.js   — the four fetches + validation, the 7-day cache, loading/ready/stale/error, refresh, data counts
+     js/audio.js  — the Web Audio FX engine (click/snap/thud/cue), lazy context, mute persistence, hotkey M
      js/ui.js     — setText, setA11yStatus, function hideToast, function showToast (undo button), boot dismissal,
                     reveal observer, pop-in cleanup
      js/nav.js    — function saveViewScroll / restoreViewScroll, function switchView, toggleMobileSidebar,
-                    function syncSidebarInert, the Escape-closes-drawer path, hotkeys 1/2/3/4 and R
+                    function syncSidebarInert, the Escape-closes-drawer path, hotkeys 1/2/3/4, R and M
      js/stats.js  — function computeTypeStats (pure /type totals) plus /topic delta rows
      js/analytics.js — function renderKpis, function renderFormatCompare, function renderLedMeter,
                     function renderAnalytics
@@ -458,6 +472,7 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
 <script src="js/config.js" defer></script>
 <script src="js/utils.js" defer></script>
 <script src="js/data.js" defer></script>
+<script src="js/audio.js" defer></script>
 <script src="js/ui.js" defer></script>
 <script src="js/nav.js" defer></script>
 <script src="js/stats.js" defer></script>

@@ -12,7 +12,8 @@ const API_BASE = 'https://erma-pseudosyphilitic-unwonderfully.ngrok-free.dev/web
 /* the four endpoints the radar reads, fetched in parallel */
 const API_ENDPOINTS = ['music', 'topic', 'idea', 'type'];
 
-/* localStorage: the last good payload. Later slices add their own keys (saved ideas, mute state). */
+/* localStorage: the last good payload. The saved-ideas key and the sound-FX mute key (`katchup_audio_mute`,
+   owned by js/audio.js) arrive with their own slices. */
 const CACHE_KEY = 'katchup_data_cache';
 /* a week is as long as a week-old trend list stays quotable; the backend scrapes weekly, on Mondays */
 const CACHE_TTL = 7 * 24 * 60 * 60 * 1000;
