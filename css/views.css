@@ -57,6 +57,16 @@
 .vu-scale{background-color:#463225}
 .led-off{background:rgba(255,255,255,.11)}
 
+/* ---- idea tickets (REKOMENDASI IDE KONTEN): one ticket per idea, ranked by estimated likes ---- */
+.teletype-ticket{
+  position:relative;background:var(--panel);border:2.5px solid var(--cocoa);border-radius:var(--r);
+  box-shadow:var(--elev);transition:transform .16s cubic-bezier(.34,1.56,.64,1),box-shadow .16s;
+}
+.teletype-ticket:hover{transform:translateY(-3px) rotate(-.4deg);box-shadow:0 8px 0 var(--cocoa)}
+.ticket-perf-line{border-top:2px dashed var(--line)}
+/* --cat is set inline per ticket once the home slice ships the accent table; until then it is the token default */
+.ticket-spine{position:absolute;left:0;top:14px;bottom:14px;width:7px;border-radius:9999px;background:var(--cat);border:2px solid var(--cocoa)}
+
 /* ---- viral sound cards: high-contrast paper trays (NOT plain white) ---- */
 .music-card{
   background:#CDEEDD;

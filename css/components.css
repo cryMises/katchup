@@ -17,6 +17,24 @@
   letter-spacing:.05em;text-transform:uppercase;padding:3px 9px;border:2px solid var(--cocoa);border-radius:9999px;
   box-shadow:0 2px 0 var(--cocoa);transform:rotate(-2deg);white-space:nowrap}
 
+/* ---- topic chip: 24px tap floor (WCAG 2.5.8), and a long unbroken API topic wraps instead of overflowing ---- */
+.chip-topic{display:inline-flex;align-items:center;gap:5px;background:#fff;border:2px solid var(--cocoa);border-radius:9999px;
+  max-width:100%;overflow-wrap:break-word;min-height:24px;padding:5px 11px;font-family:var(--display);font-weight:800;
+  font-size:0.6875rem;text-align:left;cursor:pointer;transition:transform 90ms}
+.chip-topic:hover{transform:translateY(-1px) rotate(-1deg)}
+.chip-topic:active{transform:translateY(1px) scale(.95)}
+.chip-topic.on{background:var(--cocoa);color:#fff;animation:chipOn .24s var(--pop)}
+
+/* ---- holographic seal: FLAT foil stripes + foil dots, no gradient ---- */
+.sticker-holo{
+  position:relative;background:var(--mint);color:var(--cocoa);
+  border:2px solid var(--cocoa);box-shadow:var(--elev-sm);overflow:hidden;
+}
+.sticker-holo::after{
+  content:'';position:absolute;inset:0;pointer-events:none;opacity:.5;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Ccircle cx='2' cy='2' r='1' fill='%23FFFFFF'/%3E%3Ccircle cx='6' cy='6' r='1' fill='%23FFCE00'/%3E%3C/svg%3E");
+}
+
 /* ---- focus affordance: chips and role="button" cards are clickable without being <button> ---- */
 [role="button"]:focus-visible{outline:3px solid var(--red-ink)!important;outline-offset:3px!important}
 

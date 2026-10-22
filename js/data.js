@@ -92,6 +92,7 @@ function showApp() {
   paintDataState();
   /* the numbers are painted once the payload is on screen; a refresh re-runs this with the new rows */
   renderAnalytics();
+  renderIdeas();
 }
 /* same as showApp(), except the payload came from the local cache and the fetch genuinely failed */
 function showStale() {
@@ -101,6 +102,7 @@ function showStale() {
   updateLinkStatus('stale');
   paintDataState();
   renderAnalytics();
+  renderIdeas();
 }
 function showError(message) {
   stopStaleClock();
@@ -148,6 +150,8 @@ function paintFreshness() {
   if (clockEl) clockEl.innerText = '· ditarik ' + clock;
   const footEl = document.getElementById('pageFootDitarik');
   if (footEl) footEl.innerText = (stale ? 'Data tersimpan' : 'Data radar') + ' · ditarik ' + clock + ' · update tiap Senin';
+  const topicsEl = document.getElementById('topicsUpdated');
+  if (topicsEl) topicsEl.innerText = 'Ditarik ' + clock;
   const banner = document.getElementById('cacheBanner');
   if (banner) {
     const wasHidden = banner.classList.contains('hidden');

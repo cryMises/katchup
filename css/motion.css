@@ -33,6 +33,6 @@
 
 @media (prefers-reduced-motion: reduce){
   [data-reveal]{opacity:1!important;transform:none!important;transition:none!important}
-  .pop-in,.vu-scale>span,.stamped,.scanner-dot,.drop-in{animation:none}
+  .pop-in,.vu-scale>span,.stamped,.chip-topic.on,.scanner-dot,.drop-in{animation:none}
   .graph-bar-fill,.fmt-segment-v,.fmt-segment-i{transition:none}
 }
