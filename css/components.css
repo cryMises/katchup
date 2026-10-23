@@ -17,13 +17,51 @@
   letter-spacing:.05em;text-transform:uppercase;padding:3px 9px;border:2px solid var(--cocoa);border-radius:9999px;
   box-shadow:0 2px 0 var(--cocoa);transform:rotate(-2deg);white-space:nowrap}
 
-/* ---- topic chip: 24px tap floor (WCAG 2.5.8), and a long unbroken API topic wraps instead of overflowing ---- */
+/* ---- topic chip: 24px tap floor (WCAG 2.5.8), and a long unbroken API topic wraps instead of overflowing ----
+   Unselected chips are neutral paper. A picked chip fills with the current category accent (--cat, written on
+   :root by selectCategory()) and takes its ink from --cart-ink, which inkOn() picked for that fill. */
 .chip-topic{display:inline-flex;align-items:center;gap:5px;background:#fff;border:2px solid var(--cocoa);border-radius:9999px;
   max-width:100%;overflow-wrap:break-word;min-height:24px;padding:5px 11px;font-family:var(--display);font-weight:800;
   font-size:0.6875rem;text-align:left;cursor:pointer;transition:transform 90ms}
 .chip-topic:hover{transform:translateY(-1px) rotate(-1deg)}
 .chip-topic:active{transform:translateY(1px) scale(.95)}
-.chip-topic.on{background:var(--cocoa);color:#fff;animation:chipOn .24s var(--pop)}
+.chip-topic.on{background:var(--cat,var(--cocoa));color:var(--cart-ink,var(--cocoa));animation:chipOn .24s var(--pop)}
+
+/* ---- scrapbook card: the base JALUR / category-cartridge surface ---- */
+.block{
+  position:relative;background:var(--panel);border:2.5px solid var(--cocoa);border-radius:var(--r);
+  box-shadow:var(--elev);padding:20px;
+}
+/* JALUR shortcut cards on the home page are actions: same lift language as .cart / .teletype-ticket */
+.block[role="button"]{cursor:pointer;transition:transform .14s cubic-bezier(.34,1.56,.64,1)}
+.block[role="button"]:hover{transform:translateY(-3px) rotate(-.4deg)}
+.block[role="button"]:active{transform:translateY(1px)}
+
+/* ---- faux tape pin that holds a scrapbook card to the wall ---- */
+.tape-pin{
+  position:absolute;top:-10px;left:26px;width:58px;height:17px;z-index:5;pointer-events:none;
+  background:rgba(255,206,0,.85);border:1.6px solid var(--cocoa);border-radius:3px;
+  transform:rotate(-3deg);box-shadow:0 2px 0 rgba(46,30,20,.22);
+}
+.tape-pin::after{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(90deg,rgba(46,30,20,.12) 0 1px,transparent 1px 7px)}
+
+/* ---- category cartridge shelf: one card per category, each carrying its own accent through --cart ---- */
+.cart{
+  cursor:pointer;position:relative;flex:0 0 auto;width:250px;scroll-snap-align:start;
+  background:var(--panel);border:2.5px solid var(--cocoa);border-radius:var(--r);box-shadow:var(--elev);
+  padding:16px 16px 14px;transition:transform .14s cubic-bezier(.34,1.56,.64,1),box-shadow .14s;
+}
+.cart:hover{transform:translateY(-3px) rotate(-.5deg)}
+.cart:active{transform:translateY(2px) scale(.99)}
+.cart.is-picked{transform:translateY(4px);box-shadow:var(--elev-sm);background:#FFFDF6}
+/* One check per card, shown purely by CSS off .is-picked: selectCategory() only toggles classes, so the check
+   has to live in every card — baked in conditionally it would stay on the first pick forever. */
+.cart-check{display:none;align-items:center}
+.cart.is-picked .cart-check{display:inline-flex}
+.cart-spine{position:absolute;left:0;top:18px;bottom:18px;width:8px;border-radius:0 9999px 9999px 0;background:var(--cart,var(--cat));border:2px solid var(--cocoa);border-left:0}
+.cart-delta{display:flex;justify-content:space-between;font-size:0.75rem;font-weight:800;padding:4px 0;border-top:2px dotted var(--line)}
+/* the card chip is a category accent fill, so its ink comes from the per-card --cart-ink inkOn() wrote */
+.chip-cat{display:inline-flex;align-items:center;gap:5px;background:var(--cart,var(--cat));color:var(--cart-ink,var(--cocoa));border:2px solid var(--cocoa);border-radius:9999px;padding:2px 9px;font-family:var(--display);font-weight:800;font-size:0.65625rem;text-transform:uppercase}
 
 /* ---- holographic seal: FLAT foil stripes + foil dots, no gradient ---- */
 .sticker-holo{

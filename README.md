@@ -4,7 +4,7 @@ Katchup is a content-idea radar for Indonesian creators. It turns a weekly Insta
 something you can act on: which format is winning, which sounds are climbing, and what to post next in each
 of the seven content categories (Edukasi, Gaya Hidup, Berita, Politik, Humor, Budaya, Kuliner).
 
-**Status:** The idea list is live; the home picker and the saved view are in progress.
+**Status:** The home view is live; saving ideas and PWA packaging are in progress.
 
 ## What works today
 
@@ -22,6 +22,7 @@ of the seven content categories (Edukasi, Gaya Hidup, Berita, Politik, Humor, Bu
 - Top-5 sounds by likes with an inline preview player; tracks without a playable URL fall back to an
   honest cue tone instead of pretending.
 - Ranked idea tickets per category, topic chips that filter the list, and one-tap copy of the hook.
+- Home: hero, the category picker that drives the idea list, and JALUR shortcuts into the other views.
 
 ## How it works
 

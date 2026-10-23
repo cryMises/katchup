@@ -1,11 +1,9 @@
 'use strict';
 
 /* ================= IDE KONTEN ================= */
-/* The ranked idea tickets, the topic chips and the one filter they share.
-   ponytail: the category picker arrives with the home slice, so this level lists CATEGORY_LIST[0]; a later
-   selectCategory() only has to set currentCategory and call renderIdeas(). */
+/* The ranked idea tickets, the topic chips and the one filter they share. The category itself is picked on the
+   home page (js/home.js owns currentCategory + selectCategory()); this file renders whatever that state says. */
 
-let currentCategory = '';
 let activeTopicFilter = null;
 
 /* the payload names its own categories; fall back to the first live one when the current key is gone */
@@ -149,8 +147,8 @@ function renderIdeas() {
   triggerReveal();
 }
 
-/* One idea ticket. opts: index, catKey, stamp, bump. The category accent is not this level's job yet, so the
-   spine keeps the neutral fill until the home slice sets --cat inline. */
+/* One idea ticket. opts: index, catKey, stamp, bump. The spine and the "on" topic chips read --cat /
+   --cart-ink, which selectCategory() writes on :root for the picked category. */
 function ideaTicket(item, opts) {
   const o = opts || {};
   const catKey = o.catKey || activeIdeaCategory();

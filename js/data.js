@@ -90,9 +90,10 @@ function showApp() {
   if (!_isRefreshingTopics) setA11yStatus('Data tren sudah siap.');
   updateLinkStatus('ready');
   paintDataState();
-  /* the numbers are painted once the payload is on screen; a refresh re-runs this with the new rows */
+  /* the numbers are painted once the payload is on screen; a refresh re-runs this with the new rows.
+     renderHome() also re-renders the ideas list + chips, so it is the one call the topics view needs too. */
   renderAnalytics();
-  renderIdeas();
+  renderHome();
 }
 /* same as showApp(), except the payload came from the local cache and the fetch genuinely failed */
 function showStale() {
@@ -102,7 +103,7 @@ function showStale() {
   updateLinkStatus('stale');
   paintDataState();
   renderAnalytics();
-  renderIdeas();
+  renderHome();
 }
 function showError(message) {
   stopStaleClock();
@@ -148,6 +149,10 @@ function paintFreshness() {
   const clock = fmtClock(lastFetchedAt);
   const clockEl = document.getElementById('dataClock');
   if (clockEl) clockEl.innerText = '· ditarik ' + clock;
+  /* the home status line reports the same fetch time as the header pill; "ditarik" is when the app pulled the
+     payload, never a claim about when Instagram changed */
+  const statusEl = document.getElementById('statusLine');
+  if (statusEl) statusEl.innerText = (stale ? 'Status: memakai data tersimpan' : 'Status: data tren Instagram Indonesia sudah terhubung') + ' · ditarik ' + clock;
   const footEl = document.getElementById('pageFootDitarik');
   if (footEl) footEl.innerText = (stale ? 'Data tersimpan' : 'Data radar') + ' · ditarik ' + clock + ' · update tiap Senin';
   const topicsEl = document.getElementById('topicsUpdated');
