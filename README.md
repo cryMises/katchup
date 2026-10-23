@@ -23,6 +23,7 @@ of the seven content categories (Edukasi, Gaya Hidup, Berita, Politik, Humor, Bu
   honest cue tone instead of pretending.
 - Ranked idea tickets per category, topic chips that filter the list, and one-tap copy of the hook.
 - Home: hero, the category picker that drives the idea list, and JALUR shortcuts into the other views.
+- A weekly category fact computed from the payload, not hardcoded.
 
 ## How it works
 

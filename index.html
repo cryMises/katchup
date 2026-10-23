@@ -355,7 +355,7 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
 
   <!-- ================= HALAMAN 1: RINGKASAN TREN =================
        Orientational by design: what the radar is, the category cartridges (the one category picker), the JALUR
-       shortcuts. The KPI numbers live on ANALISIS KONTEN, not here. -->
+       shortcuts, and one fact line. The KPI numbers live on ANALISIS KONTEN, not here. -->
   <main id="view-home" class="view-panel active flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-8 flex-col w-full">
     <div class="mag spread">
 
@@ -408,8 +408,9 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
       <!-- the one category picker: js/home.js builds the cartridges into #topicGridContainer -->
       <section data-reveal>
         <h2 class="marker" style="--rule:#5B8CFF">7 KATEGORI KONTEN TREN</h2>
-        <p class="note mt-2">Klik salah satu kartu untuk mengganti daftar ide di halaman REKOMENDASI IDE. Tiap kartu membawa warna kategorinya sendiri.</p>
+        <p class="note mt-2">Klik salah satu kartu untuk mengganti daftar ide di halaman REKOMENDASI IDE. Tiap kartu membawa warna kategorinya sendiri, dan angkanya dibandingkan dengan pengambilan minggu sebelumnya.</p>
         <div id="topicGridContainer" class="flex items-start gap-4 overflow-x-auto pb-3 pt-5 snap-x snap-mandatory"></div>
+        <p id="homeFact" class="note mt-2">Menunggu data topik...</p>
       </section>
 
       <hr class="rule-doodle">
@@ -597,7 +598,7 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
      js/analytics.js — function renderKpis, function renderFormatCompare, function renderLedMeter,
                     function renderAnalytics
      js/home.js   — function buildCategoryCards (7 category cartridges), function selectCategory (the one category
-                    pick, shared with the ideas list), function renderHome
+                    pick, shared with the ideas list), function bestTopicDelta + the honest fact line, function renderHome
      js/topics.js — function renderIdeas, function ideaTicket, the topic chips and their shared activeTopicFilter,
                     copySnippet (clipboard + TERSALIN restore)
      js/app.js    — DOM-ready glue only: initApp() (one load path), boot dismissal, drawer inert on resize -->

@@ -7,6 +7,8 @@
 /* every count in the UI is id-ID: "1.234.567", comma as the decimal separator */
 function fmt(n) { return Math.round(n || 0).toLocaleString('id-ID'); }
 function fmt1(n) { return (Number(n) || 0).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+/* a signed percentage in id-ID: "-2,30" / "+12,34" — the sign is part of the payload the UI must not swallow */
+function signed(n) { return (n >= 0 ? '+' : '') + fmt1(n); }
 
 /* the header/footer clock is the *fetch* time, labelled "ditarik": the backend scrapes weekly, the API sends no
    scrape timestamp, so this is not a "last updated" claim */
