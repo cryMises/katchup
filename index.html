@@ -544,7 +544,7 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
       </section>
       <hr class="rule-doodle">
       <section>
-        <p class="note">Belum ada ide tersimpan. Fitur simpan belum tersedia.</p>
+        <p class="note">Daftar ide tersimpan menyusul. Tombol SIMPAN di daftar ide sudah aktif, dan jumlahnya tampil di menu IDE TERSIMPAN.</p>
         <p class="note mt-2" data-summary>Menunggu data radar...</p>
       </section>
     </div>
@@ -600,7 +600,8 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
      js/home.js   — function buildCategoryCards (7 category cartridges), function selectCategory (the one category
                     pick, shared with the ideas list), function bestTopicDelta + the honest fact line, function renderHome
      js/topics.js — function renderIdeas, function ideaTicket, the topic chips and their shared activeTopicFilter,
-                    copySnippet (clipboard + TERSALIN restore)
+                    copySnippet (clipboard + TERSALIN restore), _ticketIndex/pruneTicketIndex for the save toggle
+     js/saved.js  — the katchup_saved store (100 cap), function toggleSave + its undo toast
      js/app.js    — DOM-ready glue only: initApp() (one load path), boot dismissal, drawer inert on resize -->
 <script src="js/config.js" defer></script>
 <script src="js/utils.js" defer></script>
@@ -613,6 +614,7 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
 <script src="js/analytics.js" defer></script>
 <script src="js/home.js" defer></script>
 <script src="js/topics.js" defer></script>
+<script src="js/saved.js" defer></script>
 <script src="js/app.js" defer></script>
 </body>
 </html>

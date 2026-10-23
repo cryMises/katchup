@@ -27,6 +27,10 @@
 .chip-topic:active{transform:translateY(1px) scale(.95)}
 .chip-topic.on{background:var(--cat,var(--cocoa));color:var(--cart-ink,var(--cocoa));animation:chipOn .24s var(--pop)}
 
+/* ---- SIMPAN/TERSIMPAN toggle on idea tickets and saved rows: same 24px tap floor as the topic chip. The fill
+   (pop-yellow vs pop-mint) is a class js/saved.js toggles, so only the hit area needs a rule ---- */
+.save-toggle{min-height:24px}
+
 /* ---- scrapbook card: the base JALUR / category-cartridge surface ---- */
 .block{
   position:relative;background:var(--panel);border:2.5px solid var(--cocoa);border-radius:var(--r);

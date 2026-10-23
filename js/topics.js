@@ -2,9 +2,24 @@
 
 /* ================= IDE KONTEN ================= */
 /* The ranked idea tickets, the topic chips and the one filter they share. The category itself is picked on the
-   home page (js/home.js owns currentCategory + selectCategory()); this file renders whatever that state says. */
+   home page (js/home.js owns currentCategory + selectCategory()); this file renders whatever that state says.
+   Every ticket also carries the SIMPAN toggle and registers itself in _ticketIndex — js/saved.js snapshots the
+   item from there and never rebuilds it. */
 
 let activeTopicFilter = null;
+
+/* key -> { item, catKey } as filled by ideaTicket(); toggleSave() (js/saved.js) reads the key off data-idea.
+   A cache, not a log: pruneTicketIndex() drops entries whose ticket is no longer rendered after every list
+   render, and it is never cleared wholesale — the hidden view's still-rendered buttons resolve through it. */
+let _ticketIndex = {};
+function pruneTicketIndex() {
+  const live = {};
+  document.querySelectorAll('[data-idea]').forEach(function (el) {
+    const k = el.getAttribute('data-idea');
+    if (_ticketIndex[k]) live[k] = _ticketIndex[k];
+  });
+  _ticketIndex = live;
+}
 
 /* the payload names its own categories; fall back to the first live one when the current key is gone */
 function activeIdeaCategory() {
@@ -133,6 +148,7 @@ function renderIdeas() {
       '<p class="note mt-1">' + (activeTopicFilter ? 'Coba pilih topik lain, atau hapus filternya.' : 'Radar belum menemukan ide di kategori ini.') + '</p>' +
       (activeTopicFilter ? '<button type="button" onclick="resetTopicFilter(); playMechanicalClick();" class="mt-4 px-4 py-2 bg-pop-red text-cocoa btn-keycap font-headline text-xs font-extrabold uppercase">HAPUS FILTER</button>' : '') +
       '</div>';
+    pruneTicketIndex();
     triggerReveal();
     return;
   }
@@ -144,15 +160,21 @@ function renderIdeas() {
     const stamp = idx === 0 ? BEST_STAMP : '<span class="rubber-stamp ' + card[1] + '">' + card[0] + '</span>';
     return ideaTicket(item, { index: idx, catKey: catKey, stamp: stamp, bump: idx === 0 });
   }).join('');
+  pruneTicketIndex();
   triggerReveal();
 }
 
-/* One idea ticket. opts: index, catKey, stamp, bump. The spine and the "on" topic chips read --cat /
-   --cart-ink, which selectCategory() writes on :root for the picked category. */
+/* One idea ticket (opts: index, catKey, stamp, bump, meta; meta and the shared saved-list use land with the
+   saved list). Fills _ticketIndex so the save toggle can snapshot the item without rebuilding it, and paints the
+   toggle's pressed state from the saved store. The spine and the "on" topic chips read --cat / --cart-ink, which
+   selectCategory() writes on :root for the picked category. */
 function ideaTicket(item, opts) {
   const o = opts || {};
   const catKey = o.catKey || activeIdeaCategory();
   const idx = o.index || 0;
+  const key = ideaKey(catKey, item.contentIdea);
+  _ticketIndex[key] = { item: item, catKey: catKey };   // toggleSave() snapshots the item from here
+  const saved = savedKeys.has(key);
   const topicList = String(item.topics || '').split(',').map(function (t) { return t.trim(); }).filter(Boolean).slice(0, 4);
   return '<article class="teletype-ticket pop-in p-5 pl-7"' + (o.bump ? ' data-bump' : '') + ' style="--i:' + idx + '">' +
       '<span class="ticket-spine" aria-hidden="true"></span>' +
@@ -163,6 +185,7 @@ function ideaTicket(item, opts) {
         '</span>' +
         '<span class="flex flex-col items-end gap-0.5 text-right ml-auto">' +
           '<span class="font-headline text-[0.6875rem] font-extrabold text-red-ink whitespace-nowrap">' + fmt(item.estimatedLike) + ' POTENSI LIKES</span>' +
+          (o.meta ? '<span class="eyebrow whitespace-nowrap">' + escapeHtml(o.meta) + '</span>' : '') +
         '</span>' +
       '</div>' +
       '<p class="font-body text-[0.84375rem] font-semibold leading-relaxed break-words">"' + escapeHtml(item.contentIdea) + '"</p>' +
@@ -177,6 +200,9 @@ function ideaTicket(item, opts) {
           '<span class="w-3 h-3 rounded-full shrink-0 bg-pop-yellow border-2 border-cocoa"></span>' + escapeHtml(ideaCategoryLabel(catKey).toUpperCase()) +
         '</span>' +
         '<span class="flex flex-wrap items-center justify-end gap-2">' +
+          '<button type="button" data-idea="' + escapeHtml(key) + '" onclick="toggleSave(this)" aria-pressed="' + (saved ? 'true' : 'false') + '" aria-label="' + (saved ? 'Hapus ide dari simpanan' : 'Simpan ide ini') + '" title="' + (saved ? 'Hapus dari simpanan' : 'Simpan ide ini') + '" class="save-toggle btn-keycap-sm px-3 py-1.5 ' + (saved ? 'bg-pop-mint' : 'bg-pop-yellow') + ' font-headline text-[0.6875rem] font-extrabold uppercase flex items-center gap-1.5">' +
+            doodle('save', 'w-3.5 h-3.5') + (saved ? 'TERSIMPAN' : 'SIMPAN') +
+          '</button>' +
           '<button type="button" data-hook="' + escapeHtml(item.contentIdea) + '" onclick="copySnippet(this)" title="Salin hook ide ini" class="btn-keycap-sm px-3 py-1.5 bg-pop-yellow font-headline text-[0.6875rem] font-extrabold uppercase flex items-center gap-1.5">' +
             '<span class="material-symbols-outlined text-[0.9375rem]">content_copy</span>SALIN HOOK' +
           '</button>' +
