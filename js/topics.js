@@ -61,11 +61,14 @@ function filterByTopic(topic) {
   if (activeTopicFilter === topic) { activeTopicFilter = null; }
   else { activeTopicFilter = topic; showToast('Filter topik #' + topic.toUpperCase() + ' aktif.'); }
   renderIdeas();
+  /* the same chips sit on saved tickets, and the saved list shares this one filter */
+  if (currentView === 'saved') renderSaved();
 }
 function resetTopicFilter() {
   playPatchCordSnap();
   activeTopicFilter = null;
   renderIdeas();
+  if (currentView === 'saved') renderSaved();
   showToast('Filter topik dihapus.');
 }
 

@@ -128,9 +128,12 @@ function updateLinkStatus(status) {
    visible, the fetch time, the stale banner and the per-view counts. Called on each state change and on every
    view switch — the hidden panels are display:none, so none of them repaints itself. */
 function paintDataState() {
-  const loading = dataStatus === 'loading';
-  const failed = dataStatus === 'error';
-  const showContent = dataStatus === 'ready' || dataStatus === 'stale';
+  /* the home and saved pages are local-first: saved ideas live in localStorage and home is orientational, so
+     neither waits for the payload — loading/error only own the two pages built from API rows */
+  const localView = currentView === 'home' || currentView === 'saved';
+  const loading = dataStatus === 'loading' && !localView;
+  const failed = dataStatus === 'error' && !localView;
+  const showContent = localView || dataStatus === 'ready' || dataStatus === 'stale';
   const ls = document.getElementById('loadingState'), es = document.getElementById('errorState');
   ls.classList.toggle('hidden', !loading); ls.classList.toggle('flex', loading);
   es.classList.toggle('hidden', !failed); es.classList.toggle('flex', failed);

@@ -37,6 +37,8 @@ function switchView(view) {
   if (viewChanged) saveViewScroll(currentView);
   currentView = view;
 
+  /* the saved page is built from localStorage, not the payload, so it repaints from its own store on entry */
+  if (view === 'saved') renderSaved();
   /* which panel is allowed to show is the data layer's call: nothing here renders before a payload lands, so
      loading/error take the screen and paintDataState() re-marks the current view (it also repaints the clock) */
   paintDataState();

@@ -537,16 +537,46 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
   <!-- ================= HALAMAN 4: IDE TERSIMPAN ================= -->
   <main id="view-saved" class="view-panel flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-8 flex-col w-full">
     <div class="mag spread">
-      <section>
-        <span class="washi-tape washi-tape-mint">SIMPAN</span>
-        <h2 class="marker mt-4" style="--rule:#2FE0A8">IDE TERSIMPAN</h2>
-        <p class="note mt-3">Hook yang kamu tandai akan tersimpan di perangkat ini, jadi tetap aman saat data diperbarui.</p>
+      <section data-reveal>
+        <div class="flex items-end justify-between gap-3 flex-wrap">
+          <h2 class="marker" style="--rule:#2FE0A8">IDE TERSIMPAN</h2>
+          <span class="flex items-center gap-2 flex-wrap justify-end mb-2">
+            <span class="font-headline text-[0.71875rem] font-extrabold uppercase border-2 border-cocoa rounded-full px-3 py-1 bg-cream">
+              TERSIMPAN: <strong id="savedCount" class="text-red-ink">0</strong> IDE
+            </span>
+          </span>
+        </div>
+        <p class="note mt-2">Hook yang kamu tandai akan tersimpan di perangkat ini, jadi tetap aman saat data diperbarui.</p>
       </section>
+
       <hr class="rule-doodle">
-      <section>
-        <p class="note">Daftar ide tersimpan menyusul. Tombol SIMPAN di daftar ide sudah aktif, dan jumlahnya tampil di menu IDE TERSIMPAN.</p>
-        <p class="note mt-2" data-summary>Menunggu data radar...</p>
+
+      <section data-reveal>
+        <div id="savedEmpty" class="hidden py-10 px-6 text-center bg-white border-2 border-dashed border-cocoa rounded-[18px] flex-col items-center justify-center gap-2">
+          <div class="ketchy slow mb-1" style="--kw:64px" aria-hidden="true">
+            <svg class="flip-frame" viewBox="0 0 100 100"><use href="#ketchy-1"></use></svg>
+            <svg class="flip-frame" viewBox="0 0 100 100"><use href="#ketchy-2"></use></svg>
+            <svg class="flip-frame" viewBox="0 0 100 100"><use href="#ketchy-3"></use></svg>
+            <svg class="flip-frame" viewBox="0 0 100 100"><use href="#ketchy-4"></use></svg>
+          </div>
+          <p class="font-headline font-extrabold uppercase">Belum ada ide tersimpan</p>
+          <p class="note">Tandai ide dengan tombol SIMPAN di daftar ide, nanti muncul di sini.</p>
+          <button onclick="switchView('topics'); playMechanicalClick();" class="mt-3 px-4 py-2 bg-pop-red text-cocoa btn-keycap font-headline text-xs font-extrabold uppercase">CARI IDE [3]</button>
+        </div>
+        <div id="savedListContainer" class="flex flex-col gap-5"></div>
+
+        <hr class="rule-doodle mt-8">
+        <div class="flex items-center justify-between gap-3 flex-wrap mt-4">
+          <span class="flex items-center gap-2 font-headline text-[0.6875rem] font-extrabold uppercase">
+            <span class="w-2.5 h-2.5 bg-pop-mint jewel-led inline-block shrink-0"></span>
+            Disimpan di perangkat kamu
+          </span>
+          <span class="eyebrow">Lokal · hanya di browser ini</span>
+        </div>
+        <!-- the payload-count line the data slice prints; still the honest "did the radar arrive" answer -->
+        <p class="eyebrow mt-2" data-summary>Menunggu data radar...</p>
       </section>
+
     </div>
   </main>
 
@@ -601,7 +631,8 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
                     pick, shared with the ideas list), function bestTopicDelta + the honest fact line, function renderHome
      js/topics.js — function renderIdeas, function ideaTicket, the topic chips and their shared activeTopicFilter,
                     copySnippet (clipboard + TERSALIN restore), _ticketIndex/pruneTicketIndex for the save toggle
-     js/saved.js  — the katchup_saved store (100 cap), function toggleSave + its undo toast
+     js/saved.js  — the katchup_saved store (100 cap), function toggleSave + its undo toast, function renderSaved
+                    and its filtered-empty state
      js/app.js    — DOM-ready glue only: initApp() (one load path), boot dismissal, drawer inert on resize -->
 <script src="js/config.js" defer></script>
 <script src="js/utils.js" defer></script>

@@ -25,6 +25,7 @@ of the seven content categories (Edukasi, Gaya Hidup, Berita, Politik, Humor, Bu
 - Home: hero, the category picker that drives the idea list, and JALUR shortcuts into the other views.
 - A weekly category fact computed from the payload, not hardcoded.
 - On-device saved ideas with an undoable unstar and a 100-hook cap that says what it dropped.
+- Ide Tersimpan view, sharing the same topic filter as the idea list.
 
 ## How it works
 

@@ -1,13 +1,14 @@
 'use strict';
 
 /* ================= IDE TERSIMPAN (local storage) ================= */
-/* The saved store and its star toggle. The store keeps full idea snapshots (the API shape), so a saved ticket
-   renders unchanged after the payload is refreshed — a week later the hook and its likes still read. User data
-   is never dropped in silence: unstarring stays undoable through the toast, and the 100-item cap announces what
-   it let go. The saved list itself, BAGIKAN and TEMPEL arrive with their own slices. */
+/* The saved store and its list. The store keeps full idea snapshots (the API shape), so a saved ticket renders
+   unchanged after the payload is refreshed — a week later the hook and its likes still read. User data is never
+   dropped in silence: unstarring stays undoable through the toast, and the 100-item cap announces what it let
+   go. BAGIKAN and TEMPEL arrive with the next slice. */
 
 const SAVED_KEY = 'katchup_saved';
 const SAVED_MAX = 100;   // oldest first out; the cap path says how many ideas it dropped
+const SAVED_STAMP = '<span class="rubber-stamp bg-pop-mint">DISIMPAN</span>';
 
 /* readJson tolerates corrupt JSON and a blocked store, so a bad payload reads as "nothing saved" instead of
    killing the page */
@@ -33,13 +34,13 @@ function ideaSnapshot(item, catKey) {
   };
 }
 
-/* the count lives in the sidebar badge. The saved-view pill (#savedCount) and the BAGIKAN button
-   (#exportSavedBtn) arrive with the saved list and the share slice, so their lookups land with their markup —
-   nothing here may point at an id the tree doesn't ship yet */
+/* the count lives in two places: the sidebar badge and the saved-view pill */
 function updateSavedCounts() {
   const hasAny = savedIdeas.length > 0;
   const badge = document.getElementById('navSavedCount');
   if (badge) { badge.classList.toggle('hidden', !hasAny); badge.innerText = savedIdeas.length; }
+  const pill = document.getElementById('savedCount');
+  if (pill) pill.innerText = savedIdeas.length;
 }
 
 function paintSaveButton(btn, saved) {
@@ -77,6 +78,7 @@ function toggleSave(btn) {
     playStampThud();
     showToast(full ? 'Tersimpan. Simpanan penuh, ide terlama dilepas.' : 'Ide disimpan ke daftar kamu.');
   }
+  if (currentView === 'saved') renderSaved();
 }
 
 /* the undo behind URUNGKAN: put the snapshot back where it was */
@@ -89,5 +91,55 @@ function restoreSaved(snapshot, index) {
   savedKeys = new Set(savedIdeas.map(function (s) { return s.key; }));
   updateSavedCounts();
   playStampThud();
-  renderIdeas();
+  if (currentView === 'saved') renderSaved();
+  else renderIdeas();
+}
+
+/* the saved view's one render path. The topic chips on saved tickets install activeTopicFilter, so the list
+   honours the shared filter and has a filtered-empty state of its own (distinct from "nothing saved yet"). */
+function renderSaved() {
+  const container = document.getElementById('savedListContainer');
+  const emptyEl = document.getElementById('savedEmpty');
+  if (!container || !emptyEl) return;
+  const hasAny = savedIdeas.length > 0;
+  const visible = activeTopicFilter
+    ? savedIdeas.filter(function (snap) {
+        return String(snap.topics || '').split(',').map(function (t) { return t.trim().toLowerCase(); }).includes(activeTopicFilter);
+      })
+    : savedIdeas;
+  const wasEmptyHidden = emptyEl.classList.contains('hidden');
+  /* a re-render must not drop keyboard focus: the pressed star is rebuilt by this innerHTML swap, so remember
+     whether it lived in the list and put focus back on the same idea (else the first one, else the empty CTA) */
+  const active = document.activeElement;
+  const focusInList = !!(active && container.contains(active) && active.hasAttribute('data-idea'));
+  const focusKey = focusInList ? active.getAttribute('data-idea') : '';
+  emptyEl.classList.toggle('hidden', hasAny);
+  emptyEl.classList.toggle('flex', !hasAny);
+  /* the empty card re-materialises from display:none, so it takes its entrance each time it appears */
+  if (wasEmptyHidden && !hasAny && !prefersReducedMotion) {
+    emptyEl.classList.remove('drop-in');
+    void emptyEl.offsetWidth;
+    emptyEl.classList.add('drop-in');
+  }
+  if (hasAny && !visible.length) {
+    container.innerHTML = '<div class="drop-in py-10 px-6 text-center bg-white border-2 border-dashed border-cocoa rounded-[18px] flex flex-col items-center">' +
+      '<p class="font-headline font-extrabold uppercase">Tidak ada simpanan dengan topik #' + escapeHtml(activeTopicFilter.toUpperCase()) + '</p>' +
+      '<button type="button" onclick="resetTopicFilter(); playMechanicalClick();" class="mt-3 px-4 py-2 bg-pop-red text-cocoa btn-keycap font-headline text-xs font-extrabold uppercase">HAPUS FILTER</button>' +
+      '</div>';
+  } else {
+    container.innerHTML = visible.map(function (snap, idx) {
+      return ideaTicket(snap, {
+        index: idx, catKey: snap.contentType, stamp: SAVED_STAMP, bump: false,
+        meta: 'Disimpan ' + fmtAgo(snap.savedAt, Date.now())
+      });
+    }).join('');
+  }
+  pruneTicketIndex();
+  updateSavedCounts();
+  if (focusInList) {
+    const again = Array.prototype.filter.call(container.querySelectorAll('button[data-idea]'), function (b) { return b.getAttribute('data-idea') === focusKey; })[0];
+    const target = again || container.querySelector('button[data-idea]') || emptyEl.querySelector('button');
+    if (target) target.focus();
+  }
+  triggerReveal();
 }
