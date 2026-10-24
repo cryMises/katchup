@@ -21,9 +21,11 @@ function setA11yStatus(text) {
 /* ================= BOOT LOADER: K-A-T-C-H-U-P lalu splat ================= */
 function dismissBootLoader() {
   const boot = document.getElementById('bootLoader');
+  const cover = document.querySelector('#heroPeel .peel-cover');   // the hero cover lands with the same squash
   const delay = prefersReducedMotion ? 0 : 2100;   // matches .boot's bootOut delay (1.65s) + duration (.45s)
   setTimeout(function () {
     if (boot && boot.parentNode) boot.parentNode.removeChild(boot);
+    if (cover && !prefersReducedMotion) cover.classList.add('splat-in');
   }, delay);
 }
 

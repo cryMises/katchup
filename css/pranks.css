@@ -1,0 +1,46 @@
+/* KATCHUP — removable easter eggs. Each block here is self-contained: delete its markup, its functions in
+   js/pranks.js and this section, and the app still loads. Entrances and state changes only. */
+
+/* ---- PRANK 3: peel-open hero window ---- */
+.peel{position:relative;perspective:1100px}
+/* a page hinged on its left edge. Opening: it turns off the fold and the fade lands on top of the
+   turn (delay) so the edge-on sliver is gone before the rotation ends — no dead tail.
+   Closing: the same transition read backwards, with opacity returning immediately so the sheet
+   swings back in solid instead of materialising.  Over-swing easing is deliberately NOT used here:
+   past the fold the cover is backface-hidden, so overshoot is invisible motion. */
+.peel-cover{position:relative;z-index:2;transform-origin:left center;backface-visibility:hidden;
+  transition:transform .4s var(--settle),opacity .16s ease-out}
+.peel.peeled .peel-cover{transform:rotateY(-92deg) translateX(-2%);opacity:0;pointer-events:none;
+  transition:transform .4s var(--settle),opacity .2s ease-out .14s}
+/* the note underneath waits for the cover to clear the fold, then snaps into place */
+.peel-peek{position:absolute;inset:0;z-index:1;display:flex;flex-direction:column;justify-content:center;gap:12px;
+  background:#FFFDF6;border:2.5px dashed var(--cocoa);border-radius:var(--r);padding:22px;
+  box-shadow:inset 0 3px 6px rgba(46,30,20,.10);
+  transform:scale(.965);opacity:.35;transition:transform .3s var(--settle),opacity .2s ease-in}
+.peel.peeled .peel-peek{transform:none;opacity:1;
+  transition:transform .48s var(--pop) .1s,opacity .36s ease-out .1s}
+.peel.peeled #heroTip{animation:popIn .34s var(--pop) .12s both}
+/* the keyboard control for the wrapper: a real button, held at the 24px tap-target floor */
+.peel-hint{position:absolute;top:-9px;right:12px;z-index:4;display:inline-flex;align-items:center;min-height:24px;
+  font-family:var(--display);font-weight:800;font-size:0.65625rem;line-height:1;
+  text-transform:uppercase;letter-spacing:.08em;background:var(--cocoa);color:#fff;border-radius:9999px;padding:3px 10px;
+  box-shadow:0 2px 0 rgba(46,30,20,.22);cursor:pointer}
+.peel-corner{position:absolute;right:0;bottom:0;z-index:3;width:34px;height:34px;border-top-left-radius:16px;
+  /* nested inside the card's 2.5px border (inner radius = --r - border), so the bottom/right border line stays unbroken */
+  border-bottom-right-radius:calc(var(--r) - 2.5px);
+  background:var(--yellow);border-left:2.5px solid var(--cocoa);border-top:2.5px solid var(--cocoa);
+  box-shadow:-3px -3px 0 rgba(46,30,20,.15)}
+/* the whole sticker lifts on hover — same -3px language as .cart/.teletype-ticket, and it tells you the card opens */
+@media (hover:hover) and (pointer:fine){
+  .peel{transition:transform .18s var(--pop)}
+  .peel:not(.peeled):hover{transform:translateY(-3px)}
+}
+/* the boot loader leaves with the same squash it arrived on */
+.splat-in{animation:squashIn .5s cubic-bezier(.34,1.56,.64,1)}
+@keyframes squashIn{0%{transform:scaleX(.86) scaleY(1.14)}45%{transform:scaleX(1.06) scaleY(.95)}100%{transform:scale(1)}}
+
+@media (prefers-reduced-motion: reduce){
+  .peel-cover,.peel-peek{transition:none}
+  .peel.peeled #heroTip{animation:none}
+  .splat-in{animation:none}
+}

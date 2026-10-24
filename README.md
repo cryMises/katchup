@@ -4,7 +4,7 @@ Katchup is a content-idea radar for Indonesian creators. It turns a weekly Insta
 something you can act on: which format is winning, which sounds are climbing, and what to post next in each
 of the seven content categories (Edukasi, Gaya Hidup, Berita, Politik, Humor, Budaya, Kuliner).
 
-**Status:** Saved ideas are live; PWA packaging is in progress.
+**Status:** The app is complete; PWA packaging is in progress.
 
 ## What works today
 

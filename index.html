@@ -26,6 +26,7 @@
 <link rel="stylesheet" href="css/components.css">
 <link rel="stylesheet" href="css/views.css">
 <link rel="stylesheet" href="css/motion.css">
+<link rel="stylesheet" href="css/pranks.css">
 
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <script id="tailwind-config">
@@ -359,47 +360,68 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
   <main id="view-home" class="view-panel active flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-8 flex-col w-full">
     <div class="mag spread">
 
+      <!-- PRANK 3: "JENDELA STIKER" — klik hero buat ngelupas stiker & intip doodle + tips. Hapus .peel wrapper + peelHero() untuk membuang prank ini. -->
       <section data-reveal>
-        <div class="block">
-          <div class="tape-pin"></div>
-          <div class="flex items-center justify-between gap-2 pb-3 mb-4 border-b-2 border-dashed border-cocoa/20">
-            <span class="washi-tape">CATATAN KREATOR</span>
-            <span class="eyebrow hidden sm:block">EDISI MINGGU INI</span>
-          </div>
-          <div class="flex flex-col sm:flex-row gap-5 items-start">
-            <div class="flex-1 min-w-0">
-              <h2 class="marker" style="--rule:#FF4949">RADAR KONTEN VIRAL UNTUK KREATOR INDONESIA</h2>
-              <p class="note mt-3">
-                Ini buku tempel ide konten: kami rangkum sound yang sedang naik, bandingkan Reels dengan carousel
-                foto, lalu simpan ide dengan hook yang siap kamu pakai.
-              </p>
-              <div class="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 font-headline text-[0.71875rem] font-extrabold uppercase">
-                <span class="flex items-center gap-1.5"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="#FF4949" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-radar"></use></svg>1. Ambil tren</span>
-                <svg class="w-4 h-4 text-cocoa/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-arrow"></use></svg>
-                <span class="flex items-center gap-1.5"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="#5B8CFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-bars"></use></svg>2. Bandingkan format</span>
-                <svg class="w-4 h-4 text-cocoa/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-arrow"></use></svg>
-                <span class="flex items-center gap-1.5"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="#2FE0A8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-copy"></use></svg>3. Contek idenya</span>
+        <div class="peel" id="heroPeel" onclick="peelHero()">
+          <div class="peel-peek" id="heroPeek">
+            <div class="flex items-center justify-between gap-3">
+              <div class="flex items-center gap-3">
+                <svg class="w-8 h-8 shrink-0" viewBox="0 0 24 24" fill="none" stroke="#FF4949" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-spark"></use></svg>
+                <h3 class="marker marker-sm" style="--rule:#2FE0A8">CATATAN LENGKET</h3>
               </div>
-              <div class="mt-5 flex flex-wrap gap-3">
-                <button onclick="switchView('analytics'); playMechanicalClick();" class="px-5 py-3 bg-pop-red text-cocoa btn-keycap font-headline text-xs font-extrabold uppercase tracking-wide flex items-center gap-2">
-                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-bars"></use></svg>
-                  PANTAU TREN [2]
-                </button>
-                <button onclick="switchView('topics'); playMechanicalClick();" class="px-5 py-3 bg-white btn-keycap font-headline text-xs font-extrabold uppercase tracking-wide flex items-center gap-2">
-                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-spark"></use></svg>
-                  CARI IDE [3]
-                </button>
-              </div>
-            </div>
-            <div class="shrink-0 self-center sm:self-end hidden sm:block">
-              <div class="ketchy" style="--kw:96px" aria-hidden="true">
+              <div class="ketchy slow shrink-0" style="--kw:48px" aria-hidden="true">
                 <svg class="flip-frame" viewBox="0 0 100 100"><use href="#ketchy-1"></use></svg>
                 <svg class="flip-frame" viewBox="0 0 100 100"><use href="#ketchy-2"></use></svg>
                 <svg class="flip-frame" viewBox="0 0 100 100"><use href="#ketchy-3"></use></svg>
                 <svg class="flip-frame" viewBox="0 0 100 100"><use href="#ketchy-4"></use></svg>
               </div>
             </div>
+            <p id="heroTip" class="font-body text-sm font-semibold leading-relaxed">Klik stikernya buat intip catatan rahasia.</p>
+            <p class="eyebrow">Dari pengalaman kreator Indonesia</p>
           </div>
+          <div class="peel-cover block">
+            <div class="tape-pin"></div>
+            <div class="flex items-center justify-between gap-2 pb-3 mb-4 border-b-2 border-dashed border-cocoa/20">
+              <span class="washi-tape">CATATAN KREATOR</span>
+              <span class="eyebrow hidden sm:block">EDISI MINGGU INI</span>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-5 items-start">
+              <div class="flex-1 min-w-0">
+                <h2 class="marker" style="--rule:#FF4949">RADAR KONTEN VIRAL UNTUK KREATOR INDONESIA</h2>
+                <p class="note mt-3">
+                  Ini buku tempel ide konten: kami rangkum sound yang sedang naik, bandingkan Reels dengan carousel
+                  foto, lalu simpan ide dengan hook yang siap kamu pakai.
+                </p>
+                <div class="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 font-headline text-[0.71875rem] font-extrabold uppercase">
+                  <span class="flex items-center gap-1.5"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="#FF4949" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-radar"></use></svg>1. Ambil tren</span>
+                  <svg class="w-4 h-4 text-cocoa/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-arrow"></use></svg>
+                  <span class="flex items-center gap-1.5"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="#5B8CFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-bars"></use></svg>2. Bandingkan format</span>
+                  <svg class="w-4 h-4 text-cocoa/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-arrow"></use></svg>
+                  <span class="flex items-center gap-1.5"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="#2FE0A8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-copy"></use></svg>3. Contek idenya</span>
+                </div>
+                <div class="mt-5 flex flex-wrap gap-3">
+                  <button onclick="event.stopPropagation(); switchView('analytics'); playMechanicalClick();" class="px-5 py-3 bg-pop-red text-cocoa btn-keycap font-headline text-xs font-extrabold uppercase tracking-wide flex items-center gap-2">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-bars"></use></svg>
+                    PANTAU TREN [2]
+                  </button>
+                  <button onclick="event.stopPropagation(); switchView('topics'); playMechanicalClick();" class="px-5 py-3 bg-white btn-keycap font-headline text-xs font-extrabold uppercase tracking-wide flex items-center gap-2">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-spark"></use></svg>
+                    CARI IDE [3]
+                  </button>
+                </div>
+              </div>
+              <div class="shrink-0 self-center sm:self-end hidden sm:block">
+                <div class="ketchy" style="--kw:96px" aria-hidden="true">
+                  <svg class="flip-frame" viewBox="0 0 100 100"><use href="#ketchy-1"></use></svg>
+                  <svg class="flip-frame" viewBox="0 0 100 100"><use href="#ketchy-2"></use></svg>
+                  <svg class="flip-frame" viewBox="0 0 100 100"><use href="#ketchy-3"></use></svg>
+                  <svg class="flip-frame" viewBox="0 0 100 100"><use href="#ketchy-4"></use></svg>
+                </div>
+              </div>
+            </div>
+            <span class="peel-corner" aria-hidden="true"></span>
+          </div>
+          <button type="button" class="peel-hint" id="peelHint" aria-controls="heroPeek" aria-expanded="false" onclick="event.stopPropagation(); peelHero();">Klik buat intip</button>
         </div>
       </section>
 
@@ -644,6 +666,7 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
                     copySnippet (clipboard + TERSALIN restore)
      js/saved.js  — the katchup_saved store (100 cap), function toggleSave + its undo toast, function renderSaved
                     and its filtered-empty state, function exportSaved / parseImportLine / importSaved
+     js/pranks.js — the removable easter eggs: function peelHero (peel-open hero) and CREATOR_TIPS
      js/app.js    — DOM-ready glue only: initApp() (one load path), boot dismissal, drawer inert on resize -->
 <script src="js/config.js" defer></script>
 <script src="js/utils.js" defer></script>
@@ -657,6 +680,7 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
 <script src="js/home.js" defer></script>
 <script src="js/topics.js" defer></script>
 <script src="js/saved.js" defer></script>
+<script src="js/pranks.js" defer></script>
 <script src="js/app.js" defer></script>
 </body>
 </html>
