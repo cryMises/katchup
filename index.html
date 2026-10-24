@@ -535,8 +535,11 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
   </main>
 
   <!-- ================= HALAMAN 4: IDE TERSIMPAN ================= -->
+  <!-- local-first: the list comes from katchup_saved (js/saved.js), not from the payload, so it stays readable
+       while the radar is loading or down -->
   <main id="view-saved" class="view-panel flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-8 flex-col w-full">
     <div class="mag spread">
+
       <section data-reveal>
         <div class="flex items-end justify-between gap-3 flex-wrap">
           <h2 class="marker" style="--rule:#2FE0A8">IDE TERSIMPAN</h2>
@@ -544,6 +547,14 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
             <span class="font-headline text-[0.71875rem] font-extrabold uppercase border-2 border-cocoa rounded-full px-3 py-1 bg-cream">
               TERSIMPAN: <strong id="savedCount" class="text-red-ink">0</strong> IDE
             </span>
+            <button id="exportSavedBtn" onclick="exportSaved(); playMechanicalClick();" title="Bagikan atau salin semua ide tersimpan"
+              class="hidden items-center gap-1.5 px-3 py-1.5 bg-pop-yellow btn-keycap-sm font-headline text-[0.6875rem] font-extrabold uppercase">
+              BAGIKAN
+            </button>
+            <button id="pasteSavedBtn" onclick="importSaved(); playMechanicalClick();" title="Tempel daftar ide dari clipboard"
+              class="flex items-center gap-1.5 px-3 py-1.5 bg-cream btn-keycap-sm font-headline text-[0.6875rem] font-extrabold uppercase">
+              TEMPEL
+            </button>
           </span>
         </div>
         <p class="note mt-2">Hook yang kamu tandai akan tersimpan di perangkat ini, jadi tetap aman saat data diperbarui.</p>
@@ -630,9 +641,9 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
      js/home.js   — function buildCategoryCards (7 category cartridges), function selectCategory (the one category
                     pick, shared with the ideas list), function bestTopicDelta + the honest fact line, function renderHome
      js/topics.js — function renderIdeas, function ideaTicket, the topic chips and their shared activeTopicFilter,
-                    copySnippet (clipboard + TERSALIN restore), _ticketIndex/pruneTicketIndex for the save toggle
+                    copySnippet (clipboard + TERSALIN restore)
      js/saved.js  — the katchup_saved store (100 cap), function toggleSave + its undo toast, function renderSaved
-                    and its filtered-empty state
+                    and its filtered-empty state, function exportSaved / parseImportLine / importSaved
      js/app.js    — DOM-ready glue only: initApp() (one load path), boot dismissal, drawer inert on resize -->
 <script src="js/config.js" defer></script>
 <script src="js/utils.js" defer></script>

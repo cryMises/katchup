@@ -1,13 +1,13 @@
 'use strict';
 
 /* ================= IDE TERSIMPAN (local storage) ================= */
-/* The saved store and its list. The store keeps full idea snapshots (the API shape), so a saved ticket renders
-   unchanged after the payload is refreshed — a week later the hook and its likes still read. User data is never
-   dropped in silence: unstarring stays undoable through the toast, and the 100-item cap announces what it let
-   go. BAGIKAN and TEMPEL arrive with the next slice. */
+/* The saved store, its list, and the BAGIKAN/TEMPEL pair that carries it between devices. The store keeps full
+   idea snapshots (the API shape), so a saved ticket renders unchanged after the payload is refreshed — a week
+   later the hook and its likes still read. User data is never dropped in silence: unstarring stays undoable
+   through the toast, and the 100-item cap announces what it let go. */
 
 const SAVED_KEY = 'katchup_saved';
-const SAVED_MAX = 100;   // oldest first out; the cap path says how many ideas it dropped
+const SAVED_MAX = 100;   // oldest first out; both cap paths say how many ideas they dropped
 const SAVED_STAMP = '<span class="rubber-stamp bg-pop-mint">DISIMPAN</span>';
 
 /* readJson tolerates corrupt JSON and a blocked store, so a bad payload reads as "nothing saved" instead of
@@ -34,13 +34,15 @@ function ideaSnapshot(item, catKey) {
   };
 }
 
-/* the count lives in two places: the sidebar badge and the saved-view pill */
+/* the count lives in three places: the sidebar badge, the saved-view pill, and the BAGIKAN button's visibility */
 function updateSavedCounts() {
   const hasAny = savedIdeas.length > 0;
   const badge = document.getElementById('navSavedCount');
   if (badge) { badge.classList.toggle('hidden', !hasAny); badge.innerText = savedIdeas.length; }
   const pill = document.getElementById('savedCount');
   if (pill) pill.innerText = savedIdeas.length;
+  const shareBtn = document.getElementById('exportSavedBtn');
+  if (shareBtn) { shareBtn.classList.toggle('hidden', !hasAny); shareBtn.classList.toggle('flex', hasAny); }
 }
 
 function paintSaveButton(btn, saved) {
@@ -142,4 +144,84 @@ function renderSaved() {
     if (target) target.focus();
   }
   triggerReveal();
+}
+
+/* ================= BAGIKAN / TEMPEL (one text format) ================= */
+/* the list is device-local by design, so give people a way to carry it elsewhere. exportSaved() and
+   parseImportLine() have to change together: the parser strips the id-ID thousands separators, so the
+   round-trip survives. */
+function exportSaved() {
+  if (!savedIdeas.length) return;
+  const text = 'Ide konten dari Katchup:\n\n' + savedIdeas.map(function (s, i) {
+    return (i + 1) + '. "' + s.contentIdea + '" — ' + fmt(s.estimatedLike) + ' potensi likes (' + categoryInfo(s.contentType).name + ')';
+  }).join('\n');
+  /* a rejected share sheet (no targets, permission) used to vanish silently — fall back to the clipboard, but
+     stay quiet when the user just closed the sheet themselves */
+  if (navigator.share) {
+    navigator.share({ title: 'Ide konten Katchup', text: text }).catch(function (err) {
+      if (err && err.name === 'AbortError') return;
+      if (legacyCopyToClipboard(text)) { playPatchCordSnap(); showToast('Semua ide tersalin ke clipboard.'); }
+      else showToast('Gagal membagikan. Coba lagi.', false);
+    });
+    return;
+  }
+  if (legacyCopyToClipboard(text)) { playPatchCordSnap(); showToast('Semua ide tersalin ke clipboard.'); }
+  else showToast('Gagal menyalin. Coba lagi.', false);
+}
+
+/* label -> category key, so an exported list can land on another device with its accents intact */
+function catKeyFromLabel(label) {
+  const want = String(label || '').trim().toLowerCase();
+  if (!want) return '';
+  const keys = Object.keys(CATEGORY_LOGOS);
+  for (let i = 0; i < keys.length; i++) {
+    const info = CATEGORY_LOGOS[keys[i]];
+    if (info.name.toLowerCase() === want || info.badgeText.toLowerCase() === want) return keys[i];
+  }
+  return '';   // includes the generic "Kategori" label, which maps back to no category
+}
+/* one line of exported text -> { hook, cat, likes }; null for anything that isn't an idea line. The exported
+   shape always ends in "— <likes> potensi likes (Kategori)", so a line without that tail — a header, a blank, a
+   stray note — is rejected instead of imported as a 0-like hook. */
+function parseImportLine(line) {
+  let s = String(line || '').trim();
+  if (!s || /^ide konten dari katchup\b/i.test(s)) return null;   // skip the header line BAGIKAN emits
+  s = s.replace(/^\d+[.)]\s*/, '');
+  const catMatch = s.match(/\(([^()]*)\)\s*$/);
+  const cat = catMatch ? catKeyFromLabel(catMatch[1]) : '';
+  if (catMatch) s = s.slice(0, catMatch.index).trim();
+  const likeMatch = s.match(/[—–-]\s*([\d.,]+)\s*potensi likes\s*$/i);
+  if (!likeMatch) return null;
+  const likes = Number(likeMatch[1].replace(/[.,]/g, '')) || 0;   // id-ID thousands separators are cosmetic here
+  s = s.slice(0, likeMatch.index).trim();
+  s = s.replace(/^["“']/, '').replace(/["”']$/, '').trim();
+  return s ? { hook: s, cat: cat, likes: likes } : null;
+}
+/* the other half of BAGIKAN: read the clipboard back so a saved list survives a new phone */
+async function importSaved() {
+  if (!navigator.clipboard || !navigator.clipboard.readText) { showToast('Browser ini tidak bisa membaca clipboard. Tempel manual ya.', false); return; }
+  let text = '';
+  try { text = await navigator.clipboard.readText(); }
+  catch (e) { showToast('Izinkan akses clipboard dulu ya.', false); return; }
+  const fresh = [];
+  text.split(/\r?\n/).map(parseImportLine).filter(Boolean).forEach(function (p) {
+    const key = ideaKey(p.cat, p.hook);
+    if (savedKeys.has(key) || fresh.some(function (x) { return x.key === key; })) return;
+    /* imported ideas carry no topics: the line format has no topic field, so they show no chips */
+    fresh.push({ key: key, contentType: p.cat, contentIdea: p.hook, estimatedLike: p.likes, topics: '', savedAt: Date.now() });
+  });
+  if (!fresh.length) { showToast('Tidak ada ide baru di clipboard.'); return; }
+  const merged = fresh.concat(savedIdeas);   // line 1 of the pasted text lands on top, matching the export numbering
+  const next = merged.slice(0, SAVED_MAX);
+  const dropped = merged.length - next.length;
+  if (!writeJson(SAVED_KEY, next)) { showToast('Gagal menyimpan ide. Coba lagi.', false); return; }
+  savedIdeas = next;
+  savedKeys = new Set(savedIdeas.map(function (s) { return s.key; }));
+  playStampThud();
+  updateSavedCounts();
+  if (currentView === 'saved') renderSaved();
+  /* the cap used to eat the oldest ideas in silence, unlike toggleSave()'s "Simpanan penuh" toast */
+  showToast(dropped
+    ? fresh.length + ' ide ditempel. Simpanan penuh, ' + dropped + ' ide terlama dilepas.'
+    : fresh.length + ' ide ditempel dari clipboard.');
 }

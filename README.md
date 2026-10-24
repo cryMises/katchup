@@ -26,6 +26,7 @@ of the seven content categories (Edukasi, Gaya Hidup, Berita, Politik, Humor, Bu
 - A weekly category fact computed from the payload, not hardcoded.
 - On-device saved ideas with an undoable unstar and a 100-hook cap that says what it dropped.
 - Ide Tersimpan view, sharing the same topic filter as the idea list.
+- BAGIKAN exports the saved list as plain text and TEMPEL reads it back, so the list survives a new phone.
 
 ## How it works
 

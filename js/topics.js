@@ -167,9 +167,9 @@ function renderIdeas() {
   triggerReveal();
 }
 
-/* One idea ticket (opts: index, catKey, stamp, bump, meta; meta and the shared saved-list use land with the
-   saved list). Fills _ticketIndex so the save toggle can snapshot the item without rebuilding it, and paints the
-   toggle's pressed state from the saved store. The spine and the "on" topic chips read --cat / --cart-ink, which
+/* One idea ticket, shared by the category list and the saved list (opts: index, catKey, stamp, bump, meta).
+   Fills _ticketIndex so the save toggle can snapshot the item without rebuilding it, and paints the toggle's
+   pressed state from the saved store. The spine and the "on" topic chips read --cat / --cart-ink, which
    selectCategory() writes on :root for the picked category. */
 function ideaTicket(item, opts) {
   const o = opts || {};
