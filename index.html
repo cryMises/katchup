@@ -647,6 +647,23 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
   </button>
 </div>
 
+<!-- PRANK 2: tombol "!!" -> hujan tomat Ketchy; tiap tomat yang dipetik ninggalin splat + satu nada naik, dan
+     semua yang kelar dibersihin (dipetik habis, digosok, atau kartu fakta ditutup) naikin debu. Petik 16 tomatnya
+     satu-satu buat satu FAKTA RADAR di #splatCard — BERSIHKAN sengaja nggak ngasih faktanya, itu jalan pintas.
+     Hapus #prankBtn/#ketchupLayer/#splatCard/#cleanBtn + rainKetchup()/pluckKetchup()/leaveSplat()/sweepKetchup()/splatRandomFact()/RADAR_FACTS/hideSplatCard()/splatSvg()/dustSvg()/blobPoints()/blowDustClouds(). -->
+<button id="prankBtn" class="prank-btn btn-keycap" onclick="rainKetchup()" aria-label="Hujan tomat Ketchy, bonus fakta radar" title="Hujan tomat! Bersihin buat kejutan.">!!</button>
+<div id="ketchupLayer" class="ketchup-layer" aria-hidden="true"></div>
+<div id="splatCard" class="splat-card" hidden>
+  <span class="flex items-center gap-2">
+    <span class="rubber-stamp bg-pop-pink">FAKTA RADAR</span>
+    <span class="splat-scrawl">Nyiprat!</span>
+  </span>
+  <p id="splatFact" class="splat-fact mt-3"></p>
+  <p id="splatSource" class="eyebrow mt-2"></p>
+  <button type="button" class="splat-close" onclick="hideSplatCard()" aria-label="Tutup fakta radar">&times;</button>
+</div>
+<button id="cleanBtn" class="clean-btn btn-keycap" onclick="sweepKetchup()" hidden>BERSIHKAN</button>
+
 <!-- Scripts this page needs (classic, deferred, in this order):
      js/config.js — API_BASE, endpoints, storage keys, category labels
      js/utils.js  — fmt/fmt1, fmtClock/fmtAgo, escapeHtml/escapeJsArg/escapeJsString, inkOn, readJson/writeJson
@@ -666,7 +683,8 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
                     copySnippet (clipboard + TERSALIN restore)
      js/saved.js  — the katchup_saved store (100 cap), function toggleSave + its undo toast, function renderSaved
                     and its filtered-empty state, function exportSaved / parseImportLine / importSaved
-     js/pranks.js — the removable easter eggs: function peelHero (peel-open hero) and CREATOR_TIPS
+     js/pranks.js — the removable easter eggs: function peelHero (peel-open hero) and CREATOR_TIPS,
+                    function rainKetchup / pluckKetchup / sweepKetchup + RADAR_FACTS (ketchup rain + FAKTA RADAR)
      js/app.js    — DOM-ready glue only: initApp() (one load path), boot dismissal, drawer inert on resize -->
 <script src="js/config.js" defer></script>
 <script src="js/utils.js" defer></script>
