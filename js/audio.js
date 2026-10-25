@@ -80,10 +80,10 @@ function updateAudioFxButtonState() {
   const el = document.getElementById('audioFxStatus');
   if (!el) return;
   if (isAudioMuted) {
-    el.innerText = 'MATI';
+    el.innerText = 'MUTE';
     el.className = 'px-2 py-0.5 bg-pop-red text-cocoa rounded-full border-2 border-cocoa text-[0.625rem]';
   } else {
-    el.innerText = 'AKTIF';
+    el.innerText = 'ON';
     el.className = 'px-2 py-0.5 bg-pop-mint rounded-full border-2 border-cocoa text-[0.625rem]';
   }
 }
@@ -91,6 +91,6 @@ function toggleAudioFx() {
   isAudioMuted = !isAudioMuted;
   try { localStorage.setItem('katchup_audio_mute', String(isAudioMuted)); } catch (e) {}
   updateAudioFxButtonState();
-  if (!isAudioMuted) { playCueTone(640); showToast('Efek suara aktif kembali.'); }
+  if (!isAudioMuted) { playCueTone(640); showToast('Efek suara nyala lagi.'); }
   else { showToast('Efek suara dimatikan.', false); }
 }

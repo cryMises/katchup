@@ -4,9 +4,7 @@ Katchup is a content-idea radar for Indonesian creators. It turns a weekly Insta
 something you can act on: which format is winning, which sounds are climbing, and what to post next in each
 of the seven content categories (Edukasi, Gaya Hidup, Berita, Politik, Humor, Budaya, Kuliner).
 
-**Status:** The app is complete; PWA packaging is in progress.
-
-## What works today
+## What it does
 
 - Branded boot sequence (K-A-T-C-H-U-P) that hands off after 2.1s, dot-paper shell, and the four view
   containers: Ringkasan Tren, Analisis Konten, Rekomendasi Ide, Ide Tersimpan.
@@ -27,6 +25,7 @@ of the seven content categories (Edukasi, Gaya Hidup, Berita, Politik, Humor, Bu
 - On-device saved ideas with an undoable unstar and a 100-hook cap that says what it dropped.
 - Ide Tersimpan view, sharing the same topic filter as the idea list.
 - BAGIKAN exports the saved list as plain text and TEMPEL reads it back, so the list survives a new phone.
+- Installable PWA: manifest, icons, an offline shell, and an install affordance where the browser supports it.
 
 ## How it works
 
@@ -45,6 +44,10 @@ fetch time as *ditarik* and states the cadence; it never implies the numbers are
 | `/music` | Top tracks by total likes |
 | `/type` | Video vs. image/carousel aggregates |
 
+The service worker precaches the shell and serves it stale-while-revalidate, while API calls stay
+network-first. Range requests and cross-origin media bypass the worker: iOS Safari will not play a file
+whose range request comes back as a full 200 body.
+
 ## Run it
 
 No build step, no install. Serve the folder root:
@@ -53,7 +56,8 @@ No build step, no install. Serve the folder root:
 python -m http.server 8080
 ```
 
-Then open <http://localhost:8080>. Serving matters: the data fetch needs an http origin, `file://` will not do.
+Then open <http://localhost:8080>. Use `localhost` or HTTPS — the service worker and the data fetch both need
+an http origin.
 
 ## Stack
 
@@ -61,3 +65,4 @@ Then open <http://localhost:8080>. Serving matters: the data fetch needs an http
 - No npm, no bundler, no framework.
 - Web Audio for the UI sounds — synthesised at runtime, no audio files.
 - localStorage for the payload cache and the saved-ideas list.
+- PWA: manifest, icons and a service worker.

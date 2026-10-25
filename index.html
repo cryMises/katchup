@@ -6,11 +6,14 @@
 <title>KATCHUP — Radar Ide Konten Kreator Indonesia</title>
 
 <meta name="theme-color" content="#FBF3E4">
-<!-- no icon file ships until the PWA slice; an empty data icon keeps the browser from logging a favicon 404 -->
-<link rel="icon" href="data:,">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Katchup">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 
 <!-- Type: 'Baloo 2' chunky rounded Latin display (marker feel) for headlines/buttons;
      'Nunito' humanist rounded sans for body; 'Permanent Marker' literal hand-drawn marker for section titles.
@@ -62,6 +65,8 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
   <symbol id="d-pause" viewBox="0 0 24 24"><path d="M9 5v14M15 5v14"/></symbol>
   <symbol id="d-note" viewBox="0 0 24 24"><path d="M9 17V5l10-2v12"/><circle cx="6.6" cy="17.4" r="2.6"/><circle cx="16.6" cy="15.4" r="2.6"/></symbol>
   <symbol id="d-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="d-chevL" viewBox="0 0 24 24"><path d="M15 5 8 12l7 7"/></symbol>
+  <symbol id="d-chevR" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></symbol>
   <symbol id="d-arrow" viewBox="0 0 24 24"><path d="M4 12h14M12.5 6.5 18 12l-5.5 5.5"/></symbol>
   <symbol id="d-check" viewBox="0 0 24 24"><path d="M4.5 12.5 9.5 17.5 20 6.5"/></symbol>
   <symbol id="d-copy" viewBox="0 0 24 24"><path d="M9 9h10v10H9z"/><path d="M15 5H5v10"/></symbol>
@@ -172,7 +177,7 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
     <span class="boot-letter" style="animation-delay:.48s">P</span>
   </div>
   <div class="boot-splat"></div>
-  <p class="boot-sub">Ketchy sedang bersiap, sebentar ya...</p>
+  <p class="boot-sub">Ketchy lagi ngecek data tren dulu ya...</p>
 </div>
 
 <!-- toast: `invisible` while hidden is what keeps its undo button out of the tab order (js/ui.js owns the toggle) -->
@@ -190,16 +195,14 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
   <div class="flex flex-col flex-1 min-h-0">
 
     <div class="p-3.5 border-b-2 border-cocoa flex items-center justify-between gap-2">
-      <span class="w-5 h-5 shrink-0 rounded border-2 border-cocoa bg-pop-yellow flex items-center justify-center p-0.5" aria-hidden="true">
-        <svg viewBox="0 0 100 100" class="w-full h-full"><use href="#ketchy-1"></use></svg>
-      </span>
+      <img src="icons/favicon-32x32.png" class="w-5 h-5 shrink-0 rounded border-2 border-cocoa" alt="Katchup">
       <span class="sidebar-text eyebrow">RADAR KREATOR ID</span>
       <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-spark"></use></svg>
     </div>
 
     <div id="brandToggleContainer" class="p-4 border-b-2 border-cocoa sidebar-header-box cursor-pointer select-none flex items-center gap-3" title="Buka/tutup menu">
       <button id="sidebarLogoBtn" aria-label="Buka/tutup menu" class="w-12 h-12 shrink-0 bg-pop-yellow border-2 border-cocoa rounded-2xl shadow-[0_3px_0_#2E1E14] overflow-hidden p-0.5 btn-keycap-sm">
-        <svg viewBox="0 0 100 100" class="w-full h-full rounded-xl"><use href="#ketchy-1"></use></svg>
+        <img src="icons/apple-touch-icon.png" alt="Ketchy, maskot Katchup" class="w-full h-full rounded-xl object-cover">
       </button>
       <div class="sidebar-text min-w-0">
         <div class="flex items-center gap-2">
@@ -214,8 +217,8 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
     <div class="p-3.5 border-b-2 border-cocoa sidebar-text">
       <div class="flex items-center justify-between gap-2 border-2 border-cocoa rounded-full px-3 py-2 bg-cream">
         <span class="flex items-center gap-2 min-w-0">
-          <span id="telemetryLedDot" class="w-3 h-3 shrink-0 inline-block bg-pop-yellow jewel-led"></span>
-          <span id="telemetryStatusLabel" class="font-headline text-[0.6875rem] font-extrabold uppercase truncate">RADAR: BELUM DIMUAT</span>
+          <span id="telemetryLedDot" class="w-3 h-3 shrink-0 inline-block bg-pop-mint jewel-led"></span>
+          <span id="telemetryStatusLabel" class="font-headline text-[0.6875rem] font-extrabold uppercase truncate">RADAR: TERHUBUNG</span>
         </span>
         <span class="font-headline text-[0.625rem] font-extrabold uppercase shrink-0 text-on-surface-variant">mingguan</span>
       </div>
@@ -266,7 +269,12 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-note"></use></svg>
           <span>EFEK SUARA</span>
         </span>
-        <span id="audioFxStatus" class="px-2 py-0.5 bg-pop-mint rounded-full border-2 border-cocoa text-[0.625rem]">AKTIF</span>
+        <span id="audioFxStatus" class="px-2 py-0.5 bg-pop-mint rounded-full border-2 border-cocoa text-[0.625rem]">ON</span>
+      </button>
+      <!-- shown only while the app is installable (js/ui.js owns both CTAs) -->
+      <button id="installAppBtn" type="button" onclick="installApp(); playMechanicalClick();"
+        class="hidden w-full items-center justify-center gap-2 px-3.5 py-2 bg-pop-mint btn-keycap-sm font-headline text-xs font-extrabold uppercase">
+        PASANG APLIKASI
       </button>
     </div>
 
@@ -292,12 +300,10 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
       </button>
       <div class="min-w-0" aria-live="polite" aria-atomic="true">
         <div class="flex items-center gap-2.5">
-          <span class="w-7 h-7 rounded-lg border-2 border-cocoa bg-pop-yellow shrink-0 flex items-center justify-center p-0.5" aria-hidden="true">
-            <svg viewBox="0 0 100 100" class="w-full h-full"><use href="#ketchy-1"></use></svg>
-          </span>
+          <img src="icons/favicon-32x32.png" alt="" class="w-7 h-7 rounded-lg border-2 border-cocoa shrink-0">
           <h1 id="viewTitle" class="font-headline text-base sm:text-lg font-extrabold uppercase tracking-wide truncate">RINGKASAN TREN</h1>
         </div>
-        <p id="viewSubtitle" class="text-[0.71875rem] font-bold text-on-surface-variant truncate hidden sm:block">Radar ide konten Instagram Indonesia</p>
+        <p id="viewSubtitle" class="text-[0.71875rem] font-bold text-on-surface-variant truncate hidden sm:block">Yang rame minggu ini di Instagram Indonesia</p>
       </div>
     </div>
 
@@ -331,11 +337,11 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
       <svg class="flip-frame" viewBox="0 0 100 100"><use href="#ketchy-3"></use></svg>
       <svg class="flip-frame" viewBox="0 0 100 100"><use href="#ketchy-4"></use></svg>
     </div>
-    <h2 class="marker marker-sm" style="--rule:#FFCE00">SEDANG MENGAMBIL DATA</h2>
+    <h2 class="marker marker-sm" style="--rule:#FFCE00">LAGI NGAMBIL DATA</h2>
     <div class="w-64 max-w-full h-4 bg-white border-2 border-cocoa rounded-full p-[3px] relative overflow-hidden">
       <div class="h-full w-10 bg-pop-yellow rounded-full border border-cocoa scanner-dot"></div>
     </div>
-    <p class="note max-w-xs">Ketchy sedang mengambil data tren. Butuh beberapa detik.</p>
+    <p class="note max-w-xs">Ketchy lagi nyambung ke radar tren. Butuh beberapa detik saja.</p>
   </div>
 
   <!-- data error state: the fetch failed and there is no cached payload to fall back on -->
@@ -346,11 +352,11 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
       <svg class="flip-frame" viewBox="0 0 100 100"><use href="#ketchy-3"></use></svg>
       <svg class="flip-frame" viewBox="0 0 100 100"><use href="#ketchy-4"></use></svg>
     </div>
-    <h2 class="marker marker-sm" style="--rule:#FF4949">RADAR TERPUTUS</h2>
-    <p id="errorMessage" class="note max-w-sm">Server data tidak bisa dihubungi. Cek koneksi, lalu coba lagi.</p>
+    <h2 class="marker marker-sm" style="--rule:#FF4949">RADARNYA PUTUS</h2>
+    <p id="errorMessage" class="note max-w-sm">Server datanya nggak kejangkau. Cek koneksi, terus coba lagi ya.</p>
     <button onclick="initApp(); playMechanicalClick();" class="mt-1 px-5 py-2.5 bg-pop-yellow btn-keycap font-headline text-xs font-extrabold uppercase tracking-wide flex items-center gap-2">
       <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-refresh"></use></svg>
-      COBA MUAT ULANG
+      COBA HUBUNGKAN LAGI
     </button>
   </div>
 
@@ -387,10 +393,10 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
             </div>
             <div class="flex flex-col sm:flex-row gap-5 items-start">
               <div class="flex-1 min-w-0">
-                <h2 class="marker" style="--rule:#FF4949">RADAR KONTEN VIRAL UNTUK KREATOR INDONESIA</h2>
+                <h2 class="marker" style="--rule:#FF4949">RADAR KONTEN VIRAL BUAT KREATOR INDONESIA</h2>
                 <p class="note mt-3">
-                  Ini buku tempel ide konten: kami rangkum sound yang sedang naik, bandingkan Reels dengan carousel
-                  foto, lalu simpan ide dengan hook yang siap kamu pakai.
+                  Ini buku tempel ide konten: kami rangkum sound yang lagi naik, bandingkan Reels sama carousel
+                  foto, terus simpan ide yang siap kamu contek hooknya.
                 </p>
                 <div class="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 font-headline text-[0.71875rem] font-extrabold uppercase">
                   <span class="flex items-center gap-1.5"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="#FF4949" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-radar"></use></svg>1. Ambil tren</span>
@@ -429,8 +435,20 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
 
       <!-- the one category picker: js/home.js builds the cartridges into #topicGridContainer -->
       <section data-reveal>
-        <h2 class="marker" style="--rule:#5B8CFF">7 KATEGORI KONTEN TREN</h2>
-        <p class="note mt-2">Klik salah satu kartu untuk mengganti daftar ide di halaman REKOMENDASI IDE. Tiap kartu membawa warna kategorinya sendiri, dan angkanya dibandingkan dengan pengambilan minggu sebelumnya.</p>
+        <div class="flex items-end justify-between gap-3 flex-wrap">
+          <h2 class="marker" style="--rule:#5B8CFF">7 KATEGORI KONTEN TREN</h2>
+          <!-- mouse/keyboard way to reach the rest of the carousel: a horizontal row has no wheel scroll without shift -->
+          <div class="flex gap-2 pb-2">
+            <button type="button" onclick="scrollCarousel('left'); playMechanicalClick();" class="w-9 h-9 bg-white btn-keycap-sm flex items-center justify-center" title="Geser kiri" aria-label="Geser kiri">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-chevL"></use></svg>
+            </button>
+            <button type="button" onclick="scrollCarousel('right'); playMechanicalClick();" class="w-9 h-9 bg-white btn-keycap-sm flex items-center justify-center" title="Geser kanan" aria-label="Geser kanan">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-chevR"></use></svg>
+            </button>
+          </div>
+        </div>
+        <p class="note mt-2">Klik salah satu kartu buat ganti daftar ide di bawahnya.</p>
+        <p class="note mt-1.5">Daftarnya ada di halaman REKOMENDASI IDE. Tiap kartu membawa warna kategorinya sendiri, dan angkanya dibandingkan dengan pengambilan minggu sebelumnya.</p>
         <div id="topicGridContainer" class="flex items-start gap-4 overflow-x-auto pb-3 pt-5 snap-x snap-mandatory"></div>
         <p id="homeFact" class="note mt-2">Menunggu data topik...</p>
       </section>
@@ -440,14 +458,14 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
       <!-- JALUR shortcuts: role="button" + Enter/Space, because they are actions, not links -->
       <section data-reveal class="flex flex-col gap-5">
         <h2 class="marker marker-sm" style="--rule:#FF7BB8">MULAI DARI MANA?</h2>
-        <article class="block" role="button" tabindex="0" aria-label="Buka Analisis Konten: perbandingan Reels vs Foto" onclick="switchView('analytics'); playMechanicalClick();" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchView('analytics');playMechanicalClick();}">
+        <article class="block" data-bump role="button" tabindex="0" aria-label="Buka Analisis Konten: perbandingan Reels vs Foto" onclick="switchView('analytics'); playMechanicalClick();" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchView('analytics');playMechanicalClick();}">
           <div class="tape-pin" style="background:rgba(255,123,184,.85)"></div>
           <div class="flex items-center justify-between gap-2 mb-2">
             <span class="washi-tape washi-tape-pink">JALUR 01</span>
             <span class="eyebrow">RASIO FORMAT</span>
           </div>
           <h3 class="font-headline text-lg font-extrabold uppercase tracking-wide">Perbandingan Reels vs Foto</h3>
-          <p class="note mt-1.5">Lihat format mana yang lebih banyak mendapat likes dan komentar di data mingguan terakhir.</p>
+          <p class="note mt-1.5">Lihat mana yang lebih banyak dapat likes dan komentar di data mingguan terakhir.</p>
         </article>
         <article class="block" role="button" tabindex="0" aria-label="Buka Rekomendasi Ide: kategori tren dan ide siap pakai" onclick="switchView('topics'); playMechanicalClick();" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchView('topics');playMechanicalClick();}">
           <div class="tape-pin" style="background:rgba(47,224,168,.85)"></div>
@@ -456,7 +474,16 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
             <span class="eyebrow">IDE SIAP PAKAI</span>
           </div>
           <h3 class="font-headline text-lg font-extrabold uppercase tracking-wide">Tren 7 Kategori &amp; Ide Siap Pakai</h3>
-          <p class="note mt-1.5">Edukasi, Gaya Hidup, Berita, Politik, Humor, Kuliner, dan Budaya. Tiap ide punya perkiraan likes, plus tombol SALIN HOOK.</p>
+          <p class="note mt-1.5">Edukasi, Gaya Hidup, Berita, Politik, Humor, Kuliner, dan Seni Budaya. Kelihatan mana yang naik.</p>
+        </article>
+        <article class="block" role="button" tabindex="0" aria-label="Buka Rekomendasi Ide: ide konten siap pakai" onclick="switchView('topics'); playMechanicalClick();" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchView('topics');playMechanicalClick();}">
+          <div class="tape-pin" style="background:rgba(255,206,0,.85)"></div>
+          <div class="flex items-center justify-between gap-2 mb-2">
+            <span class="washi-tape">JALUR 03</span>
+            <span class="eyebrow">IDE SIAP PAKAI</span>
+          </div>
+          <h3 class="font-headline text-lg font-extrabold uppercase tracking-wide">Rekomendasi Ide Konten</h3>
+          <p class="note mt-1.5">Tiap ide ada perkiraan likes-nya, plus tombol SALIN HOOK biar kamu tinggal tempel.</p>
         </article>
       </section>
 
@@ -466,7 +493,7 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
       <section data-reveal class="flex items-center justify-between gap-3 flex-wrap">
         <span class="flex items-center gap-2 font-headline text-[0.71875rem] font-extrabold uppercase">
           <span class="w-3 h-3 bg-pop-mint jewel-led inline-block shrink-0"></span>
-          <span id="statusLine">Status: data tren Instagram Indonesia sudah terhubung</span>
+          <span id="statusLine">Status: data tren Instagram Indonesia terhubung</span>
         </span>
         <span class="eyebrow">4 sumber data · update tiap Senin</span>
       </section>
@@ -480,7 +507,8 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
       <section data-reveal>
         <span class="washi-tape washi-tape-blue">SAMPEL MINGGUAN</span>
         <h2 class="marker mt-4" style="--rule:#FF4949">ANGKA UTAMA</h2>
-        <p class="note mt-3">Rekap dari semua minggu dalam sampel radar. Angka di halaman ini dijumlah dari setiap minggu pengambilan data, jadi bukan angka satu minggu.</p>
+        <p class="note mt-2">Rekap angka dari sampel konten yang kami pantau.</p>
+        <p class="note mt-1.5">Angka di halaman ini dijumlah dari setiap minggu pengambilan data, jadi bukan angka satu minggu.</p>
         <div id="kpiRow" class="flex flex-col mt-3"></div>
       </section>
 
@@ -488,7 +516,8 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
 
       <section data-reveal>
         <h2 class="marker" style="--rule:#5B8CFF">PERBANDINGAN REELS VS FOTO</h2>
-        <p class="note mt-2">Kedua bar membaca data yang sama, jadi porsi Reels dan foto selalu berjumlah 100% dari sampel.</p>
+        <p class="note mt-2">Meter di bawah nunjukin porsi tiap format dari total konten yang terekam.</p>
+        <p class="note mt-1.5">Kedua bar membaca data yang sama, jadi porsi Reels dan foto selalu berjumlah 100% dari sampel.</p>
         <div id="formatCompare" class="flex flex-col mt-4"></div>
       </section>
 
@@ -496,7 +525,7 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
 
       <section data-reveal>
         <h2 class="marker" style="--rule:#2FE0A8">TOP 5 SOUND VIRAL</h2>
-        <p class="note mt-2">Sound yang paling sering muncul di konten dengan likes tinggi.</p>
+        <p class="note mt-2">Sound yang paling sering nempel di konten dengan likes gede.</p>
         <p class="note mt-2">Tombol DENGAR memutar preview langsung di halaman ini. Kalau link preview tidak tersedia atau sudah kedaluwarsa, Katchup membunyikan nada pengganti singkat.</p>
         <!-- Shared preview player: a real, attached element — iOS Safari is unreliable with a detached audio element. -->
         <audio id="musicPlayer" preload="metadata"></audio>
@@ -525,7 +554,7 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
             <h2 id="activeCategoryTitle" class="font-headline text-base sm:text-lg font-extrabold uppercase tracking-wide truncate">DAFTAR IDE KONTEN</h2>
             <div class="flex items-center gap-2 flex-wrap mt-1.5">
               <span id="activeCategoryBadge" class="rubber-stamp bg-pop-yellow">KATEGORI</span>
-              <span class="eyebrow">Diurutkan dari potensi likes</span>
+              <span class="eyebrow">Urut dari potensi likes</span>
             </div>
           </div>
         </div>
@@ -579,7 +608,7 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
             </button>
           </span>
         </div>
-        <p class="note mt-2">Hook yang kamu tandai akan tersimpan di perangkat ini, jadi tetap aman saat data diperbarui.</p>
+        <p class="note mt-2">Hook yang kamu tandai, kesimpan di perangkat ini. Nggak hilang waktu data diperbarui.</p>
       </section>
 
       <hr class="rule-doodle">
@@ -593,7 +622,7 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
             <svg class="flip-frame" viewBox="0 0 100 100"><use href="#ketchy-4"></use></svg>
           </div>
           <p class="font-headline font-extrabold uppercase">Belum ada ide tersimpan</p>
-          <p class="note">Tandai ide dengan tombol SIMPAN di daftar ide, nanti muncul di sini.</p>
+          <p class="note">Tandai ide pakai tombol SIMPAN di daftar ide, nanti muncul di sini.</p>
           <button onclick="switchView('topics'); playMechanicalClick();" class="mt-3 px-4 py-2 bg-pop-red text-cocoa btn-keycap font-headline text-xs font-extrabold uppercase">CARI IDE [3]</button>
         </div>
         <div id="savedListContainer" class="flex flex-col gap-5"></div>
@@ -604,7 +633,7 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
             <span class="w-2.5 h-2.5 bg-pop-mint jewel-led inline-block shrink-0"></span>
             Disimpan di perangkat kamu
           </span>
-          <span class="eyebrow">Lokal · hanya di browser ini</span>
+          <span class="eyebrow">Lokal · browser ini aja</span>
         </div>
         <!-- the payload-count line the data slice prints; still the honest "did the radar arrive" answer -->
         <p class="eyebrow mt-2" data-summary>Menunggu data radar...</p>
@@ -644,6 +673,12 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
     class="flex-1 py-2 px-1 bg-cream text-cocoa font-black uppercase btn-keycap-sm flex flex-col items-center justify-center">
     <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-save"></use></svg>
     <span class="text-[0.625rem] mt-0.5">SIMPAN</span>
+  </button>
+  <!-- shown only while the app is installable; on phones the sidebar CTA hides behind the drawer -->
+  <button id="installAppBtnMobile" type="button" onclick="installApp(); playMechanicalClick();"
+    class="hidden flex-1 py-2 px-1 bg-pop-mint text-cocoa font-black uppercase btn-keycap-sm flex-col items-center justify-center">
+    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-save"></use></svg>
+    <span class="text-[0.625rem] mt-0.5">PASANG</span>
   </button>
 </div>
 
@@ -686,7 +721,8 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
      js/audio.js  — the Web Audio FX engine (click/snap/thud/cue), lazy context, mute persistence, hotkey M
      js/music.js  — the TOP 5 list, the shared <audio> player, cueTrack, LED bars, expiry-safe play()
      js/ui.js     — setText, setA11yStatus, function hideToast, function showToast (undo button), boot dismissal,
-                    reveal observer, pop-in cleanup
+                    reveal observer, pop-in cleanup, the install CTA (function installApp / updateInstallCta,
+                    beforeinstallprompt + appinstalled + the iOS "Tambah ke Layar Utama" hint)
      js/nav.js    — function saveViewScroll / restoreViewScroll, function switchView, toggleMobileSidebar,
                     function syncSidebarInert, the Escape-closes-drawer path, hotkeys 1/2/3/4, R and M
      js/stats.js  — function computeTypeStats (pure /type totals) plus /topic delta rows
@@ -701,7 +737,8 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
      js/pranks.js — the three removable easter eggs: function bumpCard + function initScrollPranks (scroll bump),
                     function rainKetchup / pluckKetchup / sweepKetchup + RADAR_FACTS (ketchup rain + FAKTA RADAR),
                     function peelHero (peel-open hero), function bonkEdgeTomato + the peeker scheduling
-     js/app.js    — DOM-ready glue only: initApp() (one load path), boot dismissal, drawer inert on resize -->
+     js/app.js    — DOM-ready glue only: initApp() (one load path), boot dismissal, drawer inert on resize,
+                    and the service-worker registration (sw.js caches the shell, never the API) -->
 <script src="js/config.js" defer></script>
 <script src="js/utils.js" defer></script>
 <script src="js/data.js" defer></script>

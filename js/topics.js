@@ -59,7 +59,7 @@ function renderCategoryQuickTags() {
 function filterByTopic(topic) {
   playPatchCordSnap();
   if (activeTopicFilter === topic) { activeTopicFilter = null; }
-  else { activeTopicFilter = topic; showToast('Filter topik #' + topic.toUpperCase() + ' aktif.'); }
+  else { activeTopicFilter = topic; showToast('Filter topik #' + topic.toUpperCase() + ' dipasang.'); }
   renderIdeas();
   /* the same chips sit on saved tickets, and the saved list shares this one filter */
   if (currentView === 'saved') renderSaved();
@@ -236,7 +236,7 @@ async function copySnippet(btn) {
     if (navigator.clipboard && navigator.clipboard.writeText) { await navigator.clipboard.writeText(text); succeeded = true; }
     else { succeeded = legacyCopyToClipboard(text); }
   } catch (e) { succeeded = legacyCopyToClipboard(text); }
-  if (!succeeded) { showToast('Gagal menyalin. Coba lagi.', false); return; }
+  if (!succeeded) { showToast('Gagal menyalin, coba lagi ya.', false); return; }
   playPatchCordSnap();
   /* capture the idle label once: a double click used to snapshot the "TERSALIN" state and stick there */
   if (!btn.dataset.original) btn.dataset.original = btn.innerHTML;
@@ -244,7 +244,7 @@ async function copySnippet(btn) {
   btn.innerHTML = '<span class="material-symbols-outlined text-[0.9375rem]">done_all</span>TERSALIN';
   btn.classList.add('bg-pop-mint');
   btn.classList.remove('bg-pop-yellow');
-  showToast('Hook-nya sudah tersalin ke clipboard.');
+  showToast('Hook-nya udah nyangkut di clipboard.');
   clearTimeout(btn._copyTimer);
   btn._copyTimer = setTimeout(function () {
     btn.classList.remove('stamped');

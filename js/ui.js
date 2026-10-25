@@ -98,3 +98,39 @@ function triggerReveal() {
     requestAnimationFrame(function () { initScrollReveal(); initScrollPranks(); });
   });
 }
+
+/* ================= INSTALL AFFORDANCE (PWA) ================= */
+/* Chrome/Edge/Android fire beforeinstallprompt; iOS Safari never does, so it gets instructions instead.
+   Rendered twice because the sidebar CTA hides behind a drawer on phones. */
+let _installEvent = null;
+function isIos() { return /iPad|iPhone|iPod/.test(navigator.userAgent || ''); }
+function isStandalone() {
+  return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+}
+function updateInstallCta() {
+  const iosHint = !_installEvent && isIos();
+  const show = !isStandalone() && (_installEvent || iosHint);
+  ['installAppBtn', 'installAppBtnMobile'].forEach(function (id) {
+    const btn = document.getElementById(id);
+    if (!btn) return;
+    btn.classList.toggle('hidden', !show);
+    btn.classList.toggle('flex', show);
+  });
+  const sidebarBtn = document.getElementById('installAppBtn');
+  if (sidebarBtn && show) sidebarBtn.innerText = iosHint ? 'CARA PASANG' : 'PASANG APLIKASI';
+}
+window.addEventListener('beforeinstallprompt', function (e) {
+  e.preventDefault();
+  _installEvent = e;
+  updateInstallCta();
+});
+window.addEventListener('appinstalled', function () { _installEvent = null; updateInstallCta(); });
+function installApp() {
+  if (_installEvent) {
+    _installEvent.prompt();
+    _installEvent = null;
+    updateInstallCta();
+    return;
+  }
+  if (isIos()) showToast('Buka menu Bagikan, terus pilih "Tambah ke Layar Utama".');
+}

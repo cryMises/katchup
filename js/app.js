@@ -14,9 +14,9 @@ async function initApp() {
     if (loadCachedData()) {          // no fresh data -> last week's payload beats an error screen
       renderDataSummary();
       showStale();
-      showToast('Server radar tidak bisa dihubungi. Memakai data tersimpan.', false);
+      showToast('Server radar nggak kejangkau. Pakai data tersimpan.', false);
     } else {
-      showError(err.message || 'Terjadi kesalahan saat mengambil data. Coba lagi.');
+      showError(err.message || 'Ada yang salah pas narik data. Coba lagi ya.');
     }
   }
 }
@@ -24,6 +24,7 @@ async function initApp() {
 function initChrome() {
   dismissBootLoader();
   updateAudioFxButtonState();     // the persisted mute choice has to show before the first click
+  updateInstallCta();             // PWA: only shows when the browser offers an install (or on iOS, as instructions)
   updateSavedCounts();            // the persisted saved list has to show on both nav bars too
   switchView(currentView);       // marks the current page on both nav bars before the first interaction
   initEdgeTomatoPeeker();         // PRANK 1: the peeker schedules itself; deleting it needs this line gone too
@@ -40,3 +41,11 @@ window.addEventListener('resize', function () {
   if (window.innerWidth >= 1024 && isMobileSidebarOpen) toggleMobileSidebar(false);
   syncSidebarInert();
 });
+
+/* PWA: sw.js precaches the shell (css/, js/, icons/, manifest) and keeps the API network-first, so a reload
+   after the first visit comes off the cache while the trend data stays live. */
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('sw.js').catch(function (err) { console.warn('Service worker gagal didaftarkan:', err); });
+  });
+}

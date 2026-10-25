@@ -5,10 +5,10 @@
    Only a real view *change* saves and restores — a same-view call must not yank the user back to a stale offset. */
 const _viewScroll = {};
 const VIEW_META = {
-  home: { title: 'RINGKASAN TREN', subtitle: 'Yang ramai minggu ini di Instagram Indonesia' },
-  analytics: { title: 'ANALISIS KONTEN', subtitle: 'Bandingkan Reels vs foto, plus sound terpopuler' },
-  topics: { title: 'REKOMENDASI IDE KONTEN', subtitle: 'Ide siap pakai per kategori, diurutkan dari potensi likes' },
-  saved: { title: 'IDE TERSIMPAN', subtitle: 'Hook yang kamu tandai, siap dipakai kapan saja' }
+  home: { title: 'RINGKASAN TREN', subtitle: 'Yang rame minggu ini di Instagram Indonesia' },
+  analytics: { title: 'ANALISIS KONTEN', subtitle: 'Bandingin Reels vs foto, plus sound terpopuler' },
+  topics: { title: 'REKOMENDASI IDE KONTEN', subtitle: 'Ide siap pakai per kategori, urut dari potensi likes' },
+  saved: { title: 'IDE TERSIMPAN', subtitle: 'Hook yang kamu tandai, siap dipakai kapan aja' }
 };
 /* switchView re-styles the nav items through className, so these strings are the single source of both looks
    (rest and current page) and have to stay identical to the markup's classes in index.html */

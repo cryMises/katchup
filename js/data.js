@@ -19,19 +19,19 @@ async function fetchEndpoint(name) {
     res = await fetch(API_BASE + name, opts);
   } catch (e) {
     console.error('Katchup: /' + name + ' nggak kejangkau', e);
-    throw new Error('Server data tidak bisa dihubungi. Cek koneksi internet, lalu coba lagi.');
+    throw new Error('Server datanya nggak kejangkau. Cek koneksi internet, terus coba lagi ya.');
   }
   if (!res.ok) {
     console.error('Katchup: /' + name + ' balas status ' + res.status);
     throw new Error(res.status === 503 && !navigator.onLine
-      ? 'Kamu sedang offline. Cek koneksi internet, lalu coba lagi.'
-      : 'Server data sedang bermasalah. Coba lagi sebentar.');
+      ? 'Kamu lagi offline. Cek koneksi internet, terus coba lagi ya.'
+      : 'Server datanya lagi bermasalah. Coba lagi sebentar ya.');
   }
   /* an OK status is not enough: a captive portal or an error page answers 200 with HTML */
   const contentType = res.headers.get('content-type') || '';
   if (!contentType.includes('application/json')) {
     console.error('Katchup: /' + name + ' nggak balas JSON (content-type: ' + (contentType || 'kosong') + ')');
-    throw new Error('Data yang diterima tidak bisa dibaca. Coba lagi sebentar.');
+    throw new Error('Data yang masuk nggak kebaca. Coba lagi sebentar ya.');
   }
   return res.json();
 }
@@ -79,7 +79,7 @@ function stopStaleClock() { if (_staleTimer) { clearInterval(_staleTimer); _stal
 function showLoading() {
   stopStaleClock();
   dataStatus = 'loading';
-  setA11yStatus('Sedang memuat data tren.');
+  setA11yStatus('Lagi memuat data tren.');
   updateLinkStatus('loading');
   paintDataState();
 }
@@ -87,7 +87,7 @@ function showApp() {
   dataStatus = 'ready';
   stopStaleClock();
   /* the refresh path raises a toast of its own; two announcements of one event read as chatter */
-  if (!_isRefreshingTopics) setA11yStatus('Data tren sudah siap.');
+  if (!_isRefreshingTopics) setA11yStatus('Data tren siap dipakai.');
   updateLinkStatus('ready');
   paintDataState();
   /* the numbers are painted once the payload is on screen; a refresh re-runs this with the new rows.
@@ -108,7 +108,7 @@ function showStale() {
 function showError(message) {
   stopStaleClock();
   dataStatus = 'error';
-  dataErrorMessage = message || 'Gagal terhubung ke server data. Cek koneksi, lalu coba lagi.';
+  dataErrorMessage = message || 'Gagal nyambung ke server data. Cek koneksi, terus coba lagi ya.';
   setA11yStatus('Gagal memuat data tren.');
   updateLinkStatus('error');
   paintDataState();
@@ -155,7 +155,7 @@ function paintFreshness() {
   /* the home status line reports the same fetch time as the header pill; "ditarik" is when the app pulled the
      payload, never a claim about when Instagram changed */
   const statusEl = document.getElementById('statusLine');
-  if (statusEl) statusEl.innerText = (stale ? 'Status: memakai data tersimpan' : 'Status: data tren Instagram Indonesia sudah terhubung') + ' · ditarik ' + clock;
+  if (statusEl) statusEl.innerText = (stale ? 'Status: data tersimpan' : 'Status: data tren Instagram Indonesia terhubung') + ' · ditarik ' + clock;
   const footEl = document.getElementById('pageFootDitarik');
   if (footEl) footEl.innerText = (stale ? 'Data tersimpan' : 'Data radar') + ' · ditarik ' + clock + ' · update tiap Senin';
   const topicsEl = document.getElementById('topicsUpdated');
@@ -205,7 +205,7 @@ async function refreshLiveTopics() {
   try {
     await loadApiData();
     showApp();
-    showToast('Data radar berhasil dimuat ulang.');
+    showToast('Data radar sudah ditarik ulang.');
   } catch (err) {
     console.error(err);
     const haveData = dataStatus === 'ready' || dataStatus === 'stale';
@@ -213,7 +213,7 @@ async function refreshLiveTopics() {
        when there is nothing to show at all */
     if (!haveData && loadCachedData()) showStale();
     else updateLinkStatus(haveData ? dataStatus : 'error');
-    showToast(haveData ? 'Gagal memperbarui. Masih memakai data terakhir.' : 'Gagal memperbarui data radar.', false);
+    showToast(haveData ? 'Gagal memperbarui. Masih pakai data terakhir.' : 'Gagal memperbarui data radar.', false);
   } finally {
     if (icon) icon.classList.remove('animate-spin');
     _isRefreshingTopics = false;

@@ -67,7 +67,7 @@ function toggleSave(btn) {
     ? savedIdeas.filter(function (s) { return s.key !== key; })
     : [ideaSnapshot(src.item, src.catKey)].concat(savedIdeas).slice(0, SAVED_MAX);
   /* storage first: if the write fails, the in-memory list must not diverge from what will survive a reload */
-  if (!writeJson(SAVED_KEY, next)) { showToast('Gagal menyimpan ide. Coba lagi.', false); return; }
+  if (!writeJson(SAVED_KEY, next)) { showToast('Gagal menyimpan ide. Coba lagi ya.', false); return; }
   savedIdeas = next;
   savedKeys = new Set(savedIdeas.map(function (s) { return s.key; }));
   updateSavedCounts();
@@ -88,7 +88,7 @@ function restoreSaved(snapshot, index) {
   if (!snapshot || savedKeys.has(snapshot.key)) return;
   const back = savedIdeas.slice();
   back.splice(Math.max(0, index), 0, snapshot);
-  if (!writeJson(SAVED_KEY, back)) { showToast('Gagal mengembalikan ide. Coba lagi.', false); return; }
+  if (!writeJson(SAVED_KEY, back)) { showToast('Gagal mengembalikan ide. Coba lagi ya.', false); return; }
   savedIdeas = back;
   savedKeys = new Set(savedIdeas.map(function (s) { return s.key; }));
   updateSavedCounts();
@@ -125,7 +125,7 @@ function renderSaved() {
   }
   if (hasAny && !visible.length) {
     container.innerHTML = '<div class="drop-in py-10 px-6 text-center bg-white border-2 border-dashed border-cocoa rounded-[18px] flex flex-col items-center">' +
-      '<p class="font-headline font-extrabold uppercase">Tidak ada simpanan dengan topik #' + escapeHtml(activeTopicFilter.toUpperCase()) + '</p>' +
+      '<p class="font-headline font-extrabold uppercase">Nggak ada simpanan dengan topik #' + escapeHtml(activeTopicFilter.toUpperCase()) + '</p>' +
       '<button type="button" onclick="resetTopicFilter(); playMechanicalClick();" class="mt-3 px-4 py-2 bg-pop-red text-cocoa btn-keycap font-headline text-xs font-extrabold uppercase">HAPUS FILTER</button>' +
       '</div>';
   } else {
@@ -161,12 +161,12 @@ function exportSaved() {
     navigator.share({ title: 'Ide konten Katchup', text: text }).catch(function (err) {
       if (err && err.name === 'AbortError') return;
       if (legacyCopyToClipboard(text)) { playPatchCordSnap(); showToast('Semua ide tersalin ke clipboard.'); }
-      else showToast('Gagal membagikan. Coba lagi.', false);
+      else showToast('Gagal membagikan, coba lagi ya.', false);
     });
     return;
   }
   if (legacyCopyToClipboard(text)) { playPatchCordSnap(); showToast('Semua ide tersalin ke clipboard.'); }
-  else showToast('Gagal menyalin. Coba lagi.', false);
+  else showToast('Gagal menyalin, coba lagi ya.', false);
 }
 
 /* label -> category key, so an exported list can land on another device with its accents intact */
@@ -199,7 +199,7 @@ function parseImportLine(line) {
 }
 /* the other half of BAGIKAN: read the clipboard back so a saved list survives a new phone */
 async function importSaved() {
-  if (!navigator.clipboard || !navigator.clipboard.readText) { showToast('Browser ini tidak bisa membaca clipboard. Tempel manual ya.', false); return; }
+  if (!navigator.clipboard || !navigator.clipboard.readText) { showToast('Browser ini nggak bisa baca clipboard. Tempel manual ya.', false); return; }
   let text = '';
   try { text = await navigator.clipboard.readText(); }
   catch (e) { showToast('Izinkan akses clipboard dulu ya.', false); return; }
@@ -210,11 +210,11 @@ async function importSaved() {
     /* imported ideas carry no topics: the line format has no topic field, so they show no chips */
     fresh.push({ key: key, contentType: p.cat, contentIdea: p.hook, estimatedLike: p.likes, topics: '', savedAt: Date.now() });
   });
-  if (!fresh.length) { showToast('Tidak ada ide baru di clipboard.'); return; }
+  if (!fresh.length) { showToast('Nggak ada ide baru di clipboard.'); return; }
   const merged = fresh.concat(savedIdeas);   // line 1 of the pasted text lands on top, matching the export numbering
   const next = merged.slice(0, SAVED_MAX);
   const dropped = merged.length - next.length;
-  if (!writeJson(SAVED_KEY, next)) { showToast('Gagal menyimpan ide. Coba lagi.', false); return; }
+  if (!writeJson(SAVED_KEY, next)) { showToast('Gagal menyimpan ide. Coba lagi ya.', false); return; }
   savedIdeas = next;
   savedKeys = new Set(savedIdeas.map(function (s) { return s.key; }));
   playStampThud();

@@ -14,7 +14,7 @@ function buildCategoryCards() {
   const container = document.getElementById('topicGridContainer');
   if (!container) return;
   if (!CATEGORY_LIST.length) {
-    container.innerHTML = '<p class="note py-4">Belum ada kategori yang dimuat. Coba tekan PERBARUI di atas untuk menarik ulang data.</p>';
+    container.innerHTML = '<p class="note py-4">Belum ada kategori yang dimuat. Coba tekan PERBARUI di atas buat narik ulang datanya.</p>';
     return;
   }
   container.innerHTML = CATEGORY_LIST.map(function (key, ci) {
@@ -115,4 +115,13 @@ function renderHome() {
   else renderIdeas();
   buildCategoryCards();
   renderHomeFact();
+}
+
+/* the chevron buttons beside the cartridges: a horizontal row has no wheel scroll, so mouse and keyboard
+   readers need a step of their own (smooth unless the reader asked for reduced motion) */
+function scrollCarousel(direction) {
+  const container = document.getElementById('topicGridContainer');
+  if (!container) return;
+  const step = container.offsetWidth * 0.75;
+  container.scrollBy({ left: direction === 'left' ? -step : step, behavior: prefersReducedMotion ? 'auto' : 'smooth' });
 }

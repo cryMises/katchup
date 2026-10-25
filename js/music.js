@@ -55,13 +55,13 @@ function cueTrack(btn) {
       if (currentlyPlayingTrackIndex !== index) return;   // a newer pick already took over (old load aborted)
       currentlyPlayingTrackIndex = null;
       renderMusicList(topMusicTracks());
-      showToast('Preview sound tidak bisa diputar.', false);
+      showToast('Preview sound-nya nggak bisa diputar.', false);
     });
     showToast('Memutar preview: ' + trackName.slice(0, 22));
   } else {
     currentlyPlayingTrackIndex = index;
     playCueTone(480 + (index * 90));
-    showToast('Nada pengganti sound #' + (index + 1) + ': ' + trackName.slice(0, 22) + ' (preview).');
+    showToast('Nada cue sound #' + (index + 1) + ': ' + trackName.slice(0, 22) + ' (preview).');
   }
   renderMusicList(topMusicTracks());
 }
