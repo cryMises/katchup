@@ -1,5 +1,9 @@
-/* KATCHUP — removable easter eggs. Each block here is self-contained: delete its markup, its functions in
-   js/pranks.js and this section, and the app still loads. Entrances and state changes only. */
+/* KATCHUP — the three removable easter eggs plus the scroll bump, each block self-contained so deleting its
+   markup, js/pranks.js function and this section removes the prank whole. Entrances and state changes only. */
+
+/* ---- scroll bump: the best ticket thumps once when it scrolls into view (js/pranks.js initScrollPranks) ---- */
+.bumped{animation:bumpOut .9s var(--pop)}
+@keyframes bumpOut{0%{transform:translate(0,0) rotate(0)}28%{transform:translate(16px,-12px) rotate(-2.6deg)}58%{transform:translate(-7px,5px) rotate(1.3deg)}100%{transform:translate(0,0) rotate(0)}}
 
 /* ---- PRANK 3: peel-open hero window ---- */
 .peel{position:relative;perspective:1100px}
@@ -63,8 +67,9 @@
   35%{opacity:1;transform:translateX(7vw) rotate(calc(var(--rot,0deg) - 30deg)) scale(1.08)}
   100%{opacity:0;transform:translateX(130vw) rotate(240deg) scale(.85)}
 }
-/* The ketchup rain may not land in the bottom chrome band: a tomato settling behind the prank button or the
-   BERSIHKAN pill can't be plucked, and plucking by hand is the only route to the FAKTA RADAR payoff. This is the
+/* The ketchup rain may not land in the bottom chrome band: a tomato settling behind the prank button, the bottom
+   nav, the BERSIHKAN pill or the peeker can't be plucked, and plucking by hand is the only route to the FAKTA
+   RADAR payoff. Mobile: prank button top (138px) + the peeker's peek (108px). Desktop: peeker (87px). This is the
    floor of the reserved band; rainKetchup() takes the larger of it and the controls' measured tops, so nudging a
    `bottom` up needs this number to keep up. */
 :root{--rain-floor:150px}
@@ -113,12 +118,89 @@
   font-family:var(--display);font-weight:800;font-size:1.0625rem;line-height:1}
 @media (min-width:1024px){:root{--rain-floor:100px}.prank-btn{bottom:18px}.clean-btn{bottom:22px}.splat-card{bottom:84px}}
 
+/* ---- PRANK 1: edge tomato peeker (peeks periodically from bottom edge, falls when clicked) ---- */
+.edge-tomato-peeker{
+  position:fixed;bottom:0;right:96px;z-index:58;
+  /* ponytail: low lift so Ketchy peeks up from behind the bottom bars; raise if bars grow */
+  --peek-lift:44px;
+  transform:translateY(115%) scale(.85);
+  transition:transform .52s cubic-bezier(.34,1.56,.64,1);
+  border-radius:9999px;user-select:none;-webkit-user-select:none;
+}
+@media (max-width:640px){.edge-tomato-peeker{right:74px}}
+/* >=1024px: no bottom nav, so peek right off the screen edge */
+@media (min-width:1024px){.edge-tomato-peeker{--peek-lift:16px}}
+.edge-tomato-peeker .ketchy-peeker-wrap{
+  position:relative;display:inline-block;transform-origin:50% 100%;
+  transition:transform .34s ease-out;
+}
+.edge-tomato-peeker.peeking{transform:translateY(calc(-1 * var(--peek-lift))) scale(1)}
+.edge-tomato-peeker.peeking .ketchy-peeker-wrap{
+  animation:peekerBob 3.2s cubic-bezier(.45,.05,.55,.95) infinite alternate;
+}
+@keyframes peekerBob{
+  0%{transform:rotate(-5deg) scale(1,1)}
+  30%{transform:translateY(-5px) rotate(-1deg) scale(.97,1.05)}
+  55%{transform:translateY(-7px) rotate(4deg) scale(1.05,.95)}
+  80%{transform:translateY(-3px) rotate(1deg) scale(.98,1.02)}
+  100%{transform:rotate(-2deg) scale(1.01,.99)}
+}
+.edge-tomato-peeker.falling{
+  animation:peekerTumble .95s cubic-bezier(.4,.05,.6,1) forwards!important;
+  pointer-events:none;
+}
+@keyframes peekerTumble{
+  0%{transform:translateY(calc(-1 * var(--peek-lift))) scale(1) rotate(0deg)}
+  18%{transform:translateY(calc(-1 * var(--peek-lift) - 12px)) scale(1.08,.9) rotate(-16deg)}
+  45%{transform:translateY(40vh) scale(.95,.92) rotate(230deg)}
+  75%{transform:translateY(115vh) scale(.9,1) rotate(430deg)}
+  100%{transform:translateY(160vh) scale(.82,.96) rotate(560deg)}
+}
+.peeker-bubble{
+  position:absolute;top:-24px;left:50%;transform:translateX(-50%) scale(.2) rotate(-10deg);
+  transform-origin:50% 130%;opacity:0;
+  background:var(--cocoa);color:var(--yellow);border:2px solid var(--cocoa);
+  font-family:var(--display);font-weight:800;font-size:0.65625rem;letter-spacing:.04em;line-height:1;
+  padding:3px 8px;border-radius:9999px;white-space:nowrap;
+  box-shadow:0 2px 0 rgba(46,30,20,.2);
+  transition:transform .26s cubic-bezier(.5,0,.75,0),opacity .22s ease-in;pointer-events:none;
+}
+.edge-tomato-peeker.peeking .peeker-bubble{
+  transform:translateX(-50%) scale(1) rotate(-3deg);opacity:1;
+  transition:transform .42s cubic-bezier(.34,1.9,.5,1) .16s,opacity .3s ease-out .16s;
+}
+.edge-tomato-peeker.falling .peeker-bubble{transform:translateX(-50%) scale(.1) rotate(10deg);opacity:0}
+
 @media (prefers-reduced-motion: reduce){
+  .bumped{animation:none}
   .falling-bottle{transition:none}
   .clean-btn,.clean-btn.leaving,.splat-card,.splat-card.leaving,.ketchup-splat{animation:none}
   .ketchup-splat.wiped{display:none}   /* reduced motion: the wipe-out is instant instead of animated */
   .dust-cloud{display:none}   /* and dust would sit there forever with animation:none, so it just doesn't appear */
+  .edge-tomato-peeker{transition:none}
+  .edge-tomato-peeker.peeking{transform:translateY(calc(-1 * var(--peek-lift))) scale(1)}
+  .edge-tomato-peeker.peeking .ketchy-peeker-wrap{animation:none}
+  .edge-tomato-peeker.falling{animation:none!important;transform:translateY(160%)!important}
+  .ketchy-peeker-wrap{transition:none}
+  .peeker-bubble{transition:none}
+  .edge-tomato-peeker.peeking .peeker-bubble{opacity:1;transform:translateX(-50%) scale(1) rotate(-3deg)}
   .peel-cover,.peel-peek{transition:none}
   .peel.peeled #heroTip{animation:none}
   .splat-in{animation:none}
+}
+
+/* ---- PRANK 1: the illustrated tomato cursor, and the revert a bonk performs (body.cursor-reverted) ---- */
+/* custom illustrated Ketchy tomato cursor — same colour keys as the .ketchy symbols (cocoa 2.2 outline,
+   mint 5-leaf crown, white glint, pink cheek); the stem tip is the hotspot, desktop fine pointer only */
+@media (hover:hover) and (pointer:fine){
+  body{--ketchy-cursor:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='32'%20height='32'%20viewBox='0%200%2032%2032'%3E%3Cellipse%20cx='18'%20cy='30.2'%20rx='7.4'%20ry='1.5'%20fill='%232E1E14'%20opacity='.16'/%3E%3Cpath%20d='M4%204.6c1.2%203.4%205%205.8%209.5%207'%20fill='none'%20stroke='%232E1E14'%20stroke-width='2.6'%20stroke-linecap='round'/%3E%3Cpath%20d='M4%204.6c1.2%203.4%205%205.8%209.5%207'%20fill='none'%20stroke='%232FE0A8'%20stroke-width='1.4'%20stroke-linecap='round'/%3E%3Cellipse%20cx='17.6'%20cy='20.6'%20rx='10.2'%20ry='8.8'%20fill='%23FF4949'%20stroke='%232E1E14'%20stroke-width='2.2'/%3E%3Cpath%20d='M10.9%2021.4c-.9-2.1-.4-4.2%20.8-5.6'%20fill='none'%20stroke='%23FFF'%20stroke-width='1.6'%20stroke-linecap='round'%20opacity='.6'/%3E%3Cpath%20d='M15.6%206.2L17.36%209.97L21.5%2010.48L18.45%2013.33L19.25%2017.42L15.6%2015.4L11.95%2017.42L12.75%2013.33L9.7%2010.48L13.84%209.97Z'%20fill='%232FE0A8'%20stroke='%232E1E14'%20stroke-width='1.6'%20stroke-linejoin='round'/%3E%3Cellipse%20cx='14'%20cy='21'%20rx='1.05'%20ry='1.4'%20fill='%232E1E14'/%3E%3Cellipse%20cx='21'%20cy='21'%20rx='1.05'%20ry='1.4'%20fill='%232E1E14'/%3E%3Ccircle%20cx='13.7'%20cy='20.4'%20r='.5'%20fill='%23FFF'/%3E%3Ccircle%20cx='20.7'%20cy='20.4'%20r='.5'%20fill='%23FFF'/%3E%3Cpath%20d='M15.4%2024q2.1%202.1%204.2%200'%20fill='none'%20stroke='%232E1E14'%20stroke-width='1.2'%20stroke-linecap='round'/%3E%3Ccircle%20cx='11.5'%20cy='22.8'%20r='1.4'%20fill='%23FF7BB8'%20opacity='.9'/%3E%3Ccircle%20cx='23.7'%20cy='22.8'%20r='1.4'%20fill='%23FF7BB8'%20opacity='.9'/%3E%3C/svg%3E") 4 3, auto;cursor:var(--ketchy-cursor);}
+  /* One cursor everywhere: the tomato also stays over buttons and while pressing (it used to
+     flick to the OS hand on hover and to the OS arrow on mousedown). Beats the `cursor-pointer`
+     utilities still sitting on a few elements, which are now inert. */
+  body, body *{cursor:var(--ketchy-cursor) !important;}
+  /* When cursor is reverted via tomato click */
+  body.cursor-reverted, body.cursor-reverted *{cursor:auto !important;}
+  body.cursor-reverted button, body.cursor-reverted a, body.cursor-reverted [role="button"],
+  body.cursor-reverted .btn-keycap, body.cursor-reverted .btn-keycap-sm,
+  body.cursor-reverted .peel, body.cursor-reverted .chip-topic, body.cursor-reverted .cart{cursor:pointer !important;}
 }

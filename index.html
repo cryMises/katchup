@@ -647,6 +647,21 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
   </button>
 </div>
 
+<!-- PRANK 1: TOMATO PEEKER — tomat di pinggir bawah layar sesekali ngintip, diklik bikin jatuh & kursor balik. Delete to remove. -->
+<div id="edgeTomatoPeeker" class="edge-tomato-peeker" role="button" tabindex="0"
+     aria-label="Ketchy si tomat mengintip dari bawah layar. Klik untuk menjatuhkannya."
+     title="Klik Ketchy si tomat!" onclick="bonkEdgeTomato()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();bonkEdgeTomato();}">
+  <div class="ketchy-peeker-wrap">
+    <span class="peeker-bubble">Pstt! 👀</span>
+    <div class="ketchy" style="--kw:64px">
+      <svg class="flip-frame" viewBox="0 0 100 100"><use href="#ketchy-4"></use></svg>
+      <svg class="flip-frame" viewBox="0 0 100 100"><use href="#ketchy-1"></use></svg>
+      <svg class="flip-frame" viewBox="0 0 100 100"><use href="#ketchy-3"></use></svg>
+      <svg class="flip-frame" viewBox="0 0 100 100"><use href="#ketchy-2"></use></svg>
+    </div>
+  </div>
+</div>
+
 <!-- PRANK 2: tombol "!!" -> hujan tomat Ketchy; tiap tomat yang dipetik ninggalin splat + satu nada naik, dan
      semua yang kelar dibersihin (dipetik habis, digosok, atau kartu fakta ditutup) naikin debu. Petik 16 tomatnya
      satu-satu buat satu FAKTA RADAR di #splatCard — BERSIHKAN sengaja nggak ngasih faktanya, itu jalan pintas.
@@ -683,8 +698,9 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
                     copySnippet (clipboard + TERSALIN restore)
      js/saved.js  — the katchup_saved store (100 cap), function toggleSave + its undo toast, function renderSaved
                     and its filtered-empty state, function exportSaved / parseImportLine / importSaved
-     js/pranks.js — the removable easter eggs: function peelHero (peel-open hero) and CREATOR_TIPS,
-                    function rainKetchup / pluckKetchup / sweepKetchup + RADAR_FACTS (ketchup rain + FAKTA RADAR)
+     js/pranks.js — the three removable easter eggs: function bumpCard + function initScrollPranks (scroll bump),
+                    function rainKetchup / pluckKetchup / sweepKetchup + RADAR_FACTS (ketchup rain + FAKTA RADAR),
+                    function peelHero (peel-open hero), function bonkEdgeTomato + the peeker scheduling
      js/app.js    — DOM-ready glue only: initApp() (one load path), boot dismissal, drawer inert on resize -->
 <script src="js/config.js" defer></script>
 <script src="js/utils.js" defer></script>

@@ -62,7 +62,8 @@ function showToast(message, isSuccess, action) {
       actionBtn.onblur = function () { toastTimeout = setTimeout(hideToast, 1200); };
     }
   }
-  /* `stamped` is inert here on purpose: the stamp replay lands with the later motion slice */
+  /* `stamped` replays the rubber-stamp entrance (css/motion.css stampIn); the animationend handler drops the
+     class again so a later toast stamps fresh instead of sitting on a spent fill */
   toast.classList.add('translate-y-0', 'opacity-100', 'stamped');
   clearTimeout(toastTimeout);
   toastTimeout = setTimeout(hideToast, (action || !ok) ? 6000 : 2400);
@@ -71,9 +72,8 @@ function showToast(message, isSuccess, action) {
 /* ================= MOTION PLUMBING ================= */
 /* entrance fills are dropped once they have played, so :hover/:active transforms on the same element work again */
 document.addEventListener('animationend', function (e) {
-  if (e.animationName !== 'popIn') return;
-  e.target.classList.remove('pop-in');
-  e.target.classList.remove('stamped');
+  if (e.animationName === 'popIn') e.target.classList.remove('pop-in');
+  else if (e.animationName === 'stampIn') e.target.classList.remove('stamped');   // a later toast can stamp again
 });
 
 /* Sections and rendered lists wait at opacity 0 until they are actually on screen. Re-observed on every data
@@ -94,5 +94,7 @@ function initScrollReveal() {
 }
 /* double rAF: the nodes have to be laid out (and the panel displayed) before the observer can see them */
 function triggerReveal() {
-  requestAnimationFrame(function () { requestAnimationFrame(initScrollReveal); });
+  requestAnimationFrame(function () {
+    requestAnimationFrame(function () { initScrollReveal(); initScrollPranks(); });
+  });
 }

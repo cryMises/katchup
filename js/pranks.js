@@ -1,35 +1,33 @@
 'use strict';
 
-/* The removable easter eggs. Each block below is self-contained: delete its markup from index.html, its
-   section in css/pranks.css and its functions here, and the app still loads. None of them is on the load path. */
+/* The three removable easter eggs. Each block below is self-contained: delete its markup from index.html, its
+   section in css/pranks.css and its functions here, and the app still loads. None of them is on the load path —
+   a refresh re-renders views without touching these layers, and the fact text is computed on demand from
+   whatever payload API_DATA holds at that moment. */
 
-/* ================= PRANK 3: PEEL-OPEN HERO WINDOW (delete to remove) ================= */
-const CREATOR_TIPS = [
-  'Tiga detik pertama nentuin orang lanjut nonton atau langsung scroll.',
-  'Reels 15-30 detik paling gampang nyangkut di FYP.',
-  'Tulis caption kayak lagi ngobrol, bukan kayak iklan.',
-  'Upload jam 6-9 pagi atau 7-10 malam, jam orang buka HP.',
-  'Satu video satu pesan. Jangan tumpuk tiga ide sekaligus.',
-  'Balas komentar di 30 menit pertama, saat itu paling rame.'
-];
-let heroPeeled = false;
-/* The keyboard control is the real button (#peelHint), so the wrapper is a pointer-only div — no role="button"
-   around live buttons. aria-expanded reports that the cover is gone and the note is what you're reading. */
-function peelHero() {
-  const peel = document.getElementById('heroPeel');
-  const hint = document.getElementById('peelHint');
-  if (!peel) return;
-  heroPeeled = !heroPeeled;
-  peel.classList.toggle('peeled', heroPeeled);
-  if (hint) hint.setAttribute('aria-expanded', String(heroPeeled));   // the tip replaces the cover, so say so
-  if (heroPeeled) {
-    playPatchCordSnap();
-    document.getElementById('heroTip').innerText = CREATOR_TIPS[Math.floor(Math.random() * CREATOR_TIPS.length)];
-    if (hint) hint.innerText = 'Tutup lagi';
-  } else {
-    playMechanicalClick();
-    if (hint) hint.innerText = 'Klik buat intip';
-  }
+/* ================= SCROLL BUMP (delete to remove) ================= */
+/* The best ticket thumps once when it scrolls into view. Inert under reduced motion (and skipped entirely on a
+   browser without IntersectionObserver, where bumpCard could never fire anyway). */
+let _bumpObserver = null;
+function bumpCard(el) {
+  if (prefersReducedMotion) return;
+  if (el.dataset.bumped) return;   // once per element: re-observing on a view switch must not replay the sound
+  el.dataset.bumped = '1';
+  el.classList.add('bumped');
+  playStampThud();
+  setTimeout(function () { el.classList.remove('bumped'); }, 900);
+}
+function initScrollPranks() {
+  if (prefersReducedMotion || !('IntersectionObserver' in window)) return;
+  if (_bumpObserver) _bumpObserver.disconnect();
+  _bumpObserver = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (!entry.isIntersecting) return;
+      _bumpObserver.unobserve(entry.target);
+      bumpCard(entry.target);
+    });
+  }, { threshold: 0.6 });
+  document.querySelectorAll('[data-bump]:not([data-bumped])').forEach(function (el) { _bumpObserver.observe(el); });
 }
 
 /* ================= PRANK 2: KETCHUP RAIN + BERSIHKAN (delete to remove) ================= */
@@ -57,12 +55,12 @@ function hideCleanButton() {
 }
 /* A tomato nobody can reach is a tomato nobody can pluck, and a pile that can't be emptied by hand never pays out
    the FAKTA RADAR fact. So the rain lands inside a band that clears the fixed bottom chrome (bottom nav, prank
-   button, BERSIHKAN pill) on the y axis, and stays fully on screen on the x axis after its drift. */
+   button, BERSIHKAN pill, peeker) on the y axis, and stays fully on screen on the x axis after its drift. */
 function ketchupLandingTopPx() {
   const box = 66;   // the 46px bottle plus the bbox its rotate() adds
   let reserve = 0;
   try { reserve = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--rain-floor')) || 0; } catch (e) {}
-  ['mobileBottomNav', 'prankBtn', 'cleanBtn'].forEach(function (id) {
+  ['mobileBottomNav', 'prankBtn', 'cleanBtn', 'edgeTomatoPeeker'].forEach(function (id) {
     const el = document.getElementById(id);
     if (!el) return;
     const r = el.getBoundingClientRect();
@@ -286,4 +284,154 @@ function sweepKetchup() {
     // no reward here: the fact only pays out for clearing the pile by hand (pluckKetchup)
   }, Math.max(580 + debris.length * 22, 1300));   // the floor covers the dust clouds, which outlast a short pile
   showToast('Beres! Tomatnya udah disapu bersih.');
+}
+
+/* ================= PRANK 3: PEEL-OPEN HERO WINDOW (delete to remove) ================= */
+const CREATOR_TIPS = [
+  'Tiga detik pertama nentuin orang lanjut nonton atau langsung scroll.',
+  'Reels 15-30 detik paling gampang nyangkut di FYP.',
+  'Tulis caption kayak lagi ngobrol, bukan kayak iklan.',
+  'Upload jam 6-9 pagi atau 7-10 malam, jam orang buka HP.',
+  'Satu video satu pesan. Jangan tumpuk tiga ide sekaligus.',
+  'Balas komentar di 30 menit pertama, saat itu paling rame.'
+];
+let heroPeeled = false;
+/* The keyboard control is the real button (#peelHint), so the wrapper is a pointer-only div — no role="button"
+   around live buttons. aria-expanded reports that the cover is gone and the note is what you're reading. */
+function peelHero() {
+  const peel = document.getElementById('heroPeel');
+  const hint = document.getElementById('peelHint');
+  if (!peel) return;
+  heroPeeled = !heroPeeled;
+  peel.classList.toggle('peeled', heroPeeled);
+  if (hint) hint.setAttribute('aria-expanded', String(heroPeeled));   // the tip replaces the cover, so say so
+  if (heroPeeled) {
+    playPatchCordSnap();
+    document.getElementById('heroTip').innerText = CREATOR_TIPS[Math.floor(Math.random() * CREATOR_TIPS.length)];
+    if (hint) hint.innerText = 'Tutup lagi';
+  } else {
+    playMechanicalClick();
+    if (hint) hint.innerText = 'Klik buat intip';
+  }
+}
+
+/* ================= PRANK 1: TOMATO PEEKER & CURSOR REVERT (edge tomato peeks & falls on click) — delete to remove ================= */
+let _peekerTimer = null;
+let _peekerRetreatTimer = null;
+let _isPeekerActive = false;
+let _isPeekerFalling = false;
+let isTomatoCursorReverted = false;
+try { isTomatoCursorReverted = localStorage.getItem('katchup_tomato_cursor_reverted') === 'true'; } catch (e) {}
+
+const PEEKER_QUIPS = [
+  'Pstt! 👀',
+  'Halo! 🍅',
+  'Lihat apa tuh?',
+  'Ketchy di sini!',
+  'Klik aku dong~',
+  'Cilukba! 🍅'
+];
+
+function applyTomatoCursorState() {
+  document.body.classList.toggle('cursor-reverted', isTomatoCursorReverted);
+}
+
+/* The peeker is a real control only while it peeks: off screen it is `inert`, so a keyboard user can't tab into
+   a tomato they can't see. A bonk makes it pointer-dead, which is why it goes inert for the fall too. */
+function syncPeekerInert() {
+  const peeker = document.getElementById('edgeTomatoPeeker');
+  if (peeker) peeker.inert = !_isPeekerActive;
+}
+
+function revertTomatoCursor(forceState) {
+  if (typeof forceState === 'boolean') {
+    isTomatoCursorReverted = forceState;
+  } else {
+    isTomatoCursorReverted = !isTomatoCursorReverted;
+  }
+  try { localStorage.setItem('katchup_tomato_cursor_reverted', String(isTomatoCursorReverted)); } catch (e) {}
+  applyTomatoCursorState();
+  if (isTomatoCursorReverted) {
+    showToast('Kursor tomat dibalikkan ke default.');
+  } else {
+    showToast('Kursor tomat Ketchy aktif kembali 🍅');
+  }
+}
+
+function triggerTomatoPeek() {
+  if (prefersReducedMotion || _isPeekerActive || _isPeekerFalling) return;
+  const peeker = document.getElementById('edgeTomatoPeeker');
+  if (!peeker) return;
+
+  _isPeekerActive = true;
+  const bubble = peeker.querySelector('.peeker-bubble');
+  if (bubble) {
+    bubble.innerText = PEEKER_QUIPS[Math.floor(Math.random() * PEEKER_QUIPS.length)];
+  }
+
+  // Organic placement along bottom edge (between 60px and 220px from right)
+  const randomRight = Math.floor(60 + Math.random() * 160);
+  peeker.style.right = randomRight + 'px';
+  peeker.classList.remove('falling');
+  peeker.classList.add('peeking');
+  syncPeekerInert();
+  playCueTone(840);
+
+  clearTimeout(_peekerRetreatTimer);
+  _peekerRetreatTimer = setTimeout(function () {
+    retreatEdgeTomato();
+  }, 4200);
+}
+
+function retreatEdgeTomato() {
+  const peeker = document.getElementById('edgeTomatoPeeker');
+  if (!peeker || _isPeekerFalling) return;
+  peeker.classList.remove('peeking');
+  _isPeekerActive = false;
+  syncPeekerInert();
+  scheduleNextPeek();
+}
+
+function bonkEdgeTomato() {
+  const peeker = document.getElementById('edgeTomatoPeeker');
+  if (!peeker || _isPeekerFalling) return;
+
+  clearTimeout(_peekerRetreatTimer);
+  _isPeekerFalling = true;
+  _isPeekerActive = false;
+  syncPeekerInert();
+
+  playStampThud();
+
+  peeker.classList.remove('peeking');
+  peeker.classList.add('falling');
+
+  // Clicking the tomato makes it fall AND reverts cursor
+  revertTomatoCursor();
+
+  showToast('Plop! Ketchy kepleset 🍅');
+
+  setTimeout(function () {
+    peeker.classList.remove('falling');
+    _isPeekerFalling = false;
+    scheduleNextPeek(7500 + Math.random() * 6000);
+  }, 950);
+}
+
+function scheduleNextPeek(delay) {
+  clearTimeout(_peekerTimer);
+  const nextDelay = typeof delay === 'number' ? delay : (7500 + Math.random() * 7000);
+  _peekerTimer = setTimeout(triggerTomatoPeek, nextDelay);
+}
+
+function initEdgeTomatoPeeker() {
+  applyTomatoCursorState();
+  syncPeekerInert();
+  scheduleNextPeek(3500);
+  /* A hidden tab shouldn't keep waking Ketchy up: the peek loop would otherwise reschedule itself forever
+     in the background, which phones pay for in battery. Resume only if he isn't mid-peek already. */
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) clearTimeout(_peekerTimer);
+    else if (!_isPeekerActive && !_isPeekerFalling) scheduleNextPeek();
+  });
 }

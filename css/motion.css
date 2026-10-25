@@ -20,9 +20,10 @@
 @keyframes scanPass{0%,100%{transform:translateX(0)}50%{transform:translateX(510%)}}
 .scanner-dot{animation:scanPass 1.15s var(--settle) 3}
 
-/* toast / header entrance. The dedicated rubber-stamp keyframe is a later slice; until then the toast takes
-   the plain pop beat, which still reads as "a thing landed". */
-.stamped{animation:popIn .28s var(--pop)}
+/* a rubber stamp snaps down onto paper: overshoot, a small rebound, then flat. Every .stamped surface (toast,
+   verdict stamp, copy button) takes this one entrance; js/ui.js drops the class on animationend so it replays. */
+@keyframes stampIn{0%{transform:scale(1.26) rotate(-6deg)}55%{transform:scale(.93) rotate(2deg)}100%{transform:scale(1) rotate(0)}}
+.stamped{animation:stampIn .36s var(--pop)}
 
 /* the stale banner materialises out of a display:none flip, so it gets its one entrance each time it shows */
 @keyframes dropIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:none}}

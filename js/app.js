@@ -26,6 +26,7 @@ function initChrome() {
   updateAudioFxButtonState();     // the persisted mute choice has to show before the first click
   updateSavedCounts();            // the persisted saved list has to show on both nav bars too
   switchView(currentView);       // marks the current page on both nav bars before the first interaction
+  initEdgeTomatoPeeker();         // PRANK 1: the peeker schedules itself; deleting it needs this line gone too
   initApp();
   /* the sidebar masthead is the drawer's close affordance on phones and the rail's collapse toggle on desktop */
   document.getElementById('brandToggleContainer').addEventListener('click', function (e) { e.stopPropagation(); toggleSidebarState(); });
