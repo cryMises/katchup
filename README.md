@@ -66,3 +66,12 @@ an http origin.
 - Web Audio for the UI sounds — synthesised at runtime, no audio files.
 - localStorage for the payload cache and the saved-ideas list.
 - PWA: manifest, icons and a service worker.
+
+## Project layout
+
+```
+index.html
+css/   tokens, base, layout, components, views, motion, pranks
+js/    config, utils, data, audio, music, ui, nav, stats, analytics, home, topics, saved, pranks, app
+manifest.json  sw.js  icons/
+```
