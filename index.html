@@ -15,21 +15,13 @@
 <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 
-<!-- Type: 'Baloo 2' chunky rounded Latin display (marker feel) for headlines/buttons;
+<!-- Type: 'Baloo 2' chunky rounded Latin display (marker feel, NOT Inter) for headlines/buttons;
      'Nunito' humanist rounded sans for body; 'Permanent Marker' literal hand-drawn marker for section titles.
      Material Symbols loads ONLY for category chips + the copy/chat (copy/detail) affordances. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&family=Permanent+Marker&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1" rel="stylesheet">
-
-<link rel="stylesheet" href="css/tokens.css">
-<link rel="stylesheet" href="css/base.css">
-<link rel="stylesheet" href="css/layout.css">
-<link rel="stylesheet" href="css/components.css">
-<link rel="stylesheet" href="css/views.css">
-<link rel="stylesheet" href="css/motion.css">
-<link rel="stylesheet" href="css/pranks.css">
 
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <script id="tailwind-config">
@@ -43,33 +35,46 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
   borderRadius:{ "4xl":"2rem" }
 }}};
 </script>
+
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/pranks.css">
+<link rel="stylesheet" href="css/views.css">
+<link rel="stylesheet" href="css/motion.css">
+<link rel="stylesheet" href="css/pranks-peeker.css">
+<link rel="stylesheet" href="css/analytics.css">
 </head>
 <body class="w-full min-h-screen flex lg:flex-row items-stretch overflow-x-hidden relative">
-<!-- keyboard users: jump past the header straight into the page. Revealed by translate, not
+<!-- keyboard users: jump past the sidebar and header straight into the page. Revealed by translate, not
      sr-only/not-sr-only: that pair also resets padding and would flatten the button -->
 <a href="#contentArea" id="skipLink" class="absolute top-0 left-2 z-[95] -translate-y-[200%] focus:translate-y-2 transition-transform px-3 py-2 bg-pop-yellow text-cocoa border-2 border-cocoa rounded-full font-headline text-xs font-extrabold uppercase">Lewati ke konten</a>
 
-<!-- ===== inline SVG sprite: hand-drawn doodle glyphs (no icon fonts) + KETCHY the Tomato flipbook frames ===== -->
+<!-- ===== inline SVG sprite: hand-drawn doodle glyphs (no icon fonts) + KETCHY flipbook frames ===== -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="d-heart" viewBox="0 0 24 24"><path d="M12 20c-4.2-3-7-5.4-7-9a3.5 3.5 0 0 1 7-1.2A3.5 3.5 0 0 1 19 11c0 3.6-2.8 6-7 9z"/></symbol>
+  <symbol id="d-stack" viewBox="0 0 24 24"><path d="M4 7.5h16M4 12h16M4 16.5h10"/></symbol>
+  <symbol id="d-chat" viewBox="0 0 24 24"><path d="M20 5.5H4v10h5v4l5-4h6z"/></symbol>
+  <symbol id="d-note" viewBox="0 0 24 24"><path d="M9 17V5l10-2v12"/><circle cx="6.6" cy="17.4" r="2.6"/><circle cx="16.6" cy="15.4" r="2.6"/></symbol>
+  <symbol id="d-play" viewBox="0 0 24 24"><path d="M8 5l11 7-11 7z"/></symbol>
+  <symbol id="d-pause" viewBox="0 0 24 24"><path d="M9 5v14M15 5v14"/></symbol>
+  <symbol id="d-sync" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20.5 3.5v5h-5"/></symbol>
+  <symbol id="d-refresh" viewBox="0 0 24 24"><path d="M19.5 12a7.5 7.5 0 1 1-2.4-5.6"/><path d="M20 3v5h-5"/></symbol>
+  <symbol id="d-arrow" viewBox="0 0 24 24"><path d="M4 12h14M12.5 6.5 18 12l-5.5 5.5"/></symbol>
+  <symbol id="d-chevL" viewBox="0 0 24 24"><path d="M15 5 8 12l7 7"/></symbol>
+  <symbol id="d-chevR" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></symbol>
+  <symbol id="d-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="d-check" viewBox="0 0 24 24"><path d="M4.5 12.5 9.5 17.5 20 6.5"/></symbol>
   <symbol id="d-radar" viewBox="0 0 24 24"><path d="M12 3.2a8.8 8.8 0 1 0 8.6 10.6"/><path d="M12 12l6.4-3.6"/><circle cx="12" cy="12" r="2.6"/></symbol>
   <symbol id="d-bars" viewBox="0 0 24 24"><path d="M5.5 19.5v-8M12 19.5V4.5M18.5 19.5v-5"/></symbol>
   <symbol id="d-spark" viewBox="0 0 24 24"><path d="M12 3.5 13.7 9 19 10.7 13.7 12.4 12 18l-1.7-5.6L5 10.7 10.3 9z"/></symbol>
-  <symbol id="d-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
-  <symbol id="d-save" viewBox="0 0 24 24"><path d="M6.5 4h11v16l-5.5-4-5.5 4z"/></symbol>
-  <symbol id="d-sync" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20.5 3.5v5h-5"/></symbol>
-  <symbol id="d-refresh" viewBox="0 0 24 24"><path d="M19.5 12a7.5 7.5 0 1 1-2.4-5.6"/><path d="M20 3v5h-5"/></symbol>
-  <symbol id="d-heart" viewBox="0 0 24 24"><path d="M12 20s-7-4.6-7-9.4A4.1 4.1 0 0 1 12 7.6a4.1 4.1 0 0 1 7 3C19 15.4 12 20 12 20z"/></symbol>
-  <symbol id="d-stack" viewBox="0 0 24 24"><rect x="4" y="9" width="16" height="11" rx="2"/><path d="M7 6h10M9 3h6"/></symbol>
-  <symbol id="d-chat" viewBox="0 0 24 24"><path d="M20 12a7.5 7.5 0 0 1-7.5 7.5H9l-4.5 3v-4.6A7.5 7.5 0 0 1 12 4.5 7.5 7.5 0 0 1 20 12z"/></symbol>
-  <symbol id="d-play" viewBox="0 0 24 24"><path d="M8 5.5v13l10-6.5z"/></symbol>
-  <symbol id="d-pause" viewBox="0 0 24 24"><path d="M9 5v14M15 5v14"/></symbol>
-  <symbol id="d-note" viewBox="0 0 24 24"><path d="M9 17V5l10-2v12"/><circle cx="6.6" cy="17.4" r="2.6"/><circle cx="16.6" cy="15.4" r="2.6"/></symbol>
-  <symbol id="d-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
-  <symbol id="d-chevL" viewBox="0 0 24 24"><path d="M15 5 8 12l7 7"/></symbol>
-  <symbol id="d-chevR" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></symbol>
-  <symbol id="d-arrow" viewBox="0 0 24 24"><path d="M4 12h14M12.5 6.5 18 12l-5.5 5.5"/></symbol>
-  <symbol id="d-check" viewBox="0 0 24 24"><path d="M4.5 12.5 9.5 17.5 20 6.5"/></symbol>
   <symbol id="d-copy" viewBox="0 0 24 24"><path d="M9 9h10v10H9z"/><path d="M15 5H5v10"/></symbol>
+  <symbol id="d-pin" viewBox="0 0 24 24"><path d="M12 3.2a3 3 0 0 1 3 3c0 2-3 4.3-3 4.3S9 8.2 9 6.2a3 3 0 0 1 3-3z"/><path d="M12 10.5V21"/></symbol>
+  <symbol id="d-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="d-tape" viewBox="0 0 24 24"><path d="M5 9.5 19 6l1.5 6L6.5 15.5z"/><path d="M8.5 8.6 10 14.7"/></symbol>
+  <symbol id="d-save" viewBox="0 0 24 24"><path d="M6.5 4h11v16l-5.5-4-5.5 4z"/></symbol>
+</svg>
+<!-- KETCHY the Tomato mascot: 4 hand-drawn flipbook frames (squishy, plump Japanese-retro style) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
   <symbol id="ketchy-1" viewBox="0 0 100 100">
     <!-- shoes -->
     <ellipse cx="37" cy="93" rx="7.5" ry="4" fill="#FFCE00" stroke="#2E1E14" stroke-width="3.5"/>
@@ -158,7 +163,6 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
     <path d="M88 52 Q98 38 93 25" fill="none" stroke="#2E1E14" stroke-width="4" stroke-linecap="round"/>
   </symbol>
 </svg>
-
 <!-- ===== OPENING LOADER: Ketchy Tomato + K-A-T-C-H-U-P bounces in, then splats ===== -->
 <div id="bootLoader" class="boot">
   <div class="ketchy mb-1" style="--kw:84px" aria-hidden="true">
@@ -180,14 +184,13 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
   <p class="boot-sub">Ketchy lagi ngecek data tren dulu ya...</p>
 </div>
 
-<!-- toast: `invisible` while hidden is what keeps its undo button out of the tab order (js/ui.js owns the toggle) -->
+<!-- toast -->
 <div id="toastNotification" role="status" aria-live="polite" class="fixed top-4 right-4 z-[90] flex items-center gap-3 px-5 py-3 bg-cocoa text-white border-2 border-cocoa font-headline text-xs font-bold rounded-full shadow-[0_6px_0_rgba(46,30,20,.3)] max-w-[calc(100vw_-_2rem)] -translate-y-24 opacity-0 invisible transition-[opacity,transform,visibility] duration-200 pointer-events-none">
   <span id="toastLed" class="w-3 h-3 bg-pop-mint shrink-0 jewel-led inline-block"></span>
   <span id="toastMessage" class="tracking-wide uppercase">PEMBERITAHUAN KATCHUP</span>
   <button id="toastActionBtn" type="button" class="hidden pointer-events-auto px-2.5 py-1 bg-pop-yellow text-cocoa border-2 border-cocoa rounded-full font-headline text-[0.65625rem] font-extrabold uppercase shrink-0">URUNGKAN</button>
 </div>
 
-<!-- scrim: only the drawer's own close paths (a nav pick, Escape, a tap here) flip it back off -->
 <div id="sidebarBackdrop" class="fixed inset-0 bg-[#2E1E14]/45 z-[65] hidden lg:hidden" aria-hidden="true" onclick="toggleMobileSidebar(false)"></div>
 
 <!-- ===== SCRAPBOOK SPINE (sidebar) ===== -->
@@ -195,7 +198,7 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
   <div class="flex flex-col flex-1 min-h-0">
 
     <div class="p-3.5 border-b-2 border-cocoa flex items-center justify-between gap-2">
-      <img src="icons/favicon-32x32.png" class="w-5 h-5 shrink-0 rounded border-2 border-cocoa" alt="Katchup">
+      <img src="icons/favicon-32x32.png" class="w-5 h-5 rounded border-2 border-cocoa" alt="Katchup">
       <span class="sidebar-text eyebrow">RADAR KREATOR ID</span>
       <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-spark"></use></svg>
     </div>
@@ -213,7 +216,6 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
       </div>
     </div>
 
-    <!-- honest state: js/data.js writes this telemetry (label + LED) from the current fetch state -->
     <div class="p-3.5 border-b-2 border-cocoa sidebar-text">
       <div class="flex items-center justify-between gap-2 border-2 border-cocoa rounded-full px-3 py-2 bg-cream">
         <span class="flex items-center gap-2 min-w-0">
@@ -263,7 +265,7 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
 
     <div class="p-3.5 border-t-2 border-cocoa sidebar-text flex flex-col gap-2">
       <span class="eyebrow px-1">Efek suara · tombol M</span>
-      <button id="audioFxToggleBtn" type="button" aria-pressed="true" onclick="toggleAudioFx()" title="Nyalakan/matikan efek suara [M]"
+      <button id="audioFxToggleBtn" onclick="toggleAudioFx()" title="Nyalakan/matikan efek suara [M]"
         class="w-full flex items-center justify-between gap-2 px-3.5 py-2 bg-white btn-keycap-sm font-headline text-xs font-extrabold uppercase">
         <span class="flex items-center gap-2">
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-note"></use></svg>
@@ -271,8 +273,7 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
         </span>
         <span id="audioFxStatus" class="px-2 py-0.5 bg-pop-mint rounded-full border-2 border-cocoa text-[0.625rem]">ON</span>
       </button>
-      <!-- shown only while the app is installable (js/ui.js owns both CTAs) -->
-      <button id="installAppBtn" type="button" onclick="installApp(); playMechanicalClick();"
+      <button id="installAppBtn" onclick="installApp(); playMechanicalClick();"
         class="hidden w-full items-center justify-center gap-2 px-3.5 py-2 bg-pop-mint btn-keycap-sm font-headline text-xs font-extrabold uppercase">
         PASANG APLIKASI
       </button>
@@ -286,7 +287,6 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
     </div>
   </div>
 </aside>
-
 <!-- ===== MAIN SCRAPBOOK PAGE ===== -->
 <div id="contentArea" tabindex="-1" class="flex-1 min-w-0 flex flex-col overflow-x-hidden">
   <!-- app-state announcements: the visible panels swap without changing the view title, so the states report here -->
@@ -320,33 +320,33 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
     </div>
   </header>
 
-  <!-- stale-data banner: only when the last fetch failed and what is on screen comes from the local cache -->
+  <!-- stale-data banner: shown only when the last fetch failed and the on-screen data comes from the cache -->
   <div id="cacheBanner" class="hidden items-center justify-between gap-3 flex-wrap px-4 sm:px-6 py-2.5 bg-pop-yellow border-b-2 border-cocoa">
     <span class="flex items-center gap-2 font-headline text-[0.6875rem] font-extrabold uppercase">
       <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-refresh"></use></svg>
-      Data tersimpan · <span id="cacheBannerTime">baru saja</span>
+      Data tersimpan · <span id="cacheBannerTime">baru aja</span>
     </span>
     <button onclick="refreshLiveTopics(); playMechanicalClick();" class="px-3 py-1.5 bg-white btn-keycap-sm font-headline text-[0.6875rem] font-extrabold uppercase">COBA PERBARUI</button>
   </div>
 
-  <!-- data loading strip: replaces every panel until a payload lands (nothing here renders before data) -->
+  <!-- data loading strip -->
   <div id="loadingState" class="hidden flex-1 flex-col items-center justify-center gap-4 p-10 text-center">
-    <div class="ketchy" style="--kw:72px" aria-hidden="true">
-      <svg class="flip-frame" viewBox="0 0 100 100"><use href="#ketchy-1"></use></svg>
-      <svg class="flip-frame" viewBox="0 0 100 100"><use href="#ketchy-2"></use></svg>
-      <svg class="flip-frame" viewBox="0 0 100 100"><use href="#ketchy-3"></use></svg>
-      <svg class="flip-frame" viewBox="0 0 100 100"><use href="#ketchy-4"></use></svg>
+    <div class="ketchy" style="--kw:72px">
+      <svg class="flip-frame" viewBox="0 0 100 100" aria-hidden="true"><use href="#ketchy-1"></use></svg>
+      <svg class="flip-frame" viewBox="0 0 100 100" aria-hidden="true"><use href="#ketchy-2"></use></svg>
+      <svg class="flip-frame" viewBox="0 0 100 100" aria-hidden="true"><use href="#ketchy-3"></use></svg>
+      <svg class="flip-frame" viewBox="0 0 100 100" aria-hidden="true"><use href="#ketchy-4"></use></svg>
     </div>
     <h2 class="marker marker-sm" style="--rule:#FFCE00">LAGI NGAMBIL DATA</h2>
-    <div class="w-64 max-w-full h-4 bg-white border-2 border-cocoa rounded-full p-[3px] relative overflow-hidden">
+    <div class="w-64 max-w-full h-4 bg-white border-2 border-cocoa rounded-full p-[3px] deck-groove relative overflow-hidden">
       <div class="h-full w-10 bg-pop-yellow rounded-full border border-cocoa scanner-dot"></div>
     </div>
     <p class="note max-w-xs">Ketchy lagi nyambung ke radar tren. Butuh beberapa detik saja.</p>
   </div>
 
-  <!-- data error state: the fetch failed and there is no cached payload to fall back on -->
+  <!-- data error state -->
   <div id="errorState" class="hidden flex-1 flex-col items-center justify-center gap-4 p-10 text-center">
-    <div class="ketchy" style="--kw:76px" aria-hidden="true">
+    <div class="ketchy slow" style="--kw:76px" aria-hidden="true">
       <svg class="flip-frame" viewBox="0 0 100 100"><use href="#ketchy-1"></use></svg>
       <svg class="flip-frame" viewBox="0 0 100 100"><use href="#ketchy-2"></use></svg>
       <svg class="flip-frame" viewBox="0 0 100 100"><use href="#ketchy-3"></use></svg>
@@ -359,10 +359,7 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
       COBA HUBUNGKAN LAGI
     </button>
   </div>
-
-  <!-- ================= HALAMAN 1: RINGKASAN TREN =================
-       Orientational by design: what the radar is, the category cartridges (the one category picker), the JALUR
-       shortcuts, and one fact line. The KPI numbers live on ANALISIS KONTEN, not here. -->
+  <!-- ================= HALAMAN 1: RINGKASAN TREN ================= -->
   <main id="view-home" class="view-panel active flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-8 flex-col w-full">
     <div class="mag spread">
 
@@ -433,31 +430,9 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
 
       <hr class="rule-doodle">
 
-      <!-- the one category picker: js/home.js builds the cartridges into #topicGridContainer -->
-      <section data-reveal>
-        <div class="flex items-end justify-between gap-3 flex-wrap">
-          <h2 class="marker" style="--rule:#5B8CFF">7 KATEGORI KONTEN TREN</h2>
-          <!-- mouse/keyboard way to reach the rest of the carousel: a horizontal row has no wheel scroll without shift -->
-          <div class="flex gap-2 pb-2">
-            <button type="button" onclick="scrollCarousel('left'); playMechanicalClick();" class="w-9 h-9 bg-white btn-keycap-sm flex items-center justify-center" title="Geser kiri" aria-label="Geser kiri">
-              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-chevL"></use></svg>
-            </button>
-            <button type="button" onclick="scrollCarousel('right'); playMechanicalClick();" class="w-9 h-9 bg-white btn-keycap-sm flex items-center justify-center" title="Geser kanan" aria-label="Geser kanan">
-              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-chevR"></use></svg>
-            </button>
-          </div>
-        </div>
-        <p class="note mt-2">Klik salah satu kartu buat ganti daftar ide di bawahnya.</p>
-        <p class="note mt-1.5">Daftarnya ada di halaman REKOMENDASI IDE. Tiap kartu membawa warna kategorinya sendiri, dan angkanya dibandingkan dengan pengambilan minggu sebelumnya.</p>
-        <div id="topicGridContainer" class="flex items-start gap-4 overflow-x-auto pb-3 pt-5 snap-x snap-mandatory"></div>
-        <p id="homeFact" class="note mt-2">Menunggu data topik...</p>
-      </section>
-
-      <hr class="rule-doodle">
-
-      <!-- JALUR shortcuts: role="button" + Enter/Space, because they are actions, not links -->
+      <!-- 3 entri jurnal (satu kolom) -->
       <section data-reveal class="flex flex-col gap-5">
-        <h2 class="marker marker-sm" style="--rule:#FF7BB8">MULAI DARI MANA?</h2>
+        <h2 class="marker marker-sm" style="--rule:#5B8CFF">MULAI DARI MANA?</h2>
         <article class="block" data-bump role="button" tabindex="0" aria-label="Buka Analisis Konten: perbandingan Reels vs Foto" onclick="switchView('analytics'); playMechanicalClick();" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchView('analytics');playMechanicalClick();}">
           <div class="tape-pin" style="background:rgba(255,123,184,.85)"></div>
           <div class="flex items-center justify-between gap-2 mb-2">
@@ -467,13 +442,13 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
           <h3 class="font-headline text-lg font-extrabold uppercase tracking-wide">Perbandingan Reels vs Foto</h3>
           <p class="note mt-1.5">Lihat mana yang lebih banyak dapat likes dan komentar di data mingguan terakhir.</p>
         </article>
-        <article class="block" role="button" tabindex="0" aria-label="Buka Rekomendasi Ide: kategori tren dan ide siap pakai" onclick="switchView('topics'); playMechanicalClick();" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchView('topics');playMechanicalClick();}">
+        <article class="block" role="button" tabindex="0" aria-label="Buka Rekomendasi Ide: tren 7 kategori" onclick="switchView('topics'); playMechanicalClick();" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchView('topics');playMechanicalClick();}">
           <div class="tape-pin" style="background:rgba(47,224,168,.85)"></div>
           <div class="flex items-center justify-between gap-2 mb-2">
             <span class="washi-tape washi-tape-mint">JALUR 02</span>
-            <span class="eyebrow">IDE SIAP PAKAI</span>
+            <span class="eyebrow">7 KATEGORI</span>
           </div>
-          <h3 class="font-headline text-lg font-extrabold uppercase tracking-wide">Tren 7 Kategori &amp; Ide Siap Pakai</h3>
+          <h3 class="font-headline text-lg font-extrabold uppercase tracking-wide">Tren 7 Kategori</h3>
           <p class="note mt-1.5">Edukasi, Gaya Hidup, Berita, Politik, Humor, Kuliner, dan Seni Budaya. Kelihatan mana yang naik.</p>
         </article>
         <article class="block" role="button" tabindex="0" aria-label="Buka Rekomendasi Ide: ide konten siap pakai" onclick="switchView('topics'); playMechanicalClick();" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchView('topics');playMechanicalClick();}">
@@ -489,7 +464,6 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
 
       <hr class="rule-doodle">
 
-      <!-- honest fetch state: js/data.js writes the "ditarik" time here, never a scrape claim -->
       <section data-reveal class="flex items-center justify-between gap-3 flex-wrap">
         <span class="flex items-center gap-2 font-headline text-[0.71875rem] font-extrabold uppercase">
           <span class="w-3 h-3 bg-pop-mint jewel-led inline-block shrink-0"></span>
@@ -500,15 +474,12 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
 
     </div>
   </main>
-
   <!-- ================= HALAMAN 2: ANALISIS KONTEN ================= -->
   <main id="view-analytics" class="view-panel flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-8 flex-col w-full">
     <div class="mag spread">
       <section data-reveal>
-        <span class="washi-tape washi-tape-blue">SAMPEL MINGGUAN</span>
-        <h2 class="marker mt-4" style="--rule:#FF4949">ANGKA UTAMA</h2>
+        <h2 class="marker" style="--rule:#FF4949">ANGKA UTAMA</h2>
         <p class="note mt-2">Rekap angka dari sampel konten yang kami pantau.</p>
-        <p class="note mt-1.5">Angka di halaman ini dijumlah dari setiap minggu pengambilan data, jadi bukan angka satu minggu.</p>
         <div id="kpiRow" class="flex flex-col mt-3"></div>
       </section>
 
@@ -517,7 +488,6 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
       <section data-reveal>
         <h2 class="marker" style="--rule:#5B8CFF">PERBANDINGAN REELS VS FOTO</h2>
         <p class="note mt-2">Meter di bawah nunjukin porsi tiap format dari total konten yang terekam.</p>
-        <p class="note mt-1.5">Kedua bar membaca data yang sama, jadi porsi Reels dan foto selalu berjumlah 100% dari sampel.</p>
         <div id="formatCompare" class="flex flex-col mt-4"></div>
       </section>
 
@@ -526,8 +496,7 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
       <section data-reveal>
         <h2 class="marker" style="--rule:#2FE0A8">TOP 5 SOUND VIRAL</h2>
         <p class="note mt-2">Sound yang paling sering nempel di konten dengan likes gede.</p>
-        <p class="note mt-2">Tombol DENGAR memutar preview langsung di halaman ini. Kalau link preview tidak tersedia atau sudah kedaluwarsa, Katchup membunyikan nada pengganti singkat.</p>
-        <!-- Shared preview player: a real, attached element — iOS Safari is unreliable with a detached audio element. -->
+        <!-- Shared preview player: a real, attached element — iOS Safari is unreliable with detached `new Audio()`. -->
         <audio id="musicPlayer" preload="metadata"></audio>
         <div id="musicList" class="flex flex-col gap-4 mt-4"></div>
       </section>
@@ -537,23 +506,34 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
   <!-- ================= HALAMAN 3: REKOMENDASI IDE KONTEN ================= -->
   <main id="view-topics" class="view-panel flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-8 flex-col w-full">
     <div class="mag spread">
+
       <section data-reveal>
-        <div><span class="washi-tape washi-tape-pink">IDE SIAP PAKAI</span></div>
-        <h2 class="marker mt-4" style="--rule:#FF7BB8">REKOMENDASI IDE KONTEN</h2>
-        <p class="note mt-3">Hook di bawah ini diurutkan dari potensi likes. Klik salah satu topik untuk menyaring daftar.</p>
+        <div class="flex items-end justify-between gap-3 flex-wrap">
+          <h2 class="marker" style="--rule:#FF7BB8">7 KATEGORI KONTEN TREN</h2>
+          <div class="flex gap-2 pb-2">
+            <button onclick="scrollCarousel('left'); playMechanicalClick();" class="w-9 h-9 bg-white btn-keycap-sm flex items-center justify-center" title="Geser kiri" aria-label="Geser kiri">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-chevL"></use></svg>
+            </button>
+            <button onclick="scrollCarousel('right'); playMechanicalClick();" class="w-9 h-9 bg-white btn-keycap-sm flex items-center justify-center" title="Geser kanan" aria-label="Geser kanan">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-chevR"></use></svg>
+            </button>
+          </div>
+        </div>
+        <p class="note mt-2">Klik salah satu kartu buat ganti daftar ide di bawahnya.</p>
+        <div id="topicGridContainer" class="flex items-start gap-4 overflow-x-auto pb-3 pt-5 snap-x snap-mandatory"></div>
       </section>
 
       <hr class="rule-doodle">
 
       <section data-reveal>
         <div class="flex items-start gap-3.5">
-          <div id="activeCategoryIcon" class="w-12 h-12 shrink-0 border-2 border-cocoa rounded-2xl flex items-center justify-center bg-pop-yellow shadow-[0_3px_0_#2E1E14]" aria-hidden="true">
-            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><use href="#d-spark"></use></svg>
+          <div id="activeCategoryIcon" class="w-12 h-12 shrink-0 border-2 border-cocoa rounded-2xl flex items-center justify-center text-cocoa shadow-[0_3px_0_#2E1E14]" style="background:#5B8CFF">
+            <span class="material-symbols-outlined text-2xl">school</span>
           </div>
           <div class="min-w-0">
             <h2 id="activeCategoryTitle" class="font-headline text-base sm:text-lg font-extrabold uppercase tracking-wide truncate">DAFTAR IDE KONTEN</h2>
             <div class="flex items-center gap-2 flex-wrap mt-1.5">
-              <span id="activeCategoryBadge" class="rubber-stamp bg-pop-yellow">KATEGORI</span>
+              <span id="activeCategoryBadge" class="rubber-stamp" style="background:#5B8CFF">EDUKASI</span>
               <span class="eyebrow">Urut dari potensi likes</span>
             </div>
           </div>
@@ -561,9 +541,9 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
 
         <div class="mt-4 flex items-center gap-2.5 flex-wrap">
           <span id="ideasStatusLine" aria-live="polite" aria-atomic="true" class="font-headline text-[0.71875rem] font-extrabold uppercase border-2 border-cocoa rounded-full px-3 py-1 bg-cream">
-            TERSEDIA: <strong id="displayedIdeasCount" class="text-red-ink">0</strong> IDE · --
+            TERSEDIA: <strong id="displayedIdeasCount" class="text-red-ink">10</strong> IDE
           </span>
-          <button id="resetTagBtn" type="button" onclick="resetTopicFilter(); playMechanicalClick();" title="Hapus filter topik"
+          <button id="resetTagBtn" onclick="resetTopicFilter(); playMechanicalClick();" title="Hapus filter topik"
             class="hidden items-center gap-1.5 px-3 py-1.5 bg-pop-red text-cocoa btn-keycap-sm font-headline text-[0.6875rem] font-extrabold uppercase">
             <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><use href="#d-close"></use></svg>
             HAPUS FILTER
@@ -582,12 +562,11 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
           <span class="eyebrow" id="topicsUpdated">Ditarik --</span>
         </div>
       </section>
+
     </div>
   </main>
 
   <!-- ================= HALAMAN 4: IDE TERSIMPAN ================= -->
-  <!-- local-first: the list comes from katchup_saved (js/saved.js), not from the payload, so it stays readable
-       while the radar is loading or down -->
   <main id="view-saved" class="view-panel flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-8 flex-col w-full">
     <div class="mag spread">
 
@@ -635,24 +614,13 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
           </span>
           <span class="eyebrow">Lokal · browser ini aja</span>
         </div>
-        <!-- the payload-count line the data slice prints; still the honest "did the radar arrive" answer -->
-        <p class="eyebrow mt-2" data-summary>Menunggu data radar...</p>
       </section>
 
     </div>
   </main>
 
-  <footer class="page-foot">
-    <span class="flex items-center gap-2 font-headline text-[0.6875rem] font-extrabold uppercase">
-      <span class="w-2.5 h-2.5 bg-pop-mint jewel-led inline-block shrink-0"></span>
-      <span id="pageFootDitarik">Data radar · ditarik -- · update tiap Senin</span>
-    </span>
-    <span class="eyebrow">KATCHUP STUDIO · Data publik Instagram Indonesia</span>
-  </footer>
-
 </div>
-
-<!-- ===== mobile bottom nav: the drawer's shortcut bar, phones only ===== -->
+<!-- ===== mobile bottom nav ===== -->
 <div id="mobileBottomNav" role="navigation" aria-label="Navigasi utama" class="lg:hidden fixed bottom-0 left-0 right-0 z-[74] bg-white border-t-2 border-cocoa p-2.5 flex items-center justify-around gap-2">
   <button id="mobileNavHome" onclick="switchView('home'); playMechanicalClick();"
     class="flex-1 py-2 px-1 bg-cream text-cocoa font-black uppercase btn-keycap-sm flex flex-col items-center justify-center">
@@ -675,7 +643,7 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
     <span class="text-[0.625rem] mt-0.5">SIMPAN</span>
   </button>
   <!-- shown only while the app is installable; on phones the sidebar CTA hides behind the drawer -->
-  <button id="installAppBtnMobile" type="button" onclick="installApp(); playMechanicalClick();"
+  <button id="installAppBtnMobile" onclick="installApp(); playMechanicalClick();"
     class="hidden flex-1 py-2 px-1 bg-pop-mint text-cocoa font-black uppercase btn-keycap-sm flex-col items-center justify-center">
     <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-save"></use></svg>
     <span class="text-[0.625rem] mt-0.5">PASANG</span>
@@ -714,44 +682,27 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
 </div>
 <button id="cleanBtn" class="clean-btn btn-keycap" onclick="sweepKetchup()" hidden>BERSIHKAN</button>
 
-<!-- Scripts this page needs (classic, deferred, in this order):
-     js/config.js — API_BASE, endpoints, storage keys, category labels
-     js/utils.js  — fmt/fmt1, fmtClock/fmtAgo, escapeHtml/escapeJsArg/escapeJsString, inkOn, readJson/writeJson
-     js/data.js   — the four fetches + validation, the 7-day cache, loading/ready/stale/error, refresh, data counts
-     js/audio.js  — the Web Audio FX engine (click/snap/thud/cue), lazy context, mute persistence, hotkey M
-     js/music.js  — the TOP 5 list, the shared <audio> player, cueTrack, LED bars, expiry-safe play()
-     js/ui.js     — setText, setA11yStatus, function hideToast, function showToast (undo button), boot dismissal,
-                    reveal observer, pop-in cleanup, the install CTA (function installApp / updateInstallCta,
-                    beforeinstallprompt + appinstalled + the iOS "Tambah ke Layar Utama" hint)
-     js/nav.js    — function saveViewScroll / restoreViewScroll, function switchView, toggleMobileSidebar,
-                    function syncSidebarInert, the Escape-closes-drawer path, hotkeys 1/2/3/4, R and M
-     js/stats.js  — function computeTypeStats (pure /type totals) plus /topic delta rows
-     js/analytics.js — function renderKpis, function renderFormatCompare, function renderLedMeter,
-                    function renderAnalytics
-     js/home.js   — function buildCategoryCards (7 category cartridges), function selectCategory (the one category
-                    pick, shared with the ideas list), function bestTopicDelta + the honest fact line, function renderHome
-     js/topics.js — function renderIdeas, function ideaTicket, the topic chips and their shared activeTopicFilter,
-                    copySnippet (clipboard + TERSALIN restore)
-     js/saved.js  — the katchup_saved store (100 cap), function toggleSave + its undo toast, function renderSaved
-                    and its filtered-empty state, function exportSaved / parseImportLine / importSaved
-     js/pranks.js — the three removable easter eggs: function bumpCard + function initScrollPranks (scroll bump),
-                    function rainKetchup / pluckKetchup / sweepKetchup + RADAR_FACTS (ketchup rain + FAKTA RADAR),
-                    function peelHero (peel-open hero), function bonkEdgeTomato + the peeker scheduling
-     js/app.js    — DOM-ready glue only: initApp() (one load path), boot dismissal, drawer inert on resize,
-                    and the service-worker registration (sw.js caches the shell, never the API) -->
-<script src="js/config.js" defer></script>
-<script src="js/utils.js" defer></script>
-<script src="js/data.js" defer></script>
-<script src="js/audio.js" defer></script>
-<script src="js/music.js" defer></script>
-<script src="js/ui.js" defer></script>
-<script src="js/nav.js" defer></script>
-<script src="js/stats.js" defer></script>
-<script src="js/analytics.js" defer></script>
-<script src="js/home.js" defer></script>
-<script src="js/topics.js" defer></script>
-<script src="js/saved.js" defer></script>
-<script src="js/pranks.js" defer></script>
-<script src="js/app.js" defer></script>
+<!-- ================= LOGIC: API, AUDIO, RENDER, PRANKS ================= -->
+<script src="js/config.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/data.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/analytics.js"></script>
+<script src="js/music.js"></script>
+<script src="js/home.js"></script>
+<script src="js/ideas.js"></script>
+<script src="js/saved.js"></script>
+<script src="js/share.js"></script>
+<script src="js/viewstate.js"></script>
+<script src="js/pranks.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>
+
+
+
+
+
+

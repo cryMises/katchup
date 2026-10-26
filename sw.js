@@ -1,6 +1,6 @@
 /* Service worker for KATCHUP. The shell is a file tree (css/, js/, icons/), so every local asset is
    precached; the cache prefix keeps this app's storage separate from anything else the origin hosts. */
-const CACHE_NAME = 'katchup-v1';
+const CACHE_NAME = 'katchup-v2';
 /* prune scope: this app's older caches only. A shared origin keeps its siblings. */
 const CACHE_PREFIX = 'katchup-';
 
@@ -9,24 +9,25 @@ const APP_SHELL = [
   './manifest.json',
   './favicon.ico',
   './css/tokens.css',
-  './css/base.css',
-  './css/layout.css',
   './css/components.css',
+  './css/pranks.css',
   './css/views.css',
   './css/motion.css',
-  './css/pranks.css',
+  './css/pranks-peeker.css',
+  './css/analytics.css',
   './js/config.js',
   './js/utils.js',
-  './js/data.js',
   './js/audio.js',
-  './js/music.js',
-  './js/ui.js',
+  './js/data.js',
   './js/nav.js',
-  './js/stats.js',
+  './js/ui.js',
   './js/analytics.js',
+  './js/music.js',
   './js/home.js',
-  './js/topics.js',
+  './js/ideas.js',
   './js/saved.js',
+  './js/share.js',
+  './js/viewstate.js',
   './js/pranks.js',
   './js/app.js',
   './icons/android-chrome-192x192.png',

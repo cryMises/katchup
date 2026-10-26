@@ -1,39 +1,32 @@
-/* KATCHUP — motion: entrances and state changes only, all on the two easings from tokens.css.
-   No infinite loops here; the mascot flipbook in layout.css is the one deliberate exception. */
-
-/* ---- scroll reveal: a section (and its paused cascade) waits until it is actually on screen ---- */
-[data-reveal]{opacity:0;transform:translateY(10px) scale(.985);transition:opacity .22s ease-out,transform .22s var(--pop)}
-[data-reveal].revealed{opacity:1;transform:none}
-
-/* rendered lists cascade in 45ms apart; children wait (paused) until their section reveals, so the cascade
-   plays exactly when the user can see it. The animationend handler in js/ui.js drops the fill afterwards, so
-   :hover/:active transforms on the same element keep working. */
+/* ---- motion language: entrance/state animations only, all on the two easings above ---- */
+/* rendered lists cascade in 45ms apart; children wait (paused) until their section reveals, so the
+   cascade plays exactly when the user can see it. animationend cleanup (see JS) drops the fill so
+   :hover/:active transforms on the same element keep working afterwards. */
 @keyframes popIn{from{opacity:0;transform:translateY(14px) scale(.95)}to{opacity:1;transform:none}}
 .pop-in{animation:popIn .42s var(--pop) both;animation-delay:calc(var(--i,0) * 45ms);animation-play-state:paused}
 [data-reveal].revealed .pop-in{animation-play-state:running}
-
 /* VU segments light up left-to-right in one quick scan each time the meter is (re)drawn */
 @keyframes ledOn{from{opacity:.2;transform:scaleY(.35)}to{opacity:1;transform:none}}
 .vu-scale>span{animation:ledOn .3s var(--settle) both;animation-delay:calc(var(--i,0) * 12ms)}
-
-/* ---- data states: the loading scanner makes 3 bounded passes, then rests ---- */
+/* the loading strip's scanner makes 3 bounded passes, then rests — motion rule: no endless loops */
 @keyframes scanPass{0%,100%{transform:translateX(0)}50%{transform:translateX(510%)}}
 .scanner-dot{animation:scanPass 1.15s var(--settle) 3}
-
-/* a rubber stamp snaps down onto paper: overshoot, a small rebound, then flat. Every .stamped surface (toast,
-   verdict stamp, copy button) takes this one entrance; js/ui.js drops the class on animationend so it replays. */
 @keyframes stampIn{0%{transform:scale(1.26) rotate(-6deg)}55%{transform:scale(.93) rotate(2deg)}100%{transform:scale(1) rotate(0)}}
 .stamped{animation:stampIn .36s var(--pop)}
-
-/* the stale banner materialises out of a display:none flip, so it gets its one entrance each time it shows */
 @keyframes dropIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:none}}
 .drop-in{animation:dropIn .28s var(--settle) both}
-
-/* topic chips pop when picked (the chips themselves ship with the ideas slice) */
 @keyframes chipOn{from{transform:scale(.86) rotate(-4deg)}to{transform:scale(1) rotate(0)}}
+/* replays on every display:none -> visible flip, so things that appear get a beat */
+#resetTagBtn{animation:popIn .28s var(--pop)}
+.chip-topic:active{transform:translateY(1px) scale(.95)}
+.cart:active{transform:translateY(2px) scale(.99)}
+a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--red-ink)!important;outline-offset:3px!important}
+/* the toast is cocoa, so the red ring disappears on it — white is the only ink that reads there */
+#toastActionBtn:focus-visible{outline-color:#fff!important}
+/* #contentArea is the skip link's target, not a widget — a red frame around the whole column reads as a bug */
+#contentArea:focus,#contentArea:focus-visible{outline:none!important}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:var(--cream)}
+::-webkit-scrollbar-thumb{background:var(--yellow);border:2px solid var(--cocoa);border-radius:9999px}
+::-webkit-scrollbar-thumb:hover{background:var(--red)}
 
-@media (prefers-reduced-motion: reduce){
-  [data-reveal]{opacity:1!important;transform:none!important;transition:none!important}
-  .pop-in,.vu-scale>span,.stamped,.chip-topic.on,.scanner-dot,.drop-in{animation:none}
-  .graph-bar-fill,.fmt-segment-v,.fmt-segment-i{transition:none}
-}

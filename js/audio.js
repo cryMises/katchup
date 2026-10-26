@@ -1,11 +1,6 @@
-'use strict';
-
 /* ================= WEB AUDIO API (contract: playMechanicalClick / playPatchCordSnap / playStampThud / playCueTone) ================= */
-/* The context is built lazily, on the first FX call. Every caller is a real user gesture (a click, or a keydown
-   the browser counts as activation), so no AudioNode exists before the page has been interacted with. */
 let _audioCtx = null;
-let isAudioMuted = false;
-try { isAudioMuted = localStorage.getItem('katchup_audio_mute') === 'true'; } catch (e) {}
+let isAudioMuted = localStorage.getItem('katchup_audio_mute') === 'true';
 
 function getAudioCtx() {
   if (isAudioMuted) return null;
@@ -73,10 +68,7 @@ function playStampThud() {
     osc.start(); osc.stop(ctx.currentTime + 0.06);
   } catch (e) {}
 }
-/* the button is a toggle: aria-pressed tracks the sound being on, the pill tracks the same state in words */
 function updateAudioFxButtonState() {
-  const btn = document.getElementById('audioFxToggleBtn');
-  if (btn) btn.setAttribute('aria-pressed', String(!isAudioMuted));
   const el = document.getElementById('audioFxStatus');
   if (!el) return;
   if (isAudioMuted) {
@@ -89,8 +81,23 @@ function updateAudioFxButtonState() {
 }
 function toggleAudioFx() {
   isAudioMuted = !isAudioMuted;
-  try { localStorage.setItem('katchup_audio_mute', String(isAudioMuted)); } catch (e) {}
+  localStorage.setItem('katchup_audio_mute', String(isAudioMuted));
   updateAudioFxButtonState();
   if (!isAudioMuted) { playCueTone(640); showToast('Efek suara nyala lagi.'); }
   else { showToast('Efek suara dimatikan.', false); }
 }
+/* Discrete jelly-bean LED meter (dark groove). Without an activeClass the lit segments run mint->yellow->red, so
+   a longer bar (a hotter sound) also reads hotter; the music list uses that scale, and activeClass stays for
+   callers that need one flat tint across the lit segments. */
+function renderLedMeter(pct, activeClass, totalBars) {
+  const total = totalBars || 20;
+  const activeCount = Math.round((Math.max(0, Math.min(100, pct)) / 100) * total);
+  let bars = '';
+  for (let i = 0; i < total; i++) {
+    let color = 'led-off';
+    if (i < activeCount) color = activeClass || ((i >= total - 3) ? 'bg-pop-red' : (i >= total - 7 ? 'bg-pop-yellow' : 'bg-pop-mint'));
+    bars += '<span class="flex-1 h-full ' + color + ' rounded-full" style="--i:' + i + '"></span>';
+  }
+  return '<div class="flex items-center gap-[3px] w-full h-3.5 vu-scale p-[2px] deck-groove" title="' + pct.toFixed(1) + '%">' + bars + '</div>';
+}
+

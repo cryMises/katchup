@@ -1,4 +1,3 @@
-/* KATCHUP — design tokens, copied from the original app's :root. */
 :root{
   --cream:#FBF3E4; --panel:#FFFFFF; --cocoa:#2E1E14; --ink-soft:#6A5344;
   --red:#FF4949; --mint:#2FE0A8; --blue:#5B8CFF; --yellow:#FFCE00; --pink:#FF7BB8; --orange:#FF8A3D;
@@ -10,4 +9,26 @@
   --red-ink:#C03030; --green-ink:#0A7D57;
   /* two easings for the whole deck: --pop overshoots (playful), --settle decelerates (readable) */
   --pop:cubic-bezier(.34,1.56,.64,1); --settle:cubic-bezier(.22,1,.36,1);
+}
+*{box-sizing:border-box}
+html,body{width:100%;margin:0}
+body{
+  background-color:var(--cream);
+  /* scrapbook dot paper — flat SVG dots, NOT a gradient */
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22'%3E%3Ccircle cx='2' cy='2' r='1.1' fill='%232E1E14' fill-opacity='0.07'/%3E%3C/svg%3E");
+  color:var(--cocoa); font-family:var(--body); -webkit-font-smoothing:antialiased;
+}
+/* custom illustrated Ketchy tomato cursor — same colour keys as the .ketchy symbols (cocoa 2.2 outline,
+   mint 5-leaf crown, white glint, pink cheek); the stem tip is the hotspot, desktop fine pointer only */
+@media (hover:hover) and (pointer:fine){
+  body{--ketchy-cursor:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='32'%20height='32'%20viewBox='0%200%2032%2032'%3E%3Cellipse%20cx='18'%20cy='30.2'%20rx='7.4'%20ry='1.5'%20fill='%232E1E14'%20opacity='.16'/%3E%3Cpath%20d='M4%204.6c1.2%203.4%205%205.8%209.5%207'%20fill='none'%20stroke='%232E1E14'%20stroke-width='2.6'%20stroke-linecap='round'/%3E%3Cpath%20d='M4%204.6c1.2%203.4%205%205.8%209.5%207'%20fill='none'%20stroke='%232FE0A8'%20stroke-width='1.4'%20stroke-linecap='round'/%3E%3Cellipse%20cx='17.6'%20cy='20.6'%20rx='10.2'%20ry='8.8'%20fill='%23FF4949'%20stroke='%232E1E14'%20stroke-width='2.2'/%3E%3Cpath%20d='M10.9%2021.4c-.9-2.1-.4-4.2%20.8-5.6'%20fill='none'%20stroke='%23FFF'%20stroke-width='1.6'%20stroke-linecap='round'%20opacity='.6'/%3E%3Cpath%20d='M15.6%206.2L17.36%209.97L21.5%2010.48L18.45%2013.33L19.25%2017.42L15.6%2015.4L11.95%2017.42L12.75%2013.33L9.7%2010.48L13.84%209.97Z'%20fill='%232FE0A8'%20stroke='%232E1E14'%20stroke-width='1.6'%20stroke-linejoin='round'/%3E%3Cellipse%20cx='14'%20cy='21'%20rx='1.05'%20ry='1.4'%20fill='%232E1E14'/%3E%3Cellipse%20cx='21'%20cy='21'%20rx='1.05'%20ry='1.4'%20fill='%232E1E14'/%3E%3Ccircle%20cx='13.7'%20cy='20.4'%20r='.5'%20fill='%23FFF'/%3E%3Ccircle%20cx='20.7'%20cy='20.4'%20r='.5'%20fill='%23FFF'/%3E%3Cpath%20d='M15.4%2024q2.1%202.1%204.2%200'%20fill='none'%20stroke='%232E1E14'%20stroke-width='1.2'%20stroke-linecap='round'/%3E%3Ccircle%20cx='11.5'%20cy='22.8'%20r='1.4'%20fill='%23FF7BB8'%20opacity='.9'/%3E%3Ccircle%20cx='23.7'%20cy='22.8'%20r='1.4'%20fill='%23FF7BB8'%20opacity='.9'/%3E%3C/svg%3E") 4 3, auto;cursor:var(--ketchy-cursor);}
+  /* One cursor everywhere: the tomato also stays over buttons and while pressing (it used to
+     flick to the OS hand on hover and to the OS arrow on mousedown). Beats the `cursor-pointer`
+     utilities still sitting on a few elements, which are now inert. */
+  body, body *{cursor:var(--ketchy-cursor) !important;}
+  /* When cursor is reverted via tomato click */
+  body.cursor-reverted, body.cursor-reverted *{cursor:auto !important;}
+  body.cursor-reverted button, body.cursor-reverted a, body.cursor-reverted [role="button"],
+  body.cursor-reverted .btn-keycap, body.cursor-reverted .btn-keycap-sm,
+  body.cursor-reverted .peel, body.cursor-reverted .chip-topic, body.cursor-reverted .cart{cursor:pointer !important;}
 }

@@ -71,7 +71,7 @@ an http origin.
 
 ```
 index.html
-css/   tokens, base, layout, components, views, motion, pranks
-js/    config, utils, data, audio, music, ui, nav, stats, analytics, home, topics, saved, pranks, app
+css/   tokens, components, pranks, views, motion, pranks-peeker, analytics
+js/    config, utils, audio, data, nav, ui, analytics, music, home, ideas, saved, share, viewstate, pranks, app
 manifest.json  sw.js  icons/
 ```

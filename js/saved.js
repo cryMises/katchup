@@ -1,27 +1,6 @@
-'use strict';
-
-/* ================= IDE TERSIMPAN (local storage) ================= */
-/* The saved store, its list, and the BAGIKAN/TEMPEL pair that carries it between devices. The store keeps full
-   idea snapshots (the API shape), so a saved ticket renders unchanged after the payload is refreshed — a week
-   later the hook and its likes still read. User data is never dropped in silence: unstarring stays undoable
-   through the toast, and the 100-item cap announces what it let go. */
-
-const SAVED_KEY = 'katchup_saved';
-const SAVED_MAX = 100;   // oldest first out; both cap paths say how many ideas they dropped
+/* ================= SAVED IDEAS (localStorage; survives data refreshes) ================= */
 const SAVED_STAMP = '<span class="rubber-stamp bg-pop-mint">DISIMPAN</span>';
 
-/* readJson tolerates corrupt JSON and a blocked store, so a bad payload reads as "nothing saved" instead of
-   killing the page */
-let savedIdeas = (function () {
-  const raw = readJson(SAVED_KEY, []);
-  return Array.isArray(raw) ? raw.filter(function (s) { return s && s.key; }) : [];
-})();
-let savedKeys = new Set(savedIdeas.map(function (s) { return s.key; }));
-
-/* one key per idea: category + normalised hook. Rides the ticket's data-idea attribute into toggleSave(). */
-function ideaKey(catKey, hook) {
-  return String(catKey || '') + '|' + String(hook || '').trim().toLowerCase();
-}
 /* snapshot keeps the API idea shape, so ideaTicket() renders it unchanged */
 function ideaSnapshot(item, catKey) {
   return {
@@ -34,7 +13,6 @@ function ideaSnapshot(item, catKey) {
   };
 }
 
-/* the count lives in three places: the sidebar badge, the saved-view pill, and the BAGIKAN button's visibility */
 function updateSavedCounts() {
   const hasAny = savedIdeas.length > 0;
   const badge = document.getElementById('navSavedCount');
@@ -50,7 +28,6 @@ function paintSaveButton(btn, saved) {
   btn.classList.toggle('bg-pop-yellow', !saved);
   btn.classList.toggle('bg-pop-mint', saved);
   btn.setAttribute('aria-pressed', String(saved));
-  btn.setAttribute('aria-label', saved ? 'Hapus ide dari simpanan' : 'Simpan ide ini');
   btn.title = saved ? 'Hapus dari simpanan' : 'Simpan ide ini';
   btn.innerHTML = doodle('save', 'w-3.5 h-3.5') + (saved ? 'TERSIMPAN' : 'SIMPAN');
 }
@@ -66,8 +43,7 @@ function toggleSave(btn) {
   const next = wasSaved
     ? savedIdeas.filter(function (s) { return s.key !== key; })
     : [ideaSnapshot(src.item, src.catKey)].concat(savedIdeas).slice(0, SAVED_MAX);
-  /* storage first: if the write fails, the in-memory list must not diverge from what will survive a reload */
-  if (!writeJson(SAVED_KEY, next)) { showToast('Gagal menyimpan ide. Coba lagi ya.', false); return; }
+  if (!writeJson(SAVED_KEY, next)) { showToast('Gagal menyimpan ide. Coba lagi ya.', false); return; }   // memory never diverges from storage
   savedIdeas = next;
   savedKeys = new Set(savedIdeas.map(function (s) { return s.key; }));
   updateSavedCounts();
@@ -97,24 +73,17 @@ function restoreSaved(snapshot, index) {
   else renderIdeas();
 }
 
-/* the saved view's one render path. The topic chips on saved tickets install activeTopicFilter, so the list
-   honours the shared filter and has a filtered-empty state of its own (distinct from "nothing saved yet"). */
 function renderSaved() {
   const container = document.getElementById('savedListContainer');
   const emptyEl = document.getElementById('savedEmpty');
-  if (!container || !emptyEl) return;
   const hasAny = savedIdeas.length > 0;
+  /* the topic chips on saved tickets install activeTopicFilter, so the saved list must honour it */
   const visible = activeTopicFilter
     ? savedIdeas.filter(function (snap) {
         return String(snap.topics || '').split(',').map(function (t) { return t.trim().toLowerCase(); }).includes(activeTopicFilter);
       })
     : savedIdeas;
   const wasEmptyHidden = emptyEl.classList.contains('hidden');
-  /* a re-render must not drop keyboard focus: the pressed star is rebuilt by this innerHTML swap, so remember
-     whether it lived in the list and put focus back on the same idea (else the first one, else the empty CTA) */
-  const active = document.activeElement;
-  const focusInList = !!(active && container.contains(active) && active.hasAttribute('data-idea'));
-  const focusKey = focusInList ? active.getAttribute('data-idea') : '';
   emptyEl.classList.toggle('hidden', hasAny);
   emptyEl.classList.toggle('flex', !hasAny);
   /* the empty card re-materialises from display:none, so it takes its entrance each time it appears */
@@ -126,7 +95,7 @@ function renderSaved() {
   if (hasAny && !visible.length) {
     container.innerHTML = '<div class="drop-in py-10 px-6 text-center bg-white border-2 border-dashed border-cocoa rounded-[18px] flex flex-col items-center">' +
       '<p class="font-headline font-extrabold uppercase">Nggak ada simpanan dengan topik #' + escapeHtml(activeTopicFilter.toUpperCase()) + '</p>' +
-      '<button type="button" onclick="resetTopicFilter(); playMechanicalClick();" class="mt-3 px-4 py-2 bg-pop-red text-cocoa btn-keycap font-headline text-xs font-extrabold uppercase">HAPUS FILTER</button>' +
+      '<button onclick="resetTopicFilter(); playMechanicalClick();" class="mt-3 px-4 py-2 bg-pop-red text-cocoa btn-keycap font-headline text-xs font-extrabold uppercase">HAPUS FILTER</button>' +
       '</div>';
   } else {
     container.innerHTML = visible.map(function (snap, idx) {
@@ -138,25 +107,17 @@ function renderSaved() {
   }
   pruneTicketIndex();
   updateSavedCounts();
-  if (focusInList) {
-    const again = Array.prototype.filter.call(container.querySelectorAll('button[data-idea]'), function (b) { return b.getAttribute('data-idea') === focusKey; })[0];
-    const target = again || container.querySelector('button[data-idea]') || emptyEl.querySelector('button');
-    if (target) target.focus();
-  }
   triggerReveal();
 }
 
-/* ================= BAGIKAN / TEMPEL (one text format) ================= */
-/* the list is device-local by design, so give people a way to carry it elsewhere. exportSaved() and
-   parseImportLine() have to change together: the parser strips the id-ID thousands separators, so the
-   round-trip survives. */
+/* the list is device-local by design, so give people a way to carry it elsewhere */
 function exportSaved() {
   if (!savedIdeas.length) return;
   const text = 'Ide konten dari Katchup:\n\n' + savedIdeas.map(function (s, i) {
     return (i + 1) + '. "' + s.contentIdea + '" — ' + fmt(s.estimatedLike) + ' potensi likes (' + categoryInfo(s.contentType).name + ')';
   }).join('\n');
-  /* a rejected share sheet (no targets, permission) used to vanish silently — fall back to the clipboard, but
-     stay quiet when the user just closed the sheet themselves */
+  /* a rejected share sheet (no targets, permission) used to vanish silently — fall back to the clipboard, but stay
+     quiet when the user just closed the sheet themselves */
   if (navigator.share) {
     navigator.share({ title: 'Ide konten Katchup', text: text }).catch(function (err) {
       if (err && err.name === 'AbortError') return;
@@ -180,9 +141,7 @@ function catKeyFromLabel(label) {
   }
   return '';   // includes the generic "Kategori" label, which maps back to no category
 }
-/* one line of exported text -> { hook, cat, likes }; null for anything that isn't an idea line. The exported
-   shape always ends in "— <likes> potensi likes (Kategori)", so a line without that tail — a header, a blank, a
-   stray note — is rejected instead of imported as a 0-like hook. */
+/* one line of exported text -> { hook, cat, likes }; null for anything that isn't an idea line */
 function parseImportLine(line) {
   let s = String(line || '').trim();
   if (!s || /^ide konten dari katchup\b/i.test(s)) return null;   // skip the header line BAGIKAN emits
@@ -191,9 +150,8 @@ function parseImportLine(line) {
   const cat = catMatch ? catKeyFromLabel(catMatch[1]) : '';
   if (catMatch) s = s.slice(0, catMatch.index).trim();
   const likeMatch = s.match(/[—–-]\s*([\d.,]+)\s*potensi likes\s*$/i);
-  if (!likeMatch) return null;
-  const likes = Number(likeMatch[1].replace(/[.,]/g, '')) || 0;   // id-ID thousands separators are cosmetic here
-  s = s.slice(0, likeMatch.index).trim();
+  const likes = likeMatch ? Number(likeMatch[1].replace(/[.,]/g, '')) || 0 : 0;
+  if (likeMatch) s = s.slice(0, likeMatch.index).trim();
   s = s.replace(/^["“']/, '').replace(/["”']$/, '').trim();
   return s ? { hook: s, cat: cat, likes: likes } : null;
 }
@@ -207,7 +165,6 @@ async function importSaved() {
   text.split(/\r?\n/).map(parseImportLine).filter(Boolean).forEach(function (p) {
     const key = ideaKey(p.cat, p.hook);
     if (savedKeys.has(key) || fresh.some(function (x) { return x.key === key; })) return;
-    /* imported ideas carry no topics: the line format has no topic field, so they show no chips */
     fresh.push({ key: key, contentType: p.cat, contentIdea: p.hook, estimatedLike: p.likes, topics: '', savedAt: Date.now() });
   });
   if (!fresh.length) { showToast('Nggak ada ide baru di clipboard.'); return; }
@@ -225,3 +182,4 @@ async function importSaved() {
     ? fresh.length + ' ide ditempel. Simpanan penuh, ' + dropped + ' ide terlama dilepas.'
     : fresh.length + ' ide ditempel dari clipboard.');
 }
+

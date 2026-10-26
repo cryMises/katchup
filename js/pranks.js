@@ -1,13 +1,4 @@
-'use strict';
-
-/* The three removable easter eggs. Each block below is self-contained: delete its markup from index.html, its
-   section in css/pranks.css and its functions here, and the app still loads. None of them is on the load path —
-   a refresh re-renders views without touching these layers, and the fact text is computed on demand from
-   whatever payload API_DATA holds at that moment. */
-
 /* ================= SCROLL BUMP (delete to remove) ================= */
-/* The best ticket thumps once when it scrolls into view. Inert under reduced motion (and skipped entirely on a
-   browser without IntersectionObserver, where bumpCard could never fire anyway). */
 let _bumpObserver = null;
 function bumpCard(el) {
   if (prefersReducedMotion) return;
@@ -18,7 +9,7 @@ function bumpCard(el) {
   setTimeout(function () { el.classList.remove('bumped'); }, 900);
 }
 function initScrollPranks() {
-  if (prefersReducedMotion || !('IntersectionObserver' in window)) return;
+  if (prefersReducedMotion) return;
   if (_bumpObserver) _bumpObserver.disconnect();
   _bumpObserver = new IntersectionObserver(function (entries) {
     entries.forEach(function (entry) {
@@ -70,7 +61,6 @@ function ketchupLandingTopPx() {
 }
 function rainKetchup() {
   const layer = document.getElementById('ketchupLayer');
-  if (!layer) return;
   layer.classList.remove('sweeping');   // a sweep that lost the layer leaves this behind; a fresh rain must shed it
   playPatchCordSnap();
   hideSplatCard();
@@ -264,7 +254,6 @@ function hideSplatCard() {
 
 function sweepKetchup() {
   const layer = document.getElementById('ketchupLayer');
-  if (!layer) return;
   playStampThud();
   const debris = layer.querySelectorAll('.falling-bottle, .ketchup-splat');
   // pin each bottle to where it actually is: mid-fall its position lives in the animation fill, and swapping the
@@ -296,12 +285,9 @@ const CREATOR_TIPS = [
   'Balas komentar di 30 menit pertama, saat itu paling rame.'
 ];
 let heroPeeled = false;
-/* The keyboard control is the real button (#peelHint), so the wrapper is a pointer-only div — no role="button"
-   around live buttons. aria-expanded reports that the cover is gone and the note is what you're reading. */
 function peelHero() {
   const peel = document.getElementById('heroPeel');
   const hint = document.getElementById('peelHint');
-  if (!peel) return;
   heroPeeled = !heroPeeled;
   peel.classList.toggle('peeled', heroPeeled);
   if (hint) hint.setAttribute('aria-expanded', String(heroPeeled));   // the tip replaces the cover, so say so
@@ -320,8 +306,7 @@ let _peekerTimer = null;
 let _peekerRetreatTimer = null;
 let _isPeekerActive = false;
 let _isPeekerFalling = false;
-let isTomatoCursorReverted = false;
-try { isTomatoCursorReverted = localStorage.getItem('katchup_tomato_cursor_reverted') === 'true'; } catch (e) {}
+let isTomatoCursorReverted = localStorage.getItem('katchup_tomato_cursor_reverted') === 'true';
 
 const PEEKER_QUIPS = [
   'Pstt! 👀',
@@ -333,14 +318,11 @@ const PEEKER_QUIPS = [
 ];
 
 function applyTomatoCursorState() {
-  document.body.classList.toggle('cursor-reverted', isTomatoCursorReverted);
-}
-
-/* The peeker is a real control only while it peeks: off screen it is `inert`, so a keyboard user can't tab into
-   a tomato they can't see. A bonk makes it pointer-dead, which is why it goes inert for the fall too. */
-function syncPeekerInert() {
-  const peeker = document.getElementById('edgeTomatoPeeker');
-  if (peeker) peeker.inert = !_isPeekerActive;
+  if (isTomatoCursorReverted) {
+    document.body.classList.add('cursor-reverted');
+  } else {
+    document.body.classList.remove('cursor-reverted');
+  }
 }
 
 function revertTomatoCursor(forceState) {
@@ -349,7 +331,7 @@ function revertTomatoCursor(forceState) {
   } else {
     isTomatoCursorReverted = !isTomatoCursorReverted;
   }
-  try { localStorage.setItem('katchup_tomato_cursor_reverted', String(isTomatoCursorReverted)); } catch (e) {}
+  localStorage.setItem('katchup_tomato_cursor_reverted', String(isTomatoCursorReverted));
   applyTomatoCursorState();
   if (isTomatoCursorReverted) {
     showToast('Kursor tomat dibalikkan ke default.');
@@ -374,7 +356,6 @@ function triggerTomatoPeek() {
   peeker.style.right = randomRight + 'px';
   peeker.classList.remove('falling');
   peeker.classList.add('peeking');
-  syncPeekerInert();
   playCueTone(840);
 
   clearTimeout(_peekerRetreatTimer);
@@ -388,7 +369,6 @@ function retreatEdgeTomato() {
   if (!peeker || _isPeekerFalling) return;
   peeker.classList.remove('peeking');
   _isPeekerActive = false;
-  syncPeekerInert();
   scheduleNextPeek();
 }
 
@@ -399,7 +379,6 @@ function bonkEdgeTomato() {
   clearTimeout(_peekerRetreatTimer);
   _isPeekerFalling = true;
   _isPeekerActive = false;
-  syncPeekerInert();
 
   playStampThud();
 
@@ -426,7 +405,6 @@ function scheduleNextPeek(delay) {
 
 function initEdgeTomatoPeeker() {
   applyTomatoCursorState();
-  syncPeekerInert();
   scheduleNextPeek(3500);
   /* A hidden tab shouldn't keep waking Ketchy up: the peek loop would otherwise reschedule itself forever
      in the background, which phones pay for in battery. Resume only if he isn't mid-peek already. */
@@ -435,3 +413,4 @@ function initEdgeTomatoPeeker() {
     else if (!_isPeekerActive && !_isPeekerFalling) scheduleNextPeek();
   });
 }
+
