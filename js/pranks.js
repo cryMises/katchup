@@ -301,12 +301,13 @@ function peelHero() {
   }
 }
 
-/* ================= PRANK 1: TOMATO PEEKER & CURSOR REVERT (edge tomato peeks & falls on click) — delete to remove ================= */
+/* ================= PRANK 1: TOMATO PEEKER & OPT-IN CURSOR (edge tomato peeks & falls on click) — delete to remove ================= */
 let _peekerTimer = null;
 let _peekerRetreatTimer = null;
 let _isPeekerActive = false;
 let _isPeekerFalling = false;
-let isTomatoCursorReverted = localStorage.getItem('katchup_tomato_cursor_reverted') === 'true';
+localStorage.removeItem('katchup_tomato_cursor_reverted'); // old key: the cursor used to start on and click turned it off
+let isTomatoCursorOn = localStorage.getItem('katchup_tomato_cursor_on') === 'true';
 
 const PEEKER_QUIPS = [
   'Pstt! 👀',
@@ -318,25 +319,25 @@ const PEEKER_QUIPS = [
 ];
 
 function applyTomatoCursorState() {
-  if (isTomatoCursorReverted) {
-    document.body.classList.add('cursor-reverted');
+  if (isTomatoCursorOn) {
+    document.body.classList.add('tomato-cursor');
   } else {
-    document.body.classList.remove('cursor-reverted');
+    document.body.classList.remove('tomato-cursor');
   }
 }
 
-function revertTomatoCursor(forceState) {
+function toggleTomatoCursor(forceState) {
   if (typeof forceState === 'boolean') {
-    isTomatoCursorReverted = forceState;
+    isTomatoCursorOn = forceState;
   } else {
-    isTomatoCursorReverted = !isTomatoCursorReverted;
+    isTomatoCursorOn = !isTomatoCursorOn;
   }
-  localStorage.setItem('katchup_tomato_cursor_reverted', String(isTomatoCursorReverted));
+  localStorage.setItem('katchup_tomato_cursor_on', String(isTomatoCursorOn));
   applyTomatoCursorState();
-  if (isTomatoCursorReverted) {
-    showToast('Kursor tomat dibalikkan ke default.');
+  if (isTomatoCursorOn) {
+    showToast('Kursor tomat Ketchy aktif 🍅');
   } else {
-    showToast('Kursor tomat Ketchy aktif kembali 🍅');
+    showToast('Kursor tomat dimatikan.');
   }
 }
 
@@ -385,8 +386,8 @@ function bonkEdgeTomato() {
   peeker.classList.remove('peeking');
   peeker.classList.add('falling');
 
-  // Clicking the tomato makes it fall AND reverts cursor
-  revertTomatoCursor();
+  // Clicking the tomato makes it fall AND turns the Ketchy cursor on (click again to turn it off)
+  toggleTomatoCursor();
 
   showToast('Plop! Ketchy kepleset 🍅');
 

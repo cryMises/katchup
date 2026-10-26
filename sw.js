@@ -43,7 +43,7 @@ const APP_SHELL = [
 const EXTERNAL = [
   'https://cdn.tailwindcss.com?plugins=forms,container-queries',
   'https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&family=Permanent+Marker&display=swap',
-  'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1'
+  'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&icon_names=chat,content_copy,done_all,how_to_vote,newspaper,palette,restaurant,school,sentiment_very_satisfied,spa,star&display=block'
 ];
 
 // Install: pre-cache the app shell so the UI loads instantly / offline.

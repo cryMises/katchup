@@ -96,7 +96,13 @@ function loadCachedData() {
   const cached = readJson(CACHE_KEY, null);
   if (!cached || cached.v !== 1 || !cached.fetchedAt || !cached.data) return false;
   if (Date.now() - cached.fetchedAt > CACHE_TTL) return false;
-  applyApiData(cached.data);
+  /* the signed CDN links expire (~4 days) before the payload does (7 days), so a hydrated row would always
+     play dead: drop musicUrl and let playableMusicUrl() fall back to the honest cue tone */
+  applyApiData(Object.assign({}, cached.data, {
+    music: (Array.isArray(cached.data.music) ? cached.data.music : []).map(function (m) {
+      return Object.assign({}, m, { musicUrl: '' });
+    })
+  }));
   lastFetchedAt = cached.fetchedAt;
   return true;
 }
@@ -105,6 +111,11 @@ async function loadApiData() {
   const [music, topic, idea, type] = await Promise.all([
     fetchEndpoint('music'), fetchEndpoint('topic'), fetchEndpoint('idea'), fetchEndpoint('type')
   ]);
+  /* a 200 with nothing in it is not healthy data: throw into the cache/error path instead of showing
+     "RADAR: TERHUBUNG" over empty views, and leave the last good payload in place */
+  const hasIdeas = Array.isArray(idea) && idea.some(function (c) { return c && Array.isArray(c.posts) && c.posts.length > 0; });
+  const hasTypes = Array.isArray(type) && type.length > 0;
+  if (!hasIdeas && !hasTypes) throw new Error('Server datanya balas kosong. Coba lagi sebentar ya.');
   applyApiData({ music: music, topic: topic, idea: idea, type: type });
   saveCachedData();
 }
@@ -119,6 +130,6 @@ let isMobileSidebarOpen = false;
 let currentlyPlayingTrackIndex = null;
 
 function fmt(n) { return Math.round(n || 0).toLocaleString('id-ID'); }
-function fmt1(n) { return (Number(n) || 0).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+function fmt1(n) { return (Number(n) || 0).toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 }); }
 function signed(n) { return (n >= 0 ? '+' : '') + fmt1(n); }
 

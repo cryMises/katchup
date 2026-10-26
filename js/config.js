@@ -17,7 +17,7 @@ const CATEGORY_LOGOS = {
 function categoryInfo(key) {
   /* unknown keys come straight from the API, so the fallback name is scrubbed of markup characters */
   const safeKey = typeof key === 'string' ? key.replace(/[<>&"'`]/g, '') : '';
-  return CATEGORY_LOGOS[safeKey] || { icon:'spark', name: safeKey ? safeKey.charAt(0).toUpperCase() + safeKey.slice(1) : 'Kategori', badgeText:'KATEGORI', accent:'#2E1E14', desc:'Kategori konten' };
+  return CATEGORY_LOGOS[safeKey] || { icon:'star', name: safeKey ? safeKey.charAt(0).toUpperCase() + safeKey.slice(1) : 'Kategori', badgeText:'KATEGORI', accent:'#2E1E14', desc:'Kategori konten' };
 }
 /* accents run from pale mint to cocoa itself, so pick the ink that actually reads on the fill */
 function inkOn(hex) {

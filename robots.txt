@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+# Sitemap ditambahkan begitu domain produksi tetap (loc di sitemap wajib absolut).

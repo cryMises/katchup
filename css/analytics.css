@@ -49,8 +49,10 @@
 @media (max-width:1023px){
   #mainSidebar{position:fixed!important;top:0;bottom:0;left:0;z-index:70;transform:translateX(-100%);box-shadow:8px 0 26px rgba(46,30,20,.28)}
   #mainSidebar.mobile-open{transform:translateX(0)}
-  /* the fixed bottom nav overlays the scroll container, so the clearance belongs on the panel itself */
-  main.view-panel{padding-bottom:calc(92px + env(safe-area-inset-bottom))}
+  /* the fixed bottom nav overlays the scroll container, so the clearance belongs on the panel itself.
+     Doubled class keeps the old `main.view-panel` specificity: the Tailwind CDN appends its utilities
+     after this file, so plain `.view-panel` would lose the padding to `p-4`. */
+  .view-panel.view-panel{padding-bottom:calc(92px + env(safe-area-inset-bottom))}
   #mobileBottomNav{padding-bottom:calc(.625rem + env(safe-area-inset-bottom))}
 }
 

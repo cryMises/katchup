@@ -4,6 +4,18 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>KATCHUP — Radar Ide Konten Kreator Indonesia</title>
+<meta name="description" content="Radar ide konten Instagram buat kreator Indonesia: tren mingguan, Reels vs foto, sound viral, dan ide siap pakai per kategori.">
+<!-- social preview: the image/url are relative until a production domain is fixed; scrapers that require absolute URLs will skip them -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Katchup">
+<meta property="og:title" content="KATCHUP — Radar Ide Konten Kreator Indonesia">
+<meta property="og:description" content="Tren Instagram mingguan, Reels vs foto, sound viral, dan ide konten siap pakai buat kreator Indonesia.">
+<meta property="og:image" content="icons/android-chrome-512x512.png">
+<meta property="og:url" content="./index.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="KATCHUP — Radar Ide Konten Kreator Indonesia">
+<meta name="twitter:description" content="Tren Instagram mingguan, Reels vs foto, sound viral, dan ide konten siap pakai buat kreator Indonesia.">
+<meta name="twitter:image" content="icons/android-chrome-512x512.png">
 
 <meta name="theme-color" content="#FBF3E4">
 <meta name="mobile-web-app-capable" content="yes">
@@ -21,11 +33,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&family=Permanent+Marker&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1" rel="stylesheet">
+<!-- Material Symbols is subset to the icons this app actually draws (icon_names), otherwise the variable font
+     ships ~1.1 MB for ~10 glyphs. Adding an icon means adding it here AND in sw.js EXTERNAL. -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&icon_names=chat,content_copy,done_all,how_to_vote,newspaper,palette,restaurant,school,sentiment_very_satisfied,spa,star&display=block" rel="stylesheet">
 
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <script id="tailwind-config">
-tailwind.config = { darkMode:"class", theme:{ extend:{
+/* CDN blocked or offline: there is no tailwind global, and assigning to it would throw before the app boots.
+   The util classes are gone either way; local css keeps the page usable. */
+if (window.tailwind) tailwind.config = { darkMode:"class", theme:{ extend:{
   colors:{ marshmallow:"#FBF3E4", cream:"#FBF3E4", panel:"#FFFFFF", cocoa:"#2E1E14",
     "pop-red":"#FF4949", "pop-yellow":"#FFCE00", "pop-mint":"#2FE0A8", "pop-blue":"#5B8CFF", "pop-pink":"#FF7BB8", "pop-orange":"#FF8A3D",
     /* ink variants of the same hues for text on light surfaces (the pop-* fills above are surfaces, not ink) */
@@ -329,6 +345,10 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
     <button onclick="refreshLiveTopics(); playMechanicalClick();" class="px-3 py-1.5 bg-white btn-keycap-sm font-headline text-[0.6875rem] font-extrabold uppercase">COBA PERBARUI</button>
   </div>
 
+  <!-- one <main> for every state that owns the page body: loading, error, and the four view panels.
+       Four sibling <main> elements are invalid HTML and give screen readers four main landmarks. -->
+  <main id="viewPanels" class="flex-1 min-h-0 flex flex-col w-full">
+
   <!-- data loading strip -->
   <div id="loadingState" class="hidden flex-1 flex-col items-center justify-center gap-4 p-10 text-center">
     <div class="ketchy" style="--kw:72px">
@@ -360,7 +380,7 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
     </button>
   </div>
   <!-- ================= HALAMAN 1: RINGKASAN TREN ================= -->
-  <main id="view-home" class="view-panel active flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-8 flex-col w-full">
+  <section id="view-home" class="view-panel active flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-8 flex-col w-full">
     <div class="mag spread">
 
       <!-- PRANK 3: "JENDELA STIKER" — klik hero buat ngelupas stiker & intip doodle + tips. Hapus .peel wrapper + peelHero() untuk membuang prank ini. -->
@@ -473,9 +493,9 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
       </section>
 
     </div>
-  </main>
+  </section>
   <!-- ================= HALAMAN 2: ANALISIS KONTEN ================= -->
-  <main id="view-analytics" class="view-panel flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-8 flex-col w-full">
+  <section id="view-analytics" class="view-panel flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-8 flex-col w-full">
     <div class="mag spread">
       <section data-reveal>
         <h2 class="marker" style="--rule:#FF4949">ANGKA UTAMA</h2>
@@ -501,10 +521,10 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
         <div id="musicList" class="flex flex-col gap-4 mt-4"></div>
       </section>
     </div>
-  </main>
+  </section>
 
   <!-- ================= HALAMAN 3: REKOMENDASI IDE KONTEN ================= -->
-  <main id="view-topics" class="view-panel flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-8 flex-col w-full">
+  <section id="view-topics" class="view-panel flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-8 flex-col w-full">
     <div class="mag spread">
 
       <section data-reveal>
@@ -564,10 +584,10 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
       </section>
 
     </div>
-  </main>
+  </section>
 
   <!-- ================= HALAMAN 4: IDE TERSIMPAN ================= -->
-  <main id="view-saved" class="view-panel flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-8 flex-col w-full">
+  <section id="view-saved" class="view-panel flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-8 flex-col w-full">
     <div class="mag spread">
 
       <section data-reveal>
@@ -617,8 +637,9 @@ tailwind.config = { darkMode:"class", theme:{ extend:{
       </section>
 
     </div>
-  </main>
+  </section>
 
+  </main>
 </div>
 <!-- ===== mobile bottom nav ===== -->
 <div id="mobileBottomNav" role="navigation" aria-label="Navigasi utama" class="lg:hidden fixed bottom-0 left-0 right-0 z-[74] bg-white border-t-2 border-cocoa p-2.5 flex items-center justify-around gap-2">
