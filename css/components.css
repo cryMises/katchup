@@ -121,6 +121,10 @@
 .chip-topic{display:inline-flex;align-items:center;gap:5px;background:#fff;border:2px solid var(--cocoa);border-radius:9999px;max-width:100%;overflow-wrap:break-word;padding:5px 11px;font-family:var(--display);font-weight:800;font-size:0.6875rem;cursor:pointer;transition:transform 90ms}
 .chip-topic:hover{transform:translateY(-1px) rotate(-1deg)}
 .chip-topic.on{background:var(--cocoa);color:#fff;animation:chipOn .24s var(--pop)}
+/* production status keeps its own fill, always with cocoa ink: bright fills never carry white text */
+.chip-topic.on[data-status="belum"],.chip-topic.on[data-status-filter="belum"]{background:var(--yellow);color:var(--cocoa)}
+.chip-topic.on[data-status="dibuat"],.chip-topic.on[data-status-filter="dibuat"]{background:var(--blue);color:var(--cocoa)}
+.chip-topic.on[data-status="tayang"],.chip-topic.on[data-status-filter="tayang"]{background:var(--mint);color:var(--cocoa)}
 
 /* ---- scrapbook photo-ish blocks ---- */
 .block{

@@ -96,6 +96,7 @@ function ideaTicket(item, opts) {
         '</span>' +
       '</div>' +
       '<p class="font-body text-[0.84375rem] font-semibold leading-relaxed break-words">"' + safeHook + '"</p>' +
+      (o.statusRow || '') +
       '<div class="flex flex-wrap items-center gap-1.5 mt-3.5">' +
         topicList.map(function (tag) {
           const on = activeTopicFilter === tag.toLowerCase();

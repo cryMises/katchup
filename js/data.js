@@ -125,6 +125,7 @@ let dataStatus = 'loading';
 let dataErrorMessage = '';
 let currentCategory = 'education';
 let activeTopicFilter = null;
+let activeStatusFilter = null;   // saved-view production status: belum | dibuat | tayang
 let isSidebarCollapsed = false;
 let isMobileSidebarOpen = false;
 let currentlyPlayingTrackIndex = null;
