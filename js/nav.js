@@ -122,7 +122,7 @@ function updateLinkStatus(status) {
   const label = document.getElementById('telemetryStatusLabel');
   if (status === 'ready') { dot.className = 'w-3 h-3 shrink-0 inline-block bg-pop-mint jewel-led'; label.innerText = 'RADAR: TERHUBUNG'; }
   else if (status === 'loading') { dot.className = 'w-3 h-3 shrink-0 inline-block bg-pop-yellow jewel-led'; label.innerText = 'RADAR: MEMUAT...'; }
-  else if (status === 'stale') { dot.className = 'w-3 h-3 shrink-0 inline-block bg-pop-yellow jewel-led'; label.innerText = 'RADAR: DATA TERSIMPAN'; }
+  else if (status === 'stale') { dot.className = 'w-3 h-3 shrink-0 inline-block bg-pop-yellow jewel-led'; label.innerText = 'RADAR: TERSIMPAN'; }
   else { dot.className = 'w-3 h-3 shrink-0 inline-block bg-pop-red jewel-led'; label.innerText = 'RADAR: TERPUTUS'; }
 }
 

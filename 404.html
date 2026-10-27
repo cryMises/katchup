@@ -15,19 +15,20 @@
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
 <!-- Statis dan tanpa Tailwind CDN: halaman ini harus tetap kebaca kalau CDN atau worker lagi bermasalah. -->
 <style>
-  :root { --cocoa:#2E1E14; --cream:#FBF3E4; --red:#FF4949; --yellow:#FFCE00; --mint:#2FE0A8; }
+  :root { --cocoa:#2E1E14; --cream:#FBF3E4; --red:#FF4949; --yellow:#FFCE00; }
   * { box-sizing: border-box; }
-  html, body { margin: 0; min-height: 100%; }
+  html { height: 100%; }
   body {
+    margin: 0; min-height: 100vh; min-height: 100dvh;
     background: var(--cream); color: var(--cocoa);
     font-family: Nunito, system-ui, sans-serif;
-    display: flex; align-items: center; justify-content: center;
-    padding: 24px;
+    display: flex; padding: 24px;
   }
+  /* auto margins centre the card, but let it start at the top when the screen is shorter than the card */
   main {
-    width: 100%; max-width: 520px; background: #fff;
+    width: 100%; max-width: 520px; margin: auto; background: #fff;
     border: 2px solid var(--cocoa); border-radius: 28px;
-    box-shadow: 6px 6px 0 var(--cocoa); padding: 32px 28px; text-align: center;
+    box-shadow: 6px 6px 0 var(--cocoa); padding: 30px 28px 32px; text-align: center;
   }
   .tape {
     display: inline-block; background: var(--yellow); border: 2px solid var(--cocoa);
@@ -46,24 +47,324 @@
     border: 2px solid var(--cocoa); border-radius: 12px; box-shadow: 0 4px 0 var(--cocoa);
     font-family: "Baloo 2", system-ui, sans-serif; font-weight: 800; font-size: 13px;
     text-transform: uppercase; letter-spacing: .06em;
+    transition: transform 90ms cubic-bezier(.34,1.56,.64,1), box-shadow 90ms;
   }
-  a.cta:hover { transform: translateY(1px); box-shadow: 0 3px 0 var(--cocoa); }
   a.cta:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--cocoa); }
-  a.cta:focus-visible { outline: 3px solid var(--mint); outline-offset: 3px; }
-  .splat { width: 88px; height: 88px; margin: 0 auto; display: block; }
-  @media (prefers-reduced-motion: reduce) { a.cta { transition: none; } }
+  a.cta:focus-visible { outline: 3px solid var(--cocoa); outline-offset: 3px; }
+
+  /* same polygon + cocoa-rim construction as the ketchup splats behind the !! button */
+  .splat-stage { position: relative; width: 150px; height: 150px; margin: 0 auto 8px; }
+  .splat { position: relative; z-index: 1; display: block; width: 100%; height: 100%; overflow: visible; translate: 0 3px; }
+  .tomato {
+    position: absolute; z-index: 2; right: -4px; bottom: -2px; width: 58px; height: 58px;
+    padding: 0; border: 0; background: transparent; cursor: pointer;
+    transform: rotate(6deg); transition: transform 120ms cubic-bezier(.34,1.56,.64,1);
+    filter: drop-shadow(0 3px 0 rgba(46,30,20,.22));
+  }
+  .tomato svg { display: block; width: 100%; height: 100%; }
+  .tomato:active { transform: rotate(2deg) scale(.9); }
+  .tomato:focus-visible { outline: 3px solid var(--cocoa); outline-offset: 4px; border-radius: 50%; }
+  .tomato.boing { animation: tomatoBoing .42s cubic-bezier(.34,1.56,.64,1); }
+  .face-normal, .face-scary { transition: opacity 90ms linear; }
+  .face-scary { opacity: 0; }
+  .tomato.scary .face-normal { opacity: 0; }
+  .tomato.scary .face-scary { opacity: 1; }
+  .speech {
+    position: absolute; z-index: 4; top: -14px; left: -2px; pointer-events: none;
+    max-width: 140px; padding: 5px 9px; background: var(--cream); border: 2px solid var(--cocoa); border-radius: 10px;
+    box-shadow: 3px 3px 0 var(--cocoa); color: var(--cocoa);
+    font: 800 11px/1.25 "Baloo 2", system-ui, sans-serif; letter-spacing: .04em; text-transform: uppercase;
+    text-align: left; white-space: normal; overflow-wrap: anywhere;
+    opacity: 0; transform: rotate(-4deg) scale(.8); transform-origin: bottom right;
+    transition: opacity 120ms ease-out, transform 180ms cubic-bezier(.34,1.56,.64,1);
+  }
+  .speech::after {
+    content: ""; position: absolute; right: 12px; bottom: -7px; width: 10px; height: 10px;
+    background: var(--cream); border-right: 2px solid var(--cocoa); border-bottom: 2px solid var(--cocoa);
+    transform: rotate(45deg);
+  }
+  .speech.show { opacity: 1; transform: rotate(-4deg) scale(1); }
+  .toss-tomato {
+    position: absolute; z-index: 5; left: 0; top: 0; width: 32px; height: 32px;
+    translate: -50% -50%; pointer-events: none;
+    filter: drop-shadow(0 2px 0 rgba(46,30,20,.2));
+    animation: tossFly .2s cubic-bezier(.2,.8,.3,1) both;
+  }
+  .toss-tomato svg { display: block; width: 100%; height: 100%; }
+  .mini-splat {
+    position: absolute; z-index: 2; left: 0; top: 0; translate: -50% -50%;
+    width: var(--sw,44px); height: var(--sh,38px); pointer-events: none;
+    transform: rotate(var(--rot,0deg));
+    animation: splatPop .14s cubic-bezier(.2,1.5,.4,1) both;
+  }
+  .mini-splat svg { display: block; width: 100%; height: 100%; }
+  .hit-burst {
+    position: absolute; z-index: 1; left: 0; top: 0; width: 76px; height: 76px;
+    translate: -50% -50%; pointer-events: none; animation: hitBurst .2s ease-out both;
+  }
+  .hit-burst::before, .hit-burst::after {
+    content: ""; position: absolute; inset: 0;
+    clip-path: polygon(50% 0,61% 31%,90% 12%,72% 42%,100% 50%,72% 58%,90% 88%,61% 69%,50% 100%,39% 69%,10% 88%,28% 58%,0 50%,28% 42%,10% 12%,39% 31%);
+  }
+  .hit-burst::before { background: var(--cocoa); }
+  .hit-burst::after { inset: 6px; background: var(--yellow); }
+  .hit-drop {
+    position: absolute; z-index: 3; left: 0; top: 0; width: var(--dw,8px); height: var(--dw,8px);
+    translate: -50% -50%; border-radius: 50%; background: var(--red); border: 2px solid var(--cocoa);
+    pointer-events: none; animation: dropOut .24s ease-out both;
+  }
+  main.hit { animation: cardHit .16s ease-out; }
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+  }
+  @keyframes tomatoBoing {
+    0% { transform: rotate(6deg) scale(1); }
+    22% { transform: rotate(16deg) translate(3px,1px) scale(.96,1.04); }
+    44% { transform: rotate(-13deg) translate(-4px,-2px) scale(1.08,.94); }
+    68% { transform: rotate(1deg) scale(1.1,.92); }
+    86% { transform: rotate(7deg) scale(.97,1.03); }
+    100% { transform: rotate(6deg) scale(1); }
+  }
+  @keyframes tossFly {
+    0% { transform: translate(0,0) rotate(0) scale(.55); opacity: 0; }
+    18% { opacity: 1; }
+    55% { transform: translate(var(--mx,0),var(--my,0)) rotate(-150deg) scale(.95); }
+    100% { transform: translate(var(--tx,0),var(--ty,0)) rotate(var(--spin,-360deg)) scale(.8); opacity: 1; }
+  }
+  @keyframes splatPop {
+    0% { transform: rotate(var(--rot,0deg)) scale(.3); opacity: .4; }
+    65% { transform: rotate(var(--rot,0deg)) scale(1.14); opacity: 1; }
+    100% { transform: rotate(var(--rot,0deg)) scale(1); }
+  }
+  @keyframes hitBurst {
+    0% { transform: scale(.3) rotate(-10deg); opacity: .9; }
+    55% { transform: scale(1.3) rotate(6deg); opacity: 1; }
+    82% { opacity: 1; }
+    100% { transform: scale(1) rotate(0); opacity: 0; }
+  }
+  @keyframes dropOut {
+    0% { transform: translate(0,0) scale(.3); opacity: 1; }
+    72% { opacity: 1; }
+    100% { transform: translate(var(--dx,0),var(--dy,0)) scale(1); opacity: 0; }
+  }
+  @keyframes cardHit {
+    0%, 100% { transform: translate(0,0) rotate(0); }
+    20% { transform: translate(-4px,2px) rotate(-.32deg); }
+    45% { transform: translate(4px,-2px) rotate(.3deg); }
+    70% { transform: translate(-2px,1px) rotate(-.16deg); }
+    88% { transform: translate(1px,0) rotate(.08deg); }
+  }
+  @media (hover:hover) {
+    .tomato:hover { transform: rotate(-4deg) scale(1.07); }
+    a.cta:hover { transform: translateY(1px); box-shadow: 0 3px 0 var(--cocoa); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .tomato, a.cta, .speech, .face-normal, .face-scary { transition: none; }
+    .tomato.boing, .toss-tomato, .mini-splat, .hit-burst, .hit-drop, main.hit { animation: none; }
+    .hit-burst, .hit-drop { display: none; }
+  }
 </style>
 </head>
 <body>
 <main>
-  <svg class="splat" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
-    <path d="M50 8c12 0 14 9 24 13s18 10 16 22-12 14-14 24-9 19-22 19-16-9-26-13S6 63 8 51s12-14 14-24S38 8 50 8z" fill="#FF4949" stroke="#2E1E14" stroke-width="4" stroke-linejoin="round"/>
-    <text x="50" y="62" text-anchor="middle" font-family="'Baloo 2',system-ui,sans-serif" font-size="30" font-weight="800" fill="#FBF3E4">404</text>
-  </svg>
+  <div class="splat-stage" id="splatStage">
+    <svg class="splat" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+      <polygon points="84.9,50.0 81.1,53.3 77.3,55.8 74.5,57.9 72.9,60.2 72.5,63.0 73.0,66.7 73.6,71.3 73.7,76.3 72.4,80.8 69.5,83.8 65.4,84.5 60.8,83.2 56.5,80.5 52.9,77.5 50.0,75.1 47.5,73.6 45.1,73.2 42.2,73.9 38.7,75.3 34.4,77.0 29.5,78.2 24.7,78.1 21.0,76.1 19.2,72.4 19.3,67.7 20.7,63.0 22.4,59.0 23.4,55.7 22.9,52.8 21.0,50.0 18.1,46.6 15.3,42.6 13.7,38.2 14.4,34.1 17.3,31.1 21.8,29.5 26.8,29.1 31.5,29.4 35.3,29.7 38.1,29.4 40.3,28.3 42.2,26.1 44.2,22.9 46.7,19.0 50.0,15.1 53.9,12.4 58.1,11.8 61.8,13.7 64.4,17.6 66.0,22.2 67.0,26.5 68.2,29.8 70.2,31.8 73.5,33.0 77.8,34.0 82.4,35.6 86.3,38.2 88.2,41.9 87.6,46.0" fill="#2E1E14" stroke="#2E1E14" stroke-width="10" stroke-linejoin="round"/>
+      <polygon points="84.9,50.0 81.1,53.3 77.3,55.8 74.5,57.9 72.9,60.2 72.5,63.0 73.0,66.7 73.6,71.3 73.7,76.3 72.4,80.8 69.5,83.8 65.4,84.5 60.8,83.2 56.5,80.5 52.9,77.5 50.0,75.1 47.5,73.6 45.1,73.2 42.2,73.9 38.7,75.3 34.4,77.0 29.5,78.2 24.7,78.1 21.0,76.1 19.2,72.4 19.3,67.7 20.7,63.0 22.4,59.0 23.4,55.7 22.9,52.8 21.0,50.0 18.1,46.6 15.3,42.6 13.7,38.2 14.4,34.1 17.3,31.1 21.8,29.5 26.8,29.1 31.5,29.4 35.3,29.7 38.1,29.4 40.3,28.3 42.2,26.1 44.2,22.9 46.7,19.0 50.0,15.1 53.9,12.4 58.1,11.8 61.8,13.7 64.4,17.6 66.0,22.2 67.0,26.5 68.2,29.8 70.2,31.8 73.5,33.0 77.8,34.0 82.4,35.6 86.3,38.2 88.2,41.9 87.6,46.0" fill="#FF4949" stroke="#FF4949" stroke-width="1" stroke-linejoin="round"/>
+      <text x="50" y="55" text-anchor="middle" font-family="'Baloo 2',system-ui,sans-serif" font-size="23" font-weight="800" textLength="50" lengthAdjust="spacingAndGlyphs" fill="#FBF3E4">404</text>
+    </svg>
+    <span class="speech" id="tomatoSpeak" aria-hidden="true">Bukan gue!</span>
+    <button class="tomato" id="tomatoBtn" type="button" aria-label="Pencet tomat Ketchy" title="Pencet tomatnya!">
+      <svg viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+        <ellipse cx="37" cy="93" rx="7.5" ry="4" fill="#FFCE00" stroke="#2E1E14" stroke-width="3.5"/>
+        <ellipse cx="63" cy="93" rx="7.5" ry="4" fill="#FFCE00" stroke="#2E1E14" stroke-width="3.5"/>
+        <path d="M50 23 C36 17 12 24 10 50 C8 75 26 92 50 92 C74 92 92 75 90 50 C88 24 64 17 50 23 Z" fill="#FF4949" stroke="#2E1E14" stroke-width="4" stroke-linejoin="round"/>
+        <path d="M20 38 C15 48 16 62 22 72" fill="none" stroke="#FFFFFF" stroke-width="4.5" stroke-linecap="round" opacity="0.6"/>
+        <circle cx="26" cy="34" r="2.5" fill="#FFFFFF" opacity="0.6"/>
+        <path d="M50 22 C50 12 54 6 61 4" fill="none" stroke="#2E1E14" stroke-width="4.5" stroke-linecap="round"/>
+        <path d="M50 22 C50 13 53 7 60 5" fill="none" stroke="#2FE0A8" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M50 22 Q40 13 35 9 Q43 17 45 21 Q30 17 20 22 Q34 26 44 25 Q38 33 36 36 Q45 30 49 25 Q50 35 50 35 Q51 25 55 25 Q59 30 64 36 Q62 26 56 25 Q66 26 80 22 Q70 17 55 21 Q57 17 65 9 Q60 13 50 22 Z" fill="#2FE0A8" stroke="#2E1E14" stroke-width="3.5" stroke-linejoin="round"/>
+        <g class="face-normal">
+          <ellipse cx="38" cy="54" rx="4" ry="5.5" fill="#2E1E14"/><circle cx="36.5" cy="52" r="1.8" fill="#FFFFFF"/>
+          <ellipse cx="62" cy="54" rx="4" ry="5.5" fill="#2E1E14"/><circle cx="60.5" cy="52" r="1.8" fill="#FFFFFF"/>
+          <circle cx="27" cy="62" r="4.5" fill="#FF7BB8" opacity="0.9"/>
+          <circle cx="73" cy="62" r="4.5" fill="#FF7BB8" opacity="0.9"/>
+          <path d="M43 62 Q50 72 57 62" fill="#2E1E14" stroke="#2E1E14" stroke-width="3" stroke-linecap="round"/>
+          <path d="M46 64 Q50 71 54 64" fill="#FF7BB8"/>
+        </g>
+        <g class="face-scary">
+          <circle cx="27" cy="62" r="4.5" fill="#FF7BB8" opacity="0.9"/>
+          <circle cx="73" cy="62" r="4.5" fill="#FF7BB8" opacity="0.9"/>
+          <path d="M30 44 Q37 42 45 48" fill="none" stroke="#2E1E14" stroke-width="4" stroke-linecap="round"/>
+          <path d="M70 44 Q63 42 55 48" fill="none" stroke="#2E1E14" stroke-width="4" stroke-linecap="round"/>
+          <ellipse cx="38" cy="55" rx="5" ry="3.2" fill="#2E1E14"/><circle cx="36.5" cy="53.5" r="1.3" fill="#FFFFFF"/>
+          <ellipse cx="62" cy="55" rx="5" ry="3.2" fill="#2E1E14"/><circle cx="60.5" cy="53.5" r="1.3" fill="#FFFFFF"/>
+          <path d="M30 59 Q50 65 70 59 Q50 85 30 59 Z" fill="#2E1E14" stroke="#2E1E14" stroke-width="3" stroke-linejoin="round"/>
+          <path d="M34 60 L38 68 L42 61 L46 68 L50 61 L54 68 L58 61 L62 68 L66 60 Z" fill="#FBF3E4" stroke="#2E1E14" stroke-width="1.5" stroke-linejoin="round"/>
+        </g>
+        <path d="M12 56 Q4 64 7 73" fill="none" stroke="#2E1E14" stroke-width="4" stroke-linecap="round"/>
+        <path d="M88 56 Q96 64 93 73" fill="none" stroke="#2E1E14" stroke-width="4" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
+  <span class="sr-only" id="tomatoStatus" role="status"></span>
   <span class="tape">Stiker kesobek</span>
   <h1>Halaman <span>nggak ketemu</span></h1>
   <p>Alamat ini nggak ada di radar. Mungkin sudah pindah, atau link-nya kebuang bareng stikernya.</p>
   <a class="cta" href="/index.html">Balik ke radar</a>
 </main>
+<script>
+  const tomato = document.getElementById('tomatoBtn');
+  const stage = document.getElementById('splatStage');
+  const speech = document.getElementById('tomatoSpeak');
+  const status = document.getElementById('tomatoStatus');
+  const card = document.querySelector('main');
+  const lines = [
+    'Bukan gue!',
+    'Splatch lagi?',
+    'Ya udah, 404.',
+    'Link-nya yang kabur.',
+    'Aku cuma stiker.',
+    'Jangan dipencet terus.',
+    'Sakit, tau.',
+    'Ketchup bukan peluru.',
+    'Aku cuma numpang.',
+    'Coba balik dulu.',
+    'Di sini nggak ada.',
+    '404 bukan nama gue.',
+    'Eh, jangan kasar.',
+    'Satu lagi, splat.',
+    'Udah, balik yuk.',
+    'Aku mau pensiun.',
+    'Splat terakhir, janji.',
+    'Tomat lempar tomat.',
+    'Kamu nyasar, ya?',
+    'Pelan-pelan, tomat.'
+  ];
+  let line = 0;
+  let speechTimer;
+  let scaryTimer;
+  function speak() {
+    const text = lines[line++ % lines.length];
+    speech.textContent = text;
+    status.textContent = text;
+    speech.classList.remove('show');
+    void speech.offsetWidth;
+    speech.classList.add('show');
+    clearTimeout(speechTimer);
+    speechTimer = setTimeout(function () { speech.classList.remove('show'); }, 1800);
+  }
+  /* Same blob maths as the !! ketchup splats: a round body with gaussian lobes, drawn twice for the cocoa rim. */
+  function blobPoints(lobes, base, bump, sigma) {
+    const phase = Math.random() * Math.PI * 2;
+    const centres = [];
+    for (let i = 0; i < lobes; i++) centres.push(phase + (i / lobes) * Math.PI * 2 + (Math.random() - 0.5) * 0.16);
+    const pts = [];
+    for (let k = 0; k < 60; k++) {
+      const th = (k / 60) * Math.PI * 2;
+      let r = base;
+      centres.forEach(function (c) {
+        const d = Math.atan2(Math.sin(th - c), Math.cos(th - c));
+        r += bump * Math.exp(-(d * d) / (2 * sigma * sigma));
+      });
+      pts.push((50 + Math.cos(th) * r).toFixed(1) + ',' + (50 + Math.sin(th) * r).toFixed(1));
+    }
+    return pts.join(' ');
+  }
+  function splatSvg() {
+    const lobes = 4 + Math.floor(Math.random() * 2);
+    const base = 20 - lobes * 1.2 + Math.random() * 3;
+    const bump = 16 + lobes * 1.2 + Math.random() * 3;
+    const sigma = 0.34 - (lobes - 4) * 0.02 + Math.random() * 0.02;
+    const p = blobPoints(lobes, base, bump, sigma);
+    return '<svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">' +
+      '<polygon points="' + p + '" fill="#2E1E14" stroke="#2E1E14" stroke-width="10" stroke-linejoin="round"/>' +
+      '<polygon points="' + p + '" fill="#FF4949" stroke="#FF4949" stroke-width="1" stroke-linejoin="round"/>' +
+    '</svg>';
+  }
+  tomato.addEventListener('click', function () {
+    tomato.classList.remove('boing');
+    void tomato.offsetWidth;
+    tomato.classList.add('boing');
+    clearTimeout(scaryTimer);
+    tomato.classList.add('scary');
+    scaryTimer = setTimeout(function () { tomato.classList.remove('scary'); }, 700);
+    speak();
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const box = tomato.getBoundingClientRect();
+    const stageBox = stage.getBoundingClientRect();
+    const ox = box.left - stageBox.left + box.width * 0.42;
+    const oy = box.top - stageBox.top + box.height * 0.5;
+    /* land only in the left half of the blob */
+    const targetX = 14 + Math.random() * 56;
+    const targetY = 104 + Math.random() * 16;
+
+    function impact() {
+      stage.querySelectorAll('.hit-burst, .hit-drop').forEach(function (el) { el.remove(); });
+      const splat = document.createElement('span');
+      splat.className = 'mini-splat';
+      splat.style.left = targetX.toFixed(0) + 'px';
+      splat.style.top = targetY.toFixed(0) + 'px';
+      const w = 42 + Math.random() * 16;
+      splat.style.setProperty('--sw', w.toFixed(0) + 'px');
+      splat.style.setProperty('--sh', (w * (0.86 + Math.random() * 0.14)).toFixed(0) + 'px');
+      splat.style.setProperty('--rot', (Math.random() * 90 - 45).toFixed(0) + 'deg');
+      splat.innerHTML = splatSvg();
+      stage.appendChild(splat);
+      while (stage.querySelectorAll('.mini-splat').length > 6) stage.querySelector('.mini-splat').remove();
+
+      if (!reduceMotion) {
+        const burst = document.createElement('span');
+        burst.className = 'hit-burst';
+        burst.style.left = targetX.toFixed(0) + 'px';
+        burst.style.top = targetY.toFixed(0) + 'px';
+        stage.appendChild(burst);
+        setTimeout(function () { burst.remove(); }, 240);
+
+        /* quick ketchup droplets flying out of the impact */
+        for (let i = 0; i < 5; i++) {
+          const angle = (Math.PI * 2 * i) / 5 + (Math.random() - 0.5) * 0.5;
+          const dist = 18 + Math.random() * 18;
+          const drop = document.createElement('span');
+          drop.className = 'hit-drop';
+          drop.style.left = targetX.toFixed(0) + 'px';
+          drop.style.top = targetY.toFixed(0) + 'px';
+          drop.style.setProperty('--dx', (Math.cos(angle) * dist).toFixed(0) + 'px');
+          drop.style.setProperty('--dy', (Math.sin(angle) * dist).toFixed(0) + 'px');
+          drop.style.setProperty('--dw', (6 + Math.random() * 4).toFixed(0) + 'px');
+          stage.appendChild(drop);
+          setTimeout(function () { drop.remove(); }, 280);
+        }
+
+        card.classList.remove('hit');
+        void card.offsetWidth;
+        card.classList.add('hit');
+      }
+    }
+
+    if (reduceMotion) {
+      impact();
+      return;
+    }
+
+    /* Ketchy throws a mini Ketchy; the splat appears exactly where it lands. */
+    const toss = document.createElement('span');
+    toss.className = 'toss-tomato';
+    toss.style.left = ox.toFixed(0) + 'px';
+    toss.style.top = oy.toFixed(0) + 'px';
+    toss.style.setProperty('--tx', (targetX - ox).toFixed(0) + 'px');
+    toss.style.setProperty('--ty', (targetY - oy).toFixed(0) + 'px');
+    toss.style.setProperty('--mx', ((targetX - ox) * 0.55).toFixed(0) + 'px');
+    toss.style.setProperty('--my', ((targetY - oy) * 0.55 - 26).toFixed(0) + 'px');
+    toss.style.setProperty('--spin', ((Math.random() < 0.5 ? -1 : 1) * (300 + Math.random() * 180)).toFixed(0) + 'deg');
+    toss.innerHTML = tomato.querySelector('svg').outerHTML;
+    stage.appendChild(toss);
+    setTimeout(function () {
+      toss.remove();
+      impact();
+    }, 200);
+  });
+</script>
 </body>
 </html>

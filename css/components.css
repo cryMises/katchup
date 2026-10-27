@@ -49,11 +49,9 @@
 /* ---- chunky keycap buttons (one elevation rule) ---- */
 .btn-keycap{position:relative;border:2.5px solid var(--cocoa);border-radius:9999px;box-shadow:0 4px 0 var(--cocoa);
   transform:translateY(0);transition:transform 90ms cubic-bezier(.34,1.56,.64,1),box-shadow 90ms;user-select:none}
-.btn-keycap:hover{transform:translateY(-1px);box-shadow:0 5px 0 var(--cocoa)}
 .btn-keycap:active,.btn-keycap.active-key{transform:translateY(3px)!important;box-shadow:0 1px 0 var(--cocoa)!important}
 .btn-keycap-sm{position:relative;border:2px solid var(--cocoa);border-radius:9999px;box-shadow:0 3px 0 var(--cocoa);
   transform:translateY(0);transition:transform 90ms cubic-bezier(.34,1.56,.64,1),box-shadow 90ms;user-select:none}
-.btn-keycap-sm:hover{transform:translateY(-1px);box-shadow:0 4px 0 var(--cocoa)}
 .btn-keycap-sm:active{transform:translateY(2px)!important;box-shadow:0 1px 0 var(--cocoa)!important}
 .btn-keycap svg,.btn-keycap-sm svg{flex:0 0 auto}
 
@@ -73,11 +71,16 @@
 .rubber-stamp{display:inline-flex;align-items:center;font-family:var(--display);font-weight:800;font-size:0.65625rem;
   letter-spacing:.05em;text-transform:uppercase;padding:3px 9px;border:2px solid var(--cocoa);border-radius:9999px;
   box-shadow:0 2px 0 var(--cocoa);transform:rotate(-2deg);white-space:nowrap}
+/* the stamp presses onto the page as its ticket scrolls into view; base transform is the resting tilt */
+.teletype-ticket.revealed .rubber-stamp{animation:stampPress .36s var(--pop)}
+/* the carousel's arrows + clipped next card already say "scroll"; a native bar reads as a stray underline */
+#topicGridContainer{scrollbar-width:none}
+#topicGridContainer::-webkit-scrollbar{display:none}
 /* ---- magazine column ---- */
 .mag{max-width:820px;margin:0 auto;width:100%}
 .rule-doodle{height:2px;border:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='4'%3E%3Cpath d='M0 2h120' stroke='%232E1E14' stroke-opacity='.22' stroke-width='2' stroke-dasharray='7 6'/%3E%3C/svg%3E");background-repeat:repeat-x}
 .spread{display:flex;flex-direction:column;gap:26px}
-.note{font-size:0.84375rem;line-height:1.75;color:var(--ink-soft)}
+.note{font-size:0.84375rem;line-height:1.75;color:var(--ink-soft);max-width:72ch}
 
 /* ---- journal "ledger" rows: flat, ruled, no boxes ---- */
 .ledger{padding:14px 0;border-bottom:2px dashed var(--line)}
@@ -99,7 +102,6 @@
   position:relative;background:var(--panel);border:2.5px solid var(--cocoa);border-radius:var(--r);
   box-shadow:var(--elev);transition:transform .16s cubic-bezier(.34,1.56,.64,1),box-shadow .16s;
 }
-.teletype-ticket:hover{transform:translateY(-3px) rotate(-.4deg);box-shadow:0 8px 0 var(--cocoa)}
 .ticket-perf-line{border-top:2px dashed var(--line)}
 .ticket-spine{position:absolute;left:0;top:14px;bottom:14px;width:7px;border-radius:9999px;background:var(--cat);border:2px solid var(--cocoa)}
 
@@ -109,7 +111,6 @@
   background:var(--panel);border:2.5px solid var(--cocoa);border-radius:var(--r);box-shadow:var(--elev);
   padding:16px 16px 14px;transition:transform .14s cubic-bezier(.34,1.56,.64,1),box-shadow .14s;
 }
-.cart:hover{transform:translateY(-3px) rotate(-.5deg)}
 .cart.is-picked{transform:translateY(4px);box-shadow:var(--elev-sm);background:#FFFDF6}
 /* One check per card, shown purely by CSS off .is-picked: selectCategory() only toggles classes, so the check
    has to live in every card — baked in conditionally it would stay on the first pick forever. */
@@ -119,7 +120,6 @@
 .cart-delta{display:flex;justify-content:space-between;font-size:0.75rem;font-weight:800;padding:4px 0;border-top:2px dotted var(--line)}
 .chip-cat{display:inline-flex;align-items:center;gap:5px;background:var(--cart,var(--cat));color:var(--cart-ink,var(--cocoa));border:2px solid var(--cocoa);border-radius:9999px;padding:2px 9px;font-family:var(--display);font-weight:800;font-size:0.65625rem;text-transform:uppercase}
 .chip-topic{display:inline-flex;align-items:center;gap:5px;background:#fff;border:2px solid var(--cocoa);border-radius:9999px;max-width:100%;overflow-wrap:break-word;padding:5px 11px;font-family:var(--display);font-weight:800;font-size:0.6875rem;cursor:pointer;transition:transform 90ms}
-.chip-topic:hover{transform:translateY(-1px) rotate(-1deg)}
 .chip-topic.on{background:var(--cocoa);color:#fff;animation:chipOn .24s var(--pop)}
 /* production status keeps its own fill, always with cocoa ink: bright fills never carry white text */
 .chip-topic.on[data-status="belum"],.chip-topic.on[data-status-filter="belum"]{background:var(--yellow);color:var(--cocoa)}
@@ -133,7 +133,6 @@
 }
 /* JALUR shortcut cards on the home page are actions now: same lift language as .cart / .teletype-ticket */
 .block[role="button"]{transition:transform .14s cubic-bezier(.34,1.56,.64,1)}
-.block[role="button"]:hover{transform:translateY(-3px) rotate(-.4deg)}
 .block[role="button"]:active{transform:translateY(1px)}
 /* ---- KETCHY the Tomato flipbook mascot: 4 hand-drawn SVG frames, stepped like a GIF ---- */
 .ketchy{position:relative;display:inline-block;width:var(--kw,76px);height:var(--kw,76px)}
@@ -169,4 +168,14 @@
 @keyframes bootOut{to{opacity:0;visibility:hidden}}
 .splat-in{animation:squashIn .5s cubic-bezier(.34,1.56,.64,1)}
 @keyframes squashIn{0%{transform:scaleX(.86) scaleY(1.14)}45%{transform:scaleX(1.06) scaleY(.95)}100%{transform:scale(1)}}
+
+/* hover lift only where a real pointer can hover; touch taps must not leave cards stuck raised */
+@media (hover:hover){
+  .btn-keycap:hover{transform:translateY(-1px);box-shadow:0 5px 0 var(--cocoa)}
+  .btn-keycap-sm:hover{transform:translateY(-1px);box-shadow:0 4px 0 var(--cocoa)}
+  .teletype-ticket:hover{transform:translateY(-3px) rotate(-.4deg);box-shadow:0 8px 0 var(--cocoa)}
+  .cart:hover{transform:translateY(-3px) rotate(-.5deg)}
+  .chip-topic:hover{transform:translateY(-1px) rotate(-1deg)}
+  .block[role="button"]:hover{transform:translateY(-3px) rotate(-.4deg)}
+}
 

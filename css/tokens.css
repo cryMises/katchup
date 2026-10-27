@@ -17,7 +17,11 @@ body{
   /* scrapbook dot paper — flat SVG dots, NOT a gradient */
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22'%3E%3Ccircle cx='2' cy='2' r='1.1' fill='%232E1E14' fill-opacity='0.07'/%3E%3C/svg%3E");
   color:var(--cocoa); font-family:var(--body); -webkit-font-smoothing:antialiased;
+  caret-color:var(--red-ink);
 }
+::selection{background:var(--yellow);color:var(--cocoa)}
+/* figures line up column-to-column once the dashboard numbers start changing */
+.ledger-value,.ledger-split,.graph-bar-row{font-variant-numeric:tabular-nums}
 /* custom illustrated Ketchy tomato cursor — same colour keys as the .ketchy symbols (cocoa 2.2 outline,
    mint 5-leaf crown, white glint, pink cheek); the stem tip is the hotspot, desktop fine pointer only */
 @media (hover:hover) and (pointer:fine){

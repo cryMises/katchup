@@ -12,6 +12,7 @@
 @keyframes scanPass{0%,100%{transform:translateX(0)}50%{transform:translateX(510%)}}
 .scanner-dot{animation:scanPass 1.15s var(--settle) 3}
 @keyframes stampIn{0%{transform:scale(1.26) rotate(-6deg)}55%{transform:scale(.93) rotate(2deg)}100%{transform:scale(1) rotate(0)}}
+@keyframes stampPress{0%{transform:scale(1.2) rotate(-7deg)}55%{transform:scale(.94) rotate(-1deg)}100%{transform:scale(1) rotate(-2deg)}}
 .stamped{animation:stampIn .36s var(--pop)}
 @keyframes dropIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:none}}
 .drop-in{animation:dropIn .28s var(--settle) both}
@@ -29,4 +30,5 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:3px solid 
 ::-webkit-scrollbar-track{background:var(--cream)}
 ::-webkit-scrollbar-thumb{background:var(--yellow);border:2px solid var(--cocoa);border-radius:9999px}
 ::-webkit-scrollbar-thumb:hover{background:var(--red)}
+html{scrollbar-color:var(--yellow) var(--cream)}
 

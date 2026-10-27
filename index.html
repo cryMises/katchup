@@ -68,7 +68,7 @@ if (window.tailwind) tailwind.config = { darkMode:"class", theme:{ extend:{
 <link rel="stylesheet" href="css/pranks-peeker.css">
 <link rel="stylesheet" href="css/analytics.css">
 </head>
-<body class="w-full min-h-screen flex lg:flex-row items-stretch overflow-x-hidden relative">
+<body class="w-full h-[100dvh] flex lg:flex-row items-stretch overflow-hidden relative">
 <!-- keyboard users: jump past the sidebar and header straight into the page. Revealed by translate, not
      sr-only/not-sr-only: that pair also resets padding and would flatten the button -->
 <a href="#contentArea" id="skipLink" class="absolute top-0 left-2 z-[95] -translate-y-[200%] focus:translate-y-2 transition-transform px-3 py-2 bg-pop-yellow text-cocoa border-2 border-cocoa rounded-full font-headline text-xs font-extrabold uppercase">Lewati ke konten</a>
@@ -324,7 +324,7 @@ if (window.tailwind) tailwind.config = { darkMode:"class", theme:{ extend:{
       </button>
       <div class="min-w-0" aria-live="polite" aria-atomic="true">
         <div class="flex items-center gap-2.5">
-          <img src="icons/favicon-32x32.png" alt="" class="w-7 h-7 rounded-lg border-2 border-cocoa shrink-0">
+          <img src="icons/favicon-32x32.png" alt="" class="hidden sm:block w-7 h-7 rounded-lg border-2 border-cocoa shrink-0">
           <h1 id="viewTitle" class="font-headline text-base sm:text-lg font-extrabold uppercase tracking-wide truncate">RINGKASAN TREN</h1>
         </div>
         <p id="viewSubtitle" class="text-[0.71875rem] font-bold text-on-surface-variant truncate hidden sm:block">Yang rame minggu ini di Instagram Indonesia</p>
@@ -350,7 +350,7 @@ if (window.tailwind) tailwind.config = { darkMode:"class", theme:{ extend:{
       <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-refresh"></use></svg>
       Data tersimpan · <span id="cacheBannerTime">baru aja</span>
     </span>
-    <button onclick="refreshLiveTopics(); playMechanicalClick();" class="px-3 py-1.5 bg-white btn-keycap-sm font-headline text-[0.6875rem] font-extrabold uppercase">COBA PERBARUI</button>
+    <button onclick="refreshLiveTopics(); playMechanicalClick();" class="px-3 py-1.5 bg-white btn-keycap-sm font-headline text-[0.6875rem] font-extrabold uppercase whitespace-nowrap shrink-0">COBA LAGI</button>
   </div>
 
   <!-- one <main> for every state that owns the page body: loading, error, and the four view panels.
@@ -425,9 +425,9 @@ if (window.tailwind) tailwind.config = { darkMode:"class", theme:{ extend:{
                 </p>
                 <div class="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 font-headline text-[0.71875rem] font-extrabold uppercase">
                   <span class="flex items-center gap-1.5"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="#FF4949" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-radar"></use></svg>1. Ambil tren</span>
-                  <svg class="w-4 h-4 text-cocoa/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-arrow"></use></svg>
+                  <svg class="hidden sm:block w-4 h-4 text-cocoa/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-arrow"></use></svg>
                   <span class="flex items-center gap-1.5"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="#5B8CFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-bars"></use></svg>2. Bandingkan format</span>
-                  <svg class="w-4 h-4 text-cocoa/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-arrow"></use></svg>
+                  <svg class="hidden sm:block w-4 h-4 text-cocoa/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-arrow"></use></svg>
                   <span class="flex items-center gap-1.5"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="#2FE0A8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-copy"></use></svg>3. Contek idenya</span>
                 </div>
                 <div class="mt-5 flex flex-wrap gap-3">
@@ -674,7 +674,7 @@ if (window.tailwind) tailwind.config = { darkMode:"class", theme:{ extend:{
   </button>
   <!-- shown only while the app is installable; on phones the sidebar CTA hides behind the drawer -->
   <button id="installAppBtnMobile" onclick="installApp(); playMechanicalClick();"
-    class="hidden flex-1 py-2 px-1 bg-pop-mint text-cocoa font-black uppercase btn-keycap-sm flex-col items-center justify-center">
+    class="hidden flex-1 py-2 px-1 bg-cream text-cocoa font-black uppercase btn-keycap-sm flex-col items-center justify-center">
     <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#d-save"></use></svg>
     <span class="text-[0.625rem] mt-0.5">PASANG</span>
   </button>

@@ -77,7 +77,7 @@
   [data-reveal]{opacity:1!important;transform:none!important;transition:none!important}
   .peel-cover,.peel-peek{transition:none}
   .peel.peeled #heroTip{animation:none}
-  .pop-in,.vu-scale>span,.stamped,.chip-topic.on,#resetTagBtn,.scanner-dot,.drop-in{animation:none}
+  .pop-in,.vu-scale>span,.stamped,.chip-topic.on,#resetTagBtn,.scanner-dot,.drop-in,.rubber-stamp{animation:none}
   .graph-bar-fill,.fmt-segment-v,.fmt-segment-i{transition:none}
   .splat-in{animation:none}
 }
