@@ -96,7 +96,7 @@ self.addEventListener('fetch', (event) => {
       const network = fetch(req).then((res) => {
         if (res && res.status === 200 && res.type !== 'opaque') {
           const resClone = res.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(req, resClone));
+          caches.open(CACHE_NAME).then((cache) => cache.put(req, resClone)).catch(() => {});
         }
         return res;
       }).catch(() => cached);

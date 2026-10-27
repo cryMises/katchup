@@ -35,7 +35,9 @@ function stampDeckFor(key) {
 }
 function renderIdeas() {
   const items = ideasForCategory(currentCategory);
-  let filtered = [].concat(items).sort(function (a, b) { return b.estimatedLike - a.estimatedLike; });
+  let filtered = [].concat(items).sort(function (a, b) {
+    return (Number(b && b.estimatedLike) || 0) - (Number(a && a.estimatedLike) || 0);
+  });
   if (activeTopicFilter) {
     filtered = filtered.filter(function (item) {
       return String(item.topics || '').split(',').map(function (t) { return t.trim().toLowerCase(); }).includes(activeTopicFilter);

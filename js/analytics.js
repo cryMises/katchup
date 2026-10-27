@@ -26,7 +26,7 @@ function bestTopicDelta() {
   if (!row) return null;
   let bestKey = '', bestVal = -Infinity;
   Object.keys(row).forEach(function (k) {
-    if (!CATEGORY_LOGOS[k]) return;   // the row also carries baseTimeStamp/comparedTo, which aren't categories
+    if (!Object.prototype.hasOwnProperty.call(CATEGORY_LOGOS, k)) return;   // also skips baseTimeStamp/comparedTo and prototype keys
     const val = Number(row[k] && row[k].avgLikeDelta) || 0;
     if (val > bestVal) { bestVal = val; bestKey = k; }
   });

@@ -1,6 +1,9 @@
 /* ================= WEB AUDIO API (contract: playMechanicalClick / playPatchCordSnap / playStampThud / playCueTone) ================= */
 let _audioCtx = null;
-let isAudioMuted = localStorage.getItem('katchup_audio_mute') === 'true';
+function readAudioMuted() {
+  try { return localStorage.getItem('katchup_audio_mute') === 'true'; } catch (e) { return false; }
+}
+let isAudioMuted = readAudioMuted();
 
 function getAudioCtx() {
   if (isAudioMuted) return null;
@@ -8,7 +11,12 @@ function getAudioCtx() {
     const AC = window.AudioContext || window.webkitAudioContext;
     if (AC) _audioCtx = new AC();
   }
-  if (_audioCtx && _audioCtx.state === 'suspended') _audioCtx.resume();
+  if (_audioCtx && _audioCtx.state === 'suspended') {
+    try {
+      const resumed = _audioCtx.resume();
+      if (resumed && resumed.catch) resumed.catch(function () {});
+    } catch (e) {}
+  }
   return _audioCtx;
 }
 function playMechanicalClick() {
@@ -81,7 +89,7 @@ function updateAudioFxButtonState() {
 }
 function toggleAudioFx() {
   isAudioMuted = !isAudioMuted;
-  localStorage.setItem('katchup_audio_mute', String(isAudioMuted));
+  try { localStorage.setItem('katchup_audio_mute', String(isAudioMuted)); } catch (e) {}
   updateAudioFxButtonState();
   if (!isAudioMuted) { playCueTone(640); showToast('Efek suara nyala lagi.'); }
   else { showToast('Efek suara dimatikan.', false); }

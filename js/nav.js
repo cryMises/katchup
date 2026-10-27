@@ -16,11 +16,10 @@ function switchView(view) {
   const viewChanged = view !== currentView;
   if (viewChanged) saveViewScroll(currentView);
   currentView = view;
-  const needsData = (view === 'analytics' || view === 'topics');
-  const showLoadingNow = needsData && dataStatus === 'loading';
-  const showErrorNow = needsData && dataStatus === 'error';
+  const showLoadingNow = view !== 'saved' && dataStatus === 'loading';
+  const showErrorNow = view !== 'saved' && dataStatus === 'error';
   const hasData = dataStatus === 'ready' || dataStatus === 'stale';
-  const showContentNow = view === 'home' || view === 'saved' || (needsData && hasData);
+  const showContentNow = view === 'saved' || hasData;
 
   const ls = document.getElementById('loadingState'), es = document.getElementById('errorState');
   ls.classList.toggle('hidden', !showLoadingNow); ls.classList.toggle('flex', showLoadingNow);
@@ -90,8 +89,9 @@ function setSidebarCollapsed(collapsed) {
   if (window.innerWidth >= 1024) document.getElementById('mainSidebar').classList.toggle('sidebar-collapsed', collapsed);
 }
 function toggleMobileSidebar(open) {
-  isMobileSidebarOpen = open;
   const sidebar = document.getElementById('mainSidebar');
+  const wasOpen = sidebar.classList.contains('mobile-open');
+  isMobileSidebarOpen = open;
   sidebar.classList.toggle('mobile-open', open);
   document.getElementById('sidebarBackdrop').classList.toggle('hidden', !open);
   const menuBtn = document.getElementById('mobileMenuBtn');
@@ -101,6 +101,8 @@ function toggleMobileSidebar(open) {
   if (open && window.innerWidth < 1024) {
     const first = sidebar.querySelector('button');
     if (first) first.focus();
+  } else if (wasOpen && window.innerWidth < 1024 && menuBtn) {
+    menuBtn.focus();   // closing must not strand focus inside the now-inert drawer
   }
 }
 /* off-canvas below 1024px: `inert` keeps the closed drawer's controls out of the tab order and the a11y tree */
@@ -193,6 +195,10 @@ function showToast(message, isSuccess, action) {
       actionBtn.onclick = function () { hideToast(); action.onClick(); };
       actionBtn.onfocus = function () { clearTimeout(toastTimeout); };              // don't yank undo away mid-interaction
       actionBtn.onblur = function () { toastTimeout = setTimeout(hideToast, 1200); };
+    } else {
+      actionBtn.onclick = null;
+      actionBtn.onfocus = null;
+      actionBtn.onblur = null;
     }
   }
   toast.classList.add('translate-y-0', 'opacity-100', 'stamped');

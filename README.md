@@ -22,8 +22,10 @@ of the seven content categories (Edukasi, Gaya Hidup, Berita, Politik, Humor, Bu
 - Ranked idea tickets per category, topic chips that filter the list, and one-tap copy of the hook.
 - Home: hero, the category picker that drives the idea list, and JALUR shortcuts into the other views.
 - A weekly category fact computed from the payload, not hardcoded.
-- On-device saved ideas with an undoable unstar and a 100-hook cap that says what it dropped.
-- Ide Tersimpan view, sharing the same topic filter as the idea list.
+- On-device saved ideas with an undoable unstar and a 100-hook cap that says what it dropped. Each hook
+  carries a production status: belum dibuat, lagi dibuat, or sudah tayang.
+- Ide Tersimpan view with topic and status filters, counts scoped to the active topic, and an all-done state
+  when every hook has aired.
 - BAGIKAN exports the saved list as plain text and TEMPEL reads it back, so the list survives a new phone.
 - Installable PWA: manifest, icons, an offline shell, and an install affordance where the browser supports it.
 

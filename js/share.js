@@ -1,17 +1,17 @@
 /* ================= COPY TO CLIPBOARD ================= */
 function legacyCopyToClipboard(text) {
+  let ta = null;
   try {
-    const ta = document.createElement('textarea');
+    ta = document.createElement('textarea');
     ta.value = text;
     ta.setAttribute('readonly', '');
     ta.style.position = 'fixed';
     ta.style.top = '-1000px';
     document.body.appendChild(ta);
     ta.select();
-    const ok = document.execCommand('copy');
-    document.body.removeChild(ta);
-    return ok;
+    return document.execCommand('copy');
   } catch (e) { return false; }
+  finally { if (ta && ta.parentNode) ta.parentNode.removeChild(ta); }
 }
 async function copySnippet(btn) {
   const text = btn.getAttribute('data-hook') || '';

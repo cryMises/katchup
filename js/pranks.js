@@ -23,6 +23,7 @@ function initScrollPranks() {
 
 /* ================= PRANK 2: KETCHUP RAIN + BERSIHKAN (delete to remove) ================= */
 let _ketchupPile = 0;
+let _ketchupGen = 0;
 let _cleanHideTimer = null;
 /* the pluck ladder: every tomato you pick plays the next note, so clearing the pile by hand is a little tune */
 const PLUCK_NOTES = [523.25, 587.33, 659.25, 783.99, 880, 1046.5, 1174.66, 1318.51];   // C D E G A C D E
@@ -61,6 +62,7 @@ function ketchupLandingTopPx() {
 }
 function rainKetchup() {
   const layer = document.getElementById('ketchupLayer');
+  const gen = ++_ketchupGen;
   layer.classList.remove('sweeping');   // a sweep that lost the layer leaves this behind; a fresh rain must shed it
   playPatchCordSnap();
   hideSplatCard();
@@ -86,10 +88,16 @@ function rainKetchup() {
     _ketchupPile++;
   }
   if (prefersReducedMotion) { playStampThud(); if (_ketchupPile > 0) showCleanButton(); return; }
-  setTimeout(function () { playStampThud(); if (_ketchupPile > 0) showCleanButton(); }, 1400);
+  setTimeout(function () {
+    if (gen !== _ketchupGen || layer.classList.contains('sweeping')) return;
+    playStampThud();
+    if (_ketchupPile > 0) showCleanButton();
+  }, 1400);
 }
 function pluckKetchup(bottle) {
-  if (!bottle || bottle.classList.contains('plucked')) return;
+  if (!bottle || !bottle.isConnected || bottle.classList.contains('plucked')) return;
+  const layer = document.getElementById('ketchupLayer');
+  if (!layer || layer.classList.contains('sweeping')) return;
   bottle.classList.add('plucked');
   const svg = bottle.querySelector('svg');
   if (svg) svg.style.transform = 'scale(1.5) rotate(16deg)';
@@ -97,7 +105,8 @@ function pluckKetchup(bottle) {
   leaveSplat(bottle);
   _ketchupPile = Math.max(0, _ketchupPile - 1);
   setTimeout(function () {
-    if (bottle.parentNode) bottle.parentNode.removeChild(bottle);
+    if (!bottle.isConnected || layer.classList.contains('sweeping')) return;   // a new rain or BERSIHKAN owns the layer now
+    bottle.remove();
     if (_ketchupPile <= 0) {
       hideCleanButton();
       showToast('Rapi! Semua tomat dibersihin satu-satu.');
@@ -179,6 +188,7 @@ function blowDustClouds() {
     cloud.style.animationDelay = (i * 80 + Math.random() * 40).toFixed(0) + 'ms';
     cloud.innerHTML = dustSvg();
     layer.appendChild(cloud);
+    setTimeout(function () { cloud.remove(); }, 900 + i * 80);   // dustBlow is .8s; drop the node after it
   }
 }
 
@@ -190,6 +200,7 @@ function wipeSplats() {
   layer.querySelectorAll('.ketchup-splat').forEach(function (s, i) {
     s.classList.add('wiped');
     s.style.animationDelay = (i * 18) + 'ms';
+    setTimeout(function () { s.remove(); }, 520 + i * 18);   // sweepOut is .5s; don't strand invisible splats
   });
   blowDustClouds();   // a splat being wiped gets blown off screen too, so it is dusted the same way
 }
@@ -210,9 +221,10 @@ const RADAR_FACTS = [
     return { text: 'Rata-rata 1 postingan nyumbang ' + fmt(s.avgLikePerPost) + ' likes.', source: 'Dari ' + fmt(s.totalLikes) + ' likes' };
   },
   function () {
-    const top = [].concat(API_DATA.music).sort(function (a, b) { return b.likeAmount - a.likeAmount; })[0];
-    if (!top || !top.likeAmount) return null;
-    return { text: 'Audio paling rame: "' + top.name + '" — ' + fmt(top.likeAmount) + ' likes.', source: 'Dari ' + API_DATA.music.length + ' audio yang dilacak' };
+    const music = [].concat(API_DATA.music).filter(function (t) { return t && typeof t === 'object'; });
+    const top = music.sort(function (a, b) { return trackLikes(b) - trackLikes(a); })[0];
+    if (!top || !trackLikes(top)) return null;
+    return { text: 'Audio paling rame: "' + top.name + '" — ' + fmt(trackLikes(top)) + ' likes.', source: 'Dari ' + music.length + ' audio yang dilacak' };
   },
   function () {
     const best = bestTopicDelta();
@@ -254,6 +266,7 @@ function hideSplatCard() {
 
 function sweepKetchup() {
   const layer = document.getElementById('ketchupLayer');
+  const gen = ++_ketchupGen;   // cancels a pending rain reveal, and makes an old sweep yield to a new rain
   playStampThud();
   const debris = layer.querySelectorAll('.falling-bottle, .ketchup-splat');
   // pin each bottle to where it actually is: mid-fall its position lives in the animation fill, and swapping the
@@ -266,7 +279,7 @@ function sweepKetchup() {
   blowDustClouds();
   hideCleanButton();
   setTimeout(function () {
-    if (debris.length && debris[0].parentNode !== layer) return;   // a new rain already owns the layer: leave it be
+    if (gen !== _ketchupGen) return;   // a new rain owns the layer: leave it be
     layer.innerHTML = '';
     layer.classList.remove('sweeping');
     _ketchupPile = 0;
@@ -306,8 +319,9 @@ let _peekerTimer = null;
 let _peekerRetreatTimer = null;
 let _isPeekerActive = false;
 let _isPeekerFalling = false;
-localStorage.removeItem('katchup_tomato_cursor_reverted'); // old key: the cursor used to start on and click turned it off
-let isTomatoCursorOn = localStorage.getItem('katchup_tomato_cursor_on') === 'true';
+try { localStorage.removeItem('katchup_tomato_cursor_reverted'); } catch (e) {}
+let isTomatoCursorOn = false;
+try { isTomatoCursorOn = localStorage.getItem('katchup_tomato_cursor_on') === 'true'; } catch (e) {}
 
 const PEEKER_QUIPS = [
   'Pstt! 👀',
@@ -332,7 +346,7 @@ function toggleTomatoCursor(forceState) {
   } else {
     isTomatoCursorOn = !isTomatoCursorOn;
   }
-  localStorage.setItem('katchup_tomato_cursor_on', String(isTomatoCursorOn));
+  try { localStorage.setItem('katchup_tomato_cursor_on', String(isTomatoCursorOn)); } catch (e) {}
   applyTomatoCursorState();
   if (isTomatoCursorOn) {
     showToast('Kursor tomat Ketchy aktif 🍅');

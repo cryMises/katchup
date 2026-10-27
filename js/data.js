@@ -22,7 +22,11 @@ async function fetchEndpoint(name) {
     console.error('Katchup: /' + name + ' nggak balas JSON (content-type: ' + (contentType || 'kosong') + ')');
     throw new Error('Data yang masuk nggak kebaca. Coba lagi sebentar ya.');
   }
-  return res.json();
+  try { return await res.json(); }
+  catch (e) {
+    console.error('Katchup: /' + name + ' balas JSON rusak', e);
+    throw new Error('Data yang masuk nggak kebaca. Coba lagi sebentar ya.');
+  }
 }
 /* ================= LOCAL PERSISTENCE: saved ideas + the last good payload ================= */
 const SAVED_KEY = 'katchup_saved';
@@ -33,7 +37,7 @@ let lastFetchedAt = 0;
 
 let savedIdeas = (function () {
   const raw = readJson(SAVED_KEY, []);
-  return Array.isArray(raw) ? raw.filter(function (s) { return s && s.key; }) : [];
+  return Array.isArray(raw) ? raw.filter(function (s) { return s && s.key; }).slice(0, SAVED_MAX) : [];
 })();
 let savedKeys = new Set(savedIdeas.map(function (s) { return s.key; }));
 let _ticketIndex = {};   // key -> { item, catKey } as filled by ideaTicket(); toggleSave() reads it
@@ -66,24 +70,29 @@ function fmtClock(ms) {
 }
 /* pure on purpose (now is an argument) so tests/check_katchup.js can execute it */
 function fmtAgo(ts, now) {
-  const t = now == null ? Date.now() : now;
-  const s = Math.max(0, Math.round((t - ts) / 1000));
+  const n = Number(ts);
+  const t = Number(now == null ? Date.now() : now);
+  if (!Number.isFinite(n) || !Number.isFinite(t)) return 'baru aja';
+  const s = Math.max(0, Math.round((t - n) / 1000));
   if (s < 60) return 'baru aja';
   const m = Math.floor(s / 60);
   if (m < 60) return m + ' menit lalu';
   const h = Math.floor(m / 60);
   if (h < 24) return h + ' jam lalu';
   const d = Math.floor(h / 24);
-  if (d === 1) return 'kemarin ' + fmtClock(ts);
+  if (d === 1) return 'kemarin ' + fmtClock(n);
   return d + ' hari lalu';
 }
 
 function applyApiData(payload) {
+  const rows = function (arr) {
+    return Array.isArray(arr) ? arr.filter(function (x) { return x && typeof x === 'object' && !Array.isArray(x); }) : [];
+  };
   API_DATA = {
-    music: Array.isArray(payload.music) ? payload.music : [],
-    topic: Array.isArray(payload.topic) ? payload.topic : [],
-    idea: Array.isArray(payload.idea) ? payload.idea : [],
-    type: Array.isArray(payload.type) ? payload.type : []
+    music: rows(payload.music),
+    topic: rows(payload.topic),
+    idea: rows(payload.idea).map(function (c) { return Object.assign({}, c, { posts: rows(c.posts) }); }),
+    type: rows(payload.type)
   };
   CATEGORY_LIST = Array.from(new Set(API_DATA.idea.map(function (c) { return c.contentType; }).filter(Boolean)));
 }
@@ -94,7 +103,7 @@ function saveCachedData() {
 /* hydrate from the last good payload; false => treat as "no cache" (unknown shape or past TTL) */
 function loadCachedData() {
   const cached = readJson(CACHE_KEY, null);
-  if (!cached || cached.v !== 1 || !cached.fetchedAt || !cached.data) return false;
+  if (!cached || cached.v !== 1 || !Number.isFinite(cached.fetchedAt) || typeof cached.data !== 'object' || !cached.data) return false;
   if (Date.now() - cached.fetchedAt > CACHE_TTL) return false;
   /* the signed CDN links expire (~4 days) before the payload does (7 days), so a hydrated row would always
      play dead: drop musicUrl and let playableMusicUrl() fall back to the honest cue tone */
@@ -113,8 +122,14 @@ async function loadApiData() {
   ]);
   /* a 200 with nothing in it is not healthy data: throw into the cache/error path instead of showing
      "RADAR: TERHUBUNG" over empty views, and leave the last good payload in place */
-  const hasIdeas = Array.isArray(idea) && idea.some(function (c) { return c && Array.isArray(c.posts) && c.posts.length > 0; });
-  const hasTypes = Array.isArray(type) && type.length > 0;
+  const hasIdeas = Array.isArray(idea) && idea.some(function (c) {
+    return c && Array.isArray(c.posts) && c.posts.some(function (p) {
+      return p && typeof p === 'object' && typeof p.contentIdea === 'string' && p.contentIdea.trim();
+    });
+  });
+  const hasTypes = Array.isArray(type) && type.some(function (r) {
+    return r && typeof r === 'object' && (r.type === 'video' || r.type === 'imageAndSidecar');
+  });
   if (!hasIdeas && !hasTypes) throw new Error('Server datanya balas kosong. Coba lagi sebentar ya.');
   applyApiData({ music: music, topic: topic, idea: idea, type: type });
   saveCachedData();

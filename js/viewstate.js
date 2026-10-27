@@ -13,7 +13,7 @@ async function refreshLiveTopics() {
   if (_isRefreshingTopics) return;
   _isRefreshingTopics = true;
   const icon = document.getElementById('syncIcon');
-  icon.classList.add('animate-spin');
+  if (icon) icon.classList.add('animate-spin');
   updateLinkStatus('loading');
   try {
     await loadApiData();
@@ -29,7 +29,7 @@ async function refreshLiveTopics() {
     else updateLinkStatus(haveData ? dataStatus : 'error');
     showToast(haveData ? 'Gagal memperbarui. Masih pakai data terakhir.' : 'Gagal memperbarui data radar.', false);
   } finally {
-    icon.classList.remove('animate-spin');
+    if (icon) icon.classList.remove('animate-spin');
     _isRefreshingTopics = false;
   }
 }

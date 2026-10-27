@@ -20,6 +20,8 @@ async function initApp() {
     triggerReveal();
   } catch (err) {
     console.error(err);
+    /* a concurrent refresh may already have painted fresh data; never replace it with the cache or an error */
+    if (dataStatus === 'ready' || dataStatus === 'stale') return;
     if (loadCachedData()) {                       // no fresh data -> last week's payload beats an error screen
       renderAll(false);
       showStale();
@@ -54,7 +56,10 @@ window.addEventListener('online', function () { if (dataStatus === 'stale') refr
 /* Install affordance. Chrome/Edge/Android fire beforeinstallprompt; iOS Safari never does, so it gets
    instructions instead. Rendered twice because the sidebar CTA hides behind a drawer on phones. */
 let _installEvent = null;
-function isIos() { return /iPad|iPhone|iPod/.test(navigator.userAgent || ''); }
+function isIos() {
+  const ua = navigator.userAgent || '';
+  return /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
 function isStandalone() {
   return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
 }
@@ -78,7 +83,10 @@ window.addEventListener('beforeinstallprompt', function (e) {
 window.addEventListener('appinstalled', function () { _installEvent = null; updateInstallCta(); });
 function installApp() {
   if (_installEvent) {
-    _installEvent.prompt();
+    try {
+      const promptResult = _installEvent.prompt();
+      if (promptResult && promptResult.catch) promptResult.catch(function () {});
+    } catch (e) {}
     _installEvent = null;
     updateInstallCta();
     return;
