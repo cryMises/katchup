@@ -2,7 +2,7 @@
   "name": "Katchup — Radar Ide Konten Kreator Indonesia",
   "short_name": "KATCHUP",
   "description": "Content radar untuk kreator konten Indonesia — temukan tren dan ide konten berdasarkan data performa Instagram.",
-  "start_url": "./index.html",
+  "start_url": "./",
   "scope": "./",
   "id": "./index.html",
   "display": "standalone",

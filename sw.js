@@ -1,11 +1,12 @@
 /* Service worker for KATCHUP. The shell is a file tree (css/, js/, icons/), so every local asset is
    precached; the cache prefix keeps this app's storage separate from anything else the origin hosts. */
-const CACHE_NAME = 'katchup-v2';
+const CACHE_NAME = 'katchup-v3';
 /* prune scope: this app's older caches only. A shared origin keeps its siblings. */
 const CACHE_PREFIX = 'katchup-';
 
 const APP_SHELL = [
-  './index.html',
+  /* canonical root: Cloudflare Pages 308s /index.html here, and a cached redirect cannot answer a navigation */
+  './',
   './manifest.json',
   './favicon.ico',
   './css/tokens.css',
@@ -94,7 +95,8 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(req).then((cached) => {
       const network = fetch(req).then((res) => {
-        if (res && res.status === 200 && res.type !== 'opaque') {
+        /* never cache a redirected response: a navigation cannot be answered with one */
+        if (res && res.status === 200 && res.type !== 'opaque' && !res.redirected) {
           const resClone = res.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(req, resClone)).catch(() => {});
         }
@@ -104,6 +106,6 @@ self.addEventListener('fetch', (event) => {
       return cached || network;
     })
       // a navigation to any other URL (directory, ?query) still needs the shell to boot offline
-      .then((res) => res || (req.mode === 'navigate' ? caches.match('./index.html') : res))
+      .then((res) => res || (req.mode === 'navigate' ? caches.match('./') : res))
   );
 });
