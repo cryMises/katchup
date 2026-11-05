@@ -32,7 +32,7 @@ of the seven content categories (Edukasi, Gaya Hidup, Berita, Politik, Humor, Bu
 ## How it works
 
 The frontend is a vanilla HTML/JS dashboard that reads JSON from a weekly Instagram scrape exposed by an
-n8n webhook (tunnelled with ngrok). No framework, no bundler: the browser gets the files as they are.
+n8n Cloud webhook. No framework, no bundler: the browser gets the files as they are.
 
 Requests run in parallel with an 8-second deadline and validate both status and content type. The last
 good payload is kept in localStorage for seven days, so a failed fetch renders known data behind a
