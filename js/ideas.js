@@ -113,7 +113,7 @@ function ideaTicket(item, opts) {
           '<button data-idea="' + escapeHtml(key) + '" onclick="toggleSave(this)" aria-pressed="' + (saved ? 'true' : 'false') + '" title="' + (saved ? 'Hapus dari simpanan' : 'Simpan ide ini') + '" class="btn-keycap-sm px-3 py-1.5 ' + (saved ? 'bg-pop-mint' : 'bg-pop-yellow') + ' font-headline text-[0.6875rem] font-extrabold uppercase flex items-center gap-1.5">' +
             doodle('save', 'w-3.5 h-3.5') + (saved ? 'TERSIMPAN' : 'SIMPAN') +
           '</button>' +
-          '<a href="https://wa.me/628893307263?text=' + encodeURIComponent('/katchup Halo Ketchy, mau bahas ide konten ini: ' + item.contentIdea) + '" target="_blank" rel="noopener noreferrer" class="btn-keycap-sm px-3 py-1.5 bg-white font-headline text-[0.6875rem] font-extrabold uppercase flex items-center gap-1.5">' +
+          '<a href="https://wa.me/6281317778242?text=' + encodeURIComponent('/hi Halo Ketchy, mau bahas ide konten ini: ' + item.contentIdea) + '" target="_blank" rel="noopener noreferrer" class="btn-keycap-sm px-3 py-1.5 bg-white font-headline text-[0.6875rem] font-extrabold uppercase flex items-center gap-1.5">' +
             '<span class="material-symbols-outlined text-[0.9375rem]">chat</span>KONSULTASI' +
           '</a>' +
           '<button data-hook="' + safeHook + '" onclick="copySnippet(this)" title="Salin hook ide ini" class="btn-keycap-sm px-3 py-1.5 bg-pop-yellow font-headline text-[0.6875rem] font-extrabold uppercase flex items-center gap-1.5">' +
