@@ -4,6 +4,8 @@
 
 Live site: **https://qatchup.vercel.app/** (yes, the domain starts with a `q`)
 
+n8n backend: **127-node workflow** — see [`n8n/README.md`](n8n/README.md) for the automation map, public API, and import notes.
+
 The interface is entirely in Bahasa Indonesia and lives inside a scrapbook-style PWA: cream paper, cocoa ink, sticker cards, rubber stamps, washi tape, and Ketchy the tomato mascot.
 
 ---

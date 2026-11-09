@@ -1,0 +1,5523 @@
+{
+  "name": "KATCHUP",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 11
+            }
+          ]
+        }
+      },
+      "id": "b393f528-7f09-4395-86ea-9cdc80213603",
+      "name": "Weekly",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        112,
+        -624
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "Run actor and get dataset",
+        "actorId": {
+          "__rl": true,
+          "value": "reGe1ST3OBgYZSsZJ",
+          "mode": "list",
+          "cachedResultName": "Instagram Hashtag Scraper (apify/instagram-hashtag-scraper)",
+          "cachedResultUrl": "https://console.apify.com/actors/reGe1ST3OBgYZSsZJ/input"
+        },
+        "customBody": "{\n    \"hashtags\": [\n  \"indonesia\",\n  \"berita\",\n  \"viral\",\n  \"terkini\",\n  \"trending\",\n  \"politik\",\n  \"pemerintah\",\n  \"ekonomi\",\n  \"bisnis\",\n  \"budayaindonesia\",\n  \"kuliner\",\n  \"wisata\",\n  \"bencana\",\n  \"darurat\",\n  \"fyp\",\n  \"anak muda\",\n  \"usahalokal\",\n  \"hiburan\",\n  \"olahraga\",\n  \"pendidikan\"\n    ],\n    \"keywordSearch\": true,\n    \"resultsLimit\": 20,\n    \"resultsType\": \"posts\"\n}",
+        "timeout": 0,
+        "memory": 4096,
+        "maxTotalChargeUsd": 1.1
+      },
+      "id": "c63fe8cb-b25c-4b9a-af30-7638e327f9ed",
+      "name": "Scraper",
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        336,
+        -624
+      ],
+      "credentials": {
+        "apifyApi": {
+          "id": "ErC5HJqwU5Oq4AOM",
+          "name": "Apify account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst results = [];\nconst seenTitles = new Set();\n\nfor (const item of items) {\n  const post = item.json;\n\n  if (!post.id) continue;\n\n  const likes    = Math.max(post.likesCount || 0, 0);\n  const views    = Math.max(post.videoPlayCount ?? post.videoViewCount ?? 0, 0);\n  const comments = Math.max(post.commentsCount || 0, 0);\n  const caption  = (post.caption || '').slice(0, 800).trim();\n  const hashtags = (post.hashtags || []);\n\n  const totalEngagement = likes + views + comments;\n\n  // Quality filters\n  const hasCaption  = caption.length > 10;\n  const hasHashtags = hashtags.length > 0;\n  const isTrending  = totalEngagement >= 10000;\n\n  if (!hasCaption || !hasHashtags || !isTrending) continue;\n\n  // Music\n  const asset = post.musicInfo?.music_info?.music_asset_info;\n\n  let musicName = asset?.title || null;\n  let musicUrl  = asset?.progressive_download_url\n               ?? asset?.fast_start_progressive_download_url\n               ?? asset?.web_30s_preview_download_url\n               ?? null;\n\n  // All-or-nothing: if either missing, drop both\n  if (!musicName || !musicUrl) {\n    musicName = null;\n    musicUrl  = null;\n  }\n\n  // Skip duplicated title (only when music present)\n  if (musicName) {\n    const key = musicName.trim().toLowerCase();\n    if (seenTitles.has(key)) continue;\n    seenTitles.add(key);\n  }\n\n  results.push({\n    json: {\n      type:          post.type || null,\n      caption,\n      hashtags:      hashtags.join(', '),\n      musicName,\n      musicUrl,\n      likeAmount:    likes,\n      viewAmount:    views,\n      commentAmount: comments,\n    }\n  });\n}\n\nreturn results;"
+      },
+      "id": "03622a9a-8947-437e-8499-f68767e7be9a",
+      "name": "Filter",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        560,
+        -624
+      ]
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "LQKSZfjeZlsdbsb7",
+          "mode": "list",
+          "cachedResultName": "trendingPostData",
+          "cachedResultUrl": "/projects/z3aRqLJR30d0wZqJ/datatables/LQKSZfjeZlsdbsb7"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "caption": "={{ $json.caption }}",
+            "type": "={{ $json.type }}",
+            "viewAmount": "={{ $json.viewAmount }}",
+            "commentAmount": "={{ $json.commentAmount}}",
+            "likeAmount": "={{ $json.likeAmount }}",
+            "musicName": "={{ $json.musicName }}",
+            "hashtag": "={{ $json.hashtags }}",
+            "musicUrl": "={{ $json.musicUrl }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "likeAmount",
+              "displayName": "likeAmount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "commentAmount",
+              "displayName": "commentAmount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "type",
+              "displayName": "type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "viewAmount",
+              "displayName": "viewAmount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "caption",
+              "displayName": "caption",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "musicName",
+              "displayName": "musicName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "hashtag",
+              "displayName": "hashtag",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "musicUrl",
+              "displayName": "musicUrl",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "94ba4051-ce61-446c-bd26-037e90d0fbfb",
+      "name": "Insert Posts",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        784,
+        -624
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 12
+            }
+          ]
+        }
+      },
+      "id": "0fa088c3-74c9-4f10-b874-86d140fda369",
+      "name": "WeeklyAfterScrape",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        112,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "LQKSZfjeZlsdbsb7",
+          "mode": "list",
+          "cachedResultName": "trendingPostData",
+          "cachedResultUrl": "/projects/z3aRqLJR30d0wZqJ/datatables/LQKSZfjeZlsdbsb7"
+        },
+        "returnAll": true
+      },
+      "id": "e06fa814-247d-4f1b-99e3-b46dcadcad1b",
+      "name": "GetPosts",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        336,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst batchSize = 5;\nconst batches = [];\n\n// Fields to exclude\nconst excludeFields = ['musicName'];\n\n// Group items into batches of 5\nfor (let i = 0; i < items.length; i += batchSize) {\n  const batch = items.slice(i, i + batchSize);\n  \n  const posts = batch.map((item, index) => {\n    const data = item.json;\n    \n    // Build clean object: exclude musicName and null/empty values\n    const cleaned = {};\n    for (const [key, value] of Object.entries(data)) {\n      if (excludeFields.includes(key)) continue;\n      if (value === null || value === undefined || value === '') continue;\n      cleaned[key] = value;\n    }\n    \n    return `---POST ${i + index + 1}---\\n${JSON.stringify(cleaned, null, 2)}`;\n  });\n\n  batches.push({\n    json: {\n      batchIndex: Math.floor(i / batchSize) + 1,\n      totalBatches: Math.ceil(items.length / batchSize),\n      postCount: batch.length,\n      prompt: posts.join('\\n\\n')\n    }\n  });\n}\n\nreturn batches;"
+      },
+      "id": "606f609c-86ed-4562-a3e2-7ec6f2e2cbfb",
+      "name": "Aggregate",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        560,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "deleteRows",
+        "dataTableId": {
+          "__rl": true,
+          "value": "LQKSZfjeZlsdbsb7",
+          "mode": "list",
+          "cachedResultName": "trendingPostData",
+          "cachedResultUrl": "/projects/z3aRqLJR30d0wZqJ/datatables/LQKSZfjeZlsdbsb7"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "createdAt",
+              "condition": "lt",
+              "keyValue": "={{ new Date(Date.now() - 6*24*60*60*1000) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "0d60ebc5-0d5a-40a5-8973-8ab38d988d07",
+      "name": "deletePost",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1008,
+        -288
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "deleteRows",
+        "dataTableId": {
+          "__rl": true,
+          "value": "k85yIaifd7CNm6XP",
+          "mode": "list",
+          "cachedResultName": "trendData",
+          "cachedResultUrl": "/projects/z3aRqLJR30d0wZqJ/datatables/k85yIaifd7CNm6XP"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "createdAt",
+              "condition": "lt",
+              "keyValue": "={{ new Date(Date.now() - 6*24*60*60*1000) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "3f3be9b4-0e3d-4b5d-863d-1cecf9a0f9d3",
+      "name": "deleteOutput",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1616,
+        -288
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "deleteRows",
+        "dataTableId": {
+          "__rl": true,
+          "value": "fZeXvIZ5PYsK7Lmt",
+          "mode": "list",
+          "cachedResultName": "trendItems",
+          "cachedResultUrl": "/projects/z3aRqLJR30d0wZqJ/datatables/fZeXvIZ5PYsK7Lmt"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "timeStamp",
+              "condition": "lt",
+              "keyValue": "={{ new Date(Date.now() - 31*24*60*60*1000) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "5999ce23-24fc-41a6-ba6c-72df8297ae8d",
+      "name": "deleteTypes",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2224,
+        -288
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "deleteRows",
+        "dataTableId": {
+          "__rl": true,
+          "value": "2VboObzBJxJrCrvX",
+          "mode": "list",
+          "cachedResultName": "musicTrend",
+          "cachedResultUrl": "/projects/z3aRqLJR30d0wZqJ/datatables/2VboObzBJxJrCrvX"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "createdAt",
+              "condition": "lt",
+              "keyValue": "={{ new Date(Date.now() - 6*24*60*60*1000) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "8d81a984-7c1c-43ac-8ab3-ccaba81dc81b",
+      "name": "deleteMusic",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2448,
+        -288
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "deleteRows",
+        "dataTableId": {
+          "__rl": true,
+          "value": "uwt4R3VuUZkJ4khJ",
+          "mode": "list",
+          "cachedResultName": "postTypeTrend",
+          "cachedResultUrl": "/projects/z3aRqLJR30d0wZqJ/datatables/uwt4R3VuUZkJ4khJ"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "createdAt",
+              "condition": "lt",
+              "keyValue": "={{ new Date(Date.now() - 31*24*60*60*1000) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6e973b53-a91b-4e81-91c0-493c4638ab9c",
+      "name": "deleteStats",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2672,
+        -288
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "LQKSZfjeZlsdbsb7",
+          "mode": "list",
+          "cachedResultName": "trendingPostData",
+          "cachedResultUrl": "/projects/z3aRqLJR30d0wZqJ/datatables/LQKSZfjeZlsdbsb7"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "musicName",
+              "condition": "isNotEmpty"
+            },
+            {
+              "keyName": "musicUrl",
+              "condition": "isNotEmpty"
+            }
+          ]
+        },
+        "returnAll": true,
+        "orderBy": true,
+        "orderByColumn": "likeAmount"
+      },
+      "id": "d89c6841-0d36-4d93-9a4f-587d88342cad",
+      "name": "GetMusic",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2896,
+        -288
+      ],
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "2VboObzBJxJrCrvX",
+          "mode": "list",
+          "cachedResultName": "musicTrend",
+          "cachedResultUrl": "/projects/z3aRqLJR30d0wZqJ/datatables/2VboObzBJxJrCrvX"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "name": "={{ $json.musicName }}",
+            "likeAmount": "={{ $json.likeAmount }}",
+            "musicUrl": "={{ $json.musicUrl }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "likeAmount",
+              "displayName": "likeAmount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "musicUrl",
+              "displayName": "musicUrl",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "b9b870df-845a-4074-b955-5e193801813b",
+      "name": "InsertMusic",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        3120,
+        -288
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "LQKSZfjeZlsdbsb7",
+          "mode": "list",
+          "cachedResultName": "trendingPostData",
+          "cachedResultUrl": "/projects/z3aRqLJR30d0wZqJ/datatables/LQKSZfjeZlsdbsb7"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "type",
+              "keyValue": "Video"
+            }
+          ]
+        },
+        "returnAll": true
+      },
+      "id": "35846a3a-b9ad-481b-ab8e-4c611f811f49",
+      "name": "GetVideo",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        3344,
+        -288
+      ],
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "LQKSZfjeZlsdbsb7",
+          "mode": "list",
+          "cachedResultName": "trendingPostData",
+          "cachedResultUrl": "/projects/z3aRqLJR30d0wZqJ/datatables/LQKSZfjeZlsdbsb7"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "type",
+              "condition": "neq",
+              "keyValue": "Video"
+            }
+          ]
+        },
+        "returnAll": true
+      },
+      "id": "dff71cef-a881-47fc-a757-b3a323650834",
+      "name": "GetPost",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        3568,
+        -288
+      ],
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Code Node: Process Trending Post Data - Avg Likes & Comments by Media Type\n\nconst videoItems = $('GetVideo').all();\nconst imageItems = $('GetPost').all();\n\nfunction calcStats(items) {\n  if (!items || items.length === 0) {\n    return {\n      count: 0,\n      totalLikes: 0,\n      totalComments: 0,\n      avgLikes: 0,\n      avgComments: 0,\n    };\n  }\n\n  let totalLikes = 0;\n  let totalComments = 0;\n\n  for (const item of items) {\n    const data = item.json;\n\n    totalLikes += Number(data.likeAmount) || 0;\n    totalComments += Number(data.commentAmount) || 0;\n  }\n\n  const count = items.length;\n\n  return {\n    count,\n    totalLikes,\n    totalComments,\n    avgLikes: parseFloat((totalLikes / count).toFixed(2)),\n    avgComments: parseFloat((totalComments / count).toFixed(2)),\n  };\n}\n\nconst videoStats = calcStats(videoItems);\nconst imageStats = calcStats(imageItems);\n\n// Return 2 separate n8n items\nreturn [\n  {\n    json: {\n      mediaType: \"video\",\n      ...videoStats,\n    },\n  },\n  {\n    json: {\n      mediaType: \"imageAndSidecar\",\n      ...imageStats,\n    },\n  },\n];"
+      },
+      "id": "5e47dba2-3da9-4dfb-a49b-e8f13f0e4d9c",
+      "name": "ProcessDiff",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3792,
+        -288
+      ]
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "uwt4R3VuUZkJ4khJ",
+          "mode": "list",
+          "cachedResultName": "postTypeTrend",
+          "cachedResultUrl": "/projects/z3aRqLJR30d0wZqJ/datatables/uwt4R3VuUZkJ4khJ"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "likeAmount": "={{ $json.totalLikes }}",
+            "type": "={{ $json.mediaType }}",
+            "commentAmount": "={{ $json.totalComments }}",
+            "avgLikes": "={{ $json.avgLikes }}",
+            "avgComments": "={{ $json.avgComments }}",
+            "count": "={{ $json.count }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "type",
+              "displayName": "type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "likeAmount",
+              "displayName": "likeAmount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "avgLikes",
+              "displayName": "avgLikes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "avgComments",
+              "displayName": "avgComments",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "commentAmount",
+              "displayName": "commentAmount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "count",
+              "displayName": "count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "00402461-97f3-48d7-bf5a-8c0c3a15defe",
+      "name": "InsertStats",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        4016,
+        -288
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "k85yIaifd7CNm6XP",
+          "mode": "list",
+          "cachedResultName": "trendData",
+          "cachedResultUrl": "/projects/z3aRqLJR30d0wZqJ/datatables/k85yIaifd7CNm6XP"
+        },
+        "returnAll": true
+      },
+      "id": "fb14a381-9445-4d60-91a1-623ecfc2d584",
+      "name": "GetOutput",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        4240,
+        -288
+      ],
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const trendData = $input.all().map(item => item.json);\n\nconst results = {};\n\nfor (const item of trendData) {\n  const date = new Date(item.createdAt);\n  \n  const minutes = Math.floor(date.getMinutes() / 15) * 15;\n  date.setMinutes(minutes, 0, 0);\n  const bucketKey = date.toISOString();\n  \n  const type = item.contentType;\n  const key = `${bucketKey}__${type}`;\n  \n  if (!results[key]) {\n    results[key] = {\n      timeBucket: bucketKey,\n      contentType: type,\n      totalViews: 0,\n      totalLikes: 0,\n      totalComments: 0,\n      postCount: 0,\n    };\n  }\n  \n  results[key].totalViews    += item.baseView    || 0;\n  results[key].totalLikes    += item.baseLike    || 0;\n  results[key].totalComments += item.baseComment || 0;\n  results[key].postCount     += 1;\n}\n\nconst output = Object.values(results).sort((a, b) => {\n  if (a.timeBucket !== b.timeBucket) return a.timeBucket.localeCompare(b.timeBucket);\n  return a.contentType.localeCompare(b.contentType);\n});\n\nreturn output.map(item => ({ json: item }));"
+      },
+      "id": "afcfe38d-73ee-426e-98c5-de600c26870c",
+      "name": "CollectEngagement",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4464,
+        -288
+      ]
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "fZeXvIZ5PYsK7Lmt",
+          "mode": "list",
+          "cachedResultName": "trendItems",
+          "cachedResultUrl": "/projects/z3aRqLJR30d0wZqJ/datatables/fZeXvIZ5PYsK7Lmt"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "timeStamp": "={{ $json.timeBucket }}",
+            "contentType": "={{ $json.contentType }}",
+            "viewAmount": "={{ $json.totalViews }}",
+            "likeAmount": "={{ $json.totalLikes }}",
+            "commentAmount": "={{ $json.totalComments }}",
+            "postAmount": "={{ $json.postCount }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "contentType",
+              "displayName": "contentType",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "viewAmount",
+              "displayName": "viewAmount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "likeAmount",
+              "displayName": "likeAmount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "commentAmount",
+              "displayName": "commentAmount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "timeStamp",
+              "displayName": "timeStamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "postAmount",
+              "displayName": "postAmount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "ed0e15cb-03bc-49b1-8af2-3807d639348b",
+      "name": "InsertEngagement",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        4688,
+        -288
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "k85yIaifd7CNm6XP",
+          "mode": "list",
+          "cachedResultName": "trendData",
+          "cachedResultUrl": "/projects/z3aRqLJR30d0wZqJ/datatables/k85yIaifd7CNm6XP"
+        },
+        "returnAll": true
+      },
+      "id": "706b6cee-54ca-4530-87aa-0b61f884eaee",
+      "name": "returnOutput",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        4912,
+        -288
+      ],
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconst performanceTier = l =>\n  l >= 200000 ? 'viral' :\n  l >= 20000  ? 'high-performing' :\n  l >= 2000   ? 'moderately engaging' : 'low-engagement';\n\nconst num  = v => Number(String(v ?? '').replace(/[,\\s]/g, '')) || 0;\nconst norm = s => String(s ?? '').toLowerCase().replace(/\\s+/g, ' ').trim();\n\nconst toTopics = v => (Array.isArray(v) ? v : String(v ?? '').split(','))\n  .map(t => String(t).trim())\n  .filter(Boolean);\n\nconst hash = s => {\n  let h = 0;\n  for (let i = 0; i < s.length; i++) h = (Math.imul(h, 31) + s.charCodeAt(i)) | 0;\n  return (h >>> 0).toString(36);\n};\n\n// same topic set when >= 3/4 of the larger set overlaps\nconst topicsMatch = (a, b) => {\n  if (!a.length || !b.length) return false;\n  const sb = new Set(b.map(norm));\n  const common = a.filter(t => sb.has(norm(t))).length;\n  return common / Math.max(a.length, b.length) >= 0.75;\n};\n\nconst addStats = (g, l, v, c) => { g.like += l; g.view += v; g.comment += c; };\n\nconst unionTopics = (g, topics) => {\n  const seen = new Set(g.topics.map(norm));\n  for (const t of topics) if (!seen.has(norm(t))) { g.topics.push(t); seen.add(norm(t)); }\n};\n\nconst buckets   = new Map(); // \"sentiment|contentType\" -> groups[]\nconst byContent = new Map(); // contentHash -> group\n\nfor (const item of items) {\n  const row = item.json.json ?? item.json;\n\n  const caption = String(row.caption ?? row.content ?? '').slice(0, 800).trim();\n  const topics  = toTopics(row.topics ?? row.hashtags);\n  const like    = num(row.baseLike    ?? row.likeAmount);\n  const view    = num(row.baseView    ?? row.viewAmount);\n  const comment = num(row.baseComment ?? row.commentAmount);\n\n  // gate: need topics + real engagement\n  if (!topics.length || like + view + comment < 10000) continue;\n\n  const contentHash = hash(norm([\n    caption,\n    row.contentType ?? '',\n    row.sentiment ?? '',\n    [...topics].sort().join(','),\n  ].join('|')));\n\n  // 1) exact same content -> sum onto existing row\n  const owner = byContent.get(contentHash);\n  if (owner) { addStats(owner, like, view, comment); continue; }\n\n  // 2) fuzzy: same sentiment + contentType + >= 3/4 topic overlap\n  const bucket = `${row.sentiment ?? 'unknown'}|${row.contentType ?? 'unknown'}`;\n  const list = buckets.get(bucket) ?? [];\n  if (!list.length) buckets.set(bucket, list);\n\n  const dup = list.find(g => topicsMatch(g.topics, topics));\n  if (dup) { addStats(dup, like, view, comment); unionTopics(dup, topics); continue; }\n\n  const g = {\n    id: row.id ?? null,\n    contentType: row.contentType ?? null,\n    sentiment: row.sentiment ?? null,\n    caption,\n    topics: [...topics],\n    like, view, comment,\n    createdAt: row.createdAt ?? null,\n    contentHash,\n  };\n\n  list.push(g);\n  byContent.set(contentHash, g);\n}\n\nconst out = [];\nfor (const list of buckets.values()) {\n  for (const g of list) {\n    const topicsStr = g.topics.join(', ');\n\n    const content = [\n      g.caption || null,\n      `Topics: ${topicsStr}`,\n      `Type: ${g.contentType}`,\n      `Sentiment: ${g.sentiment}`,\n    ].filter(Boolean).join('\\n');\n\n    out.push({\n      json: {\n        content,\n        metadata: {\n          id: g.id,\n          contentType: g.contentType,\n          sentiment: g.sentiment,\n          topics: g.topics,\n          baseLike: g.like,\n          baseView: g.view,\n          baseComment: g.comment,\n          tier: performanceTier(g.like),\n          contentHash: g.contentHash,\n          createdAt: g.createdAt,\n        },\n      },\n    });\n  }\n}\n\nreturn out;"
+      },
+      "id": "4d6a38a4-1b03-4516-8fcf-5f2dced659fd",
+      "name": "dataMaker",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5136,
+        -288
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "embeddingBatchSize": 96,
+        "options": {
+          "queryName": "match_documents"
+        }
+      },
+      "id": "3ed4b746-521c-45a0-a479-2ea81121ccef",
+      "name": "Supabase Vector Store",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        5360,
+        -288
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "Tqkhgc9I7U3Is0Ml",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "embed-multilingual-v3.0"
+      },
+      "id": "b1cd64bb-ab6d-47a3-88d8-b1b97bec07b4",
+      "name": "Embeddings Cohere",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsCohere",
+      "typeVersion": 1,
+      "position": [
+        5376,
+        -80
+      ],
+      "credentials": {
+        "cohereApi": {
+          "id": "JkQ0B0ZTN2yjpl4T",
+          "name": "Cohere account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonMode": "expressionData",
+        "jsonData": "={{ $json.content }}",
+        "options": {
+          "metadata": {
+            "metadataValues": [
+              {
+                "name": "=id",
+                "value": "={{ $json.metadata.id }}"
+              },
+              {
+                "name": "=contentType",
+                "value": "={{ $json.metadata.contentType }}"
+              },
+              {
+                "name": "topics",
+                "value": "={{ $json.metadata.topics }}"
+              },
+              {
+                "name": "baseLike",
+                "value": "={{ $json.metadata.baseLike }}"
+              },
+              {
+                "name": "baseView",
+                "value": "={{ $json.metadata.baseView }}"
+              },
+              {
+                "name": "baseComment",
+                "value": "={{ $json.metadata.baseComment }}"
+              },
+              {
+                "name": "tier",
+                "value": "={{ $json.metadata.tier }}"
+              },
+              {
+                "name": "contentHash",
+                "value": "={{ $json.metadata.contentHash }}"
+              },
+              {
+                "name": "createdAt",
+                "value": "={{ $json.metadata.createdAt }}"
+              }
+            ]
+          }
+        }
+      },
+      "id": "d41c26a5-5c96-4970-909e-7c5fe37b798c",
+      "name": "Default Data Loader",
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        5504,
+        -80
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8f3eacc5-781b-4cbf-8fdc-1841fc082f09",
+              "name": "modelCount",
+              "value": "={{ $if($('AddCount').isExecuted, $('AddCount').first().json.modelCount, 0)}}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "9065d57c-68da-46d1-9e30-56f694f57aef",
+      "name": "StartCount",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1008,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Loop Over Items').item.json.prompt }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are a social media content analyst.\n\n---\n\nYOUR JOB\n\nClassify each post in the batch and return a JSON array with one object per post.\n\n---\n\nCONTENT TYPES\n\nClassify each post into exactly one of these. No other values are allowed.\n\nnews        — factual reporting of real events (accidents, disasters, crime, government actions)\npolitics    — opinions, criticism, or commentary on government, policy, or political figures\neducation   — posts that teach or explain a topic without pushing a product\nculture     — traditions, ethnic identity, performing arts, heritage, local customs\nhumor       — comedy, memes, jokes, lighthearted or silly content\nfood        — restaurants, street food, recipes, food reviews, culinary experiences\nlifestyle   — fitness, travel, personal finance, self-improvement, daily habits\n\nIf a post mixes categories, choose whichever drives the core intent of the post.\n\n---\n\nOUTPUT FIELDS\n\ncontentType   — one value from the list above\ntopics        — array of 2 to 5 specific topics (e.g. [\"volcano\", \"indonesia\", \"eruption\"]), always in English, regardless of the post's language\nsentiment     — positive, negative, or neutral\nbaseLike      — likeAmount from this post\nbaseView      — viewAmount from this post (use 0 if missing)\nbaseComment   — commentAmount from this post\n\n---\n\nSTRICT OUTPUT RULES\n\n- Return a valid JSON array only\n- No markdown, no backticks, no explanation, no extra text\n- Every post in the batch must produce exactly one object in the output\n- Never include id, likeDelta, viewDelta, or commentDelta — these fields must never appear\n\n---\n\nOUTPUT FORMAT\n\n[\n  {\n    \"contentType\": \"news\",\n    \"topics\": [\"volcano\", \"indonesia\", \"eruption\"],\n    \"sentiment\": \"negative\",\n    \"baseLike\": 4601,\n    \"baseView\": 255513,\n    \"baseComment\": 390\n  },\n  {\n    \"contentType\": \"humor\",\n    \"topics\": [\"meme\", \"comedy\", \"viral\"],\n    \"sentiment\": \"positive\",\n    \"baseLike\": 2085435,\n    \"baseView\": 86674870,\n    \"baseComment\": 21790\n  }\n]"
+        }
+      },
+      "id": "61655898-6157-4d0f-908d-dd09b5a4a18e",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1648,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "numberInputs": 6,
+        "rules": {
+          "rule": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "323bb4a6-effa-4f5a-b151-3267531b5d5c",
+                    "leftValue": "={{ $json.modelCount }}",
+                    "rightValue": 0,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "modelIndex": 2,
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "4f66c1a1-56dc-468f-950e-5b123f1f5468",
+                    "leftValue": "={{ $json.modelCount }}",
+                    "rightValue": 1,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "modelIndex": 3,
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "c9780802-e5f9-41c5-88fe-446531bfb268",
+                    "leftValue": "={{ $json.modelCount }}",
+                    "rightValue": 2,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "modelIndex": 4,
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "45f404a4-74fd-4370-b7df-679e66890415",
+                    "leftValue": "={{ $json.modelCount }}",
+                    "rightValue": 3,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "modelIndex": 5,
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "d071ac0d-7b67-41cf-86f3-988a9a9fd83a",
+                    "leftValue": "={{ $json.modelCount }}",
+                    "rightValue": 4,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "modelIndex": 6,
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "577c1b24-29f1-4e58-b4d1-dc766908f9fb",
+                    "leftValue": "={{ $json.modelCount }}",
+                    "rightValue": 5,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        }
+      },
+      "id": "61f6a45d-d24a-4b2c-9a7c-9a98a02b4062",
+      "name": "Model Selector",
+      "type": "@n8n/n8n-nodes-langchain.modelSelector",
+      "typeVersion": 1,
+      "position": [
+        1440,
+        336
+      ]
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.5-flash-lite",
+        "options": {
+          "temperature": 0
+        }
+      },
+      "id": "b4089a87-db66-49e8-a497-53826d58daa8",
+      "name": "4000",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1248,
+        544
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "jEnH3mYFOPxtuloU",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.5-flash-lite",
+        "options": {
+          "temperature": 0
+        }
+      },
+      "id": "f1e3c668-78a9-49d7-8c33-0616d3c4f4b6",
+      "name": "5000",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1376,
+        544
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "dvZxQMhCUNGRl6f6",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.5-flash-lite",
+        "options": {
+          "temperature": 0
+        }
+      },
+      "id": "612b547c-0532-4c18-8198-b76b7fdc08d3",
+      "name": "979",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1504,
+        544
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "q8UJT1p8UGcNlHuN",
+          "name": "Google Gemini(PaLM) Api account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.5-flash-lite",
+        "options": {
+          "temperature": 0
+        }
+      },
+      "id": "2b1092b1-b3a6-4ef5-83e5-eaf36d5046af",
+      "name": "618",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1632,
+        544
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "jBld1AsVLA370ZKi",
+          "name": "Google Gemini(PaLM) Api account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.5-flash-lite",
+        "options": {
+          "temperature": 0
+        }
+      },
+      "id": "58ef9bb1-83df-490c-b73b-7793b9aa6c4a",
+      "name": "SC979",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1760,
+        544
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "2P1lRWxM698cc6Dd",
+          "name": "Google Gemini(PaLM) Api account 5"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.5-flash-lite",
+        "options": {
+          "temperature": 0
+        }
+      },
+      "id": "88de48a4-08c5-4a89-8003-41f5fcf8eef0",
+      "name": "SC618",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1920,
+        544
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "RP957CwZaNJkMa5k",
+          "name": "Google Gemini(PaLM) Api account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"array\",\n  \"items\": {\n    \"type\": \"object\",\n    \"required\": [\"contentType\", \"topics\", \"sentiment\", \"baseLike\", \"baseView\", \"baseComment\"],\n    \"additionalProperties\": false,\n    \"properties\": {\n      \"contentType\": {\n        \"type\": \"string\",\n        \"enum\": [\"news\", \"politics\", \"education\", \"culture\", \"humor\", \"food\", \"lifestyle\"]\n      },\n      \"topics\": {\n        \"type\": \"array\",\n        \"minItems\": 2,\n        \"maxItems\": 5,\n        \"items\": { \"type\": \"string\" }\n      },\n      \"sentiment\": {\n        \"type\": \"string\",\n        \"enum\": [\"positive\", \"negative\", \"neutral\"]\n      },\n      \"baseLike\": { \"type\": \"number\" },\n      \"baseView\": { \"type\": \"number\" },\n      \"baseComment\": { \"type\": \"number\" }\n    }\n  }\n}",
+        "autoFix": true
+      },
+      "id": "6dc866f2-dbe9-4e0d-832d-99f49a8546ca",
+      "name": "Structured Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1872,
+        336
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.first().json.output;\n\nconst input = typeof raw === 'string' ? JSON.parse(raw) : raw;\n\nif (!Array.isArray(input)) {\n  throw new Error('Expected an array but got: ' + JSON.stringify(input));\n}\n\nreturn input.map(item => ({\n  json: {\n    ...item,\n    topics: Array.isArray(item.topics) ? item.topics.join(',') : item.topics\n  }\n}));"
+      },
+      "id": "04c05c9e-3ca9-4bee-a31d-60a95cf2fb3a",
+      "name": "SplitOutput",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2224,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "k85yIaifd7CNm6XP",
+          "mode": "list",
+          "cachedResultName": "trendData",
+          "cachedResultUrl": "/projects/z3aRqLJR30d0wZqJ/datatables/k85yIaifd7CNm6XP"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "contentType": "={{ $json.contentType }}",
+            "baseLike": "={{ $json.baseLike }}",
+            "baseView": "={{ $json.baseView }}",
+            "baseComment": "={{ $json.baseComment }}",
+            "topics": "={{ $json.topics }}",
+            "sentiment": "={{ $json.sentiment }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "contentType",
+              "displayName": "contentType",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "sentiment",
+              "displayName": "sentiment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "topics",
+              "displayName": "topics",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "baseLike",
+              "displayName": "baseLike",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "baseView",
+              "displayName": "baseView",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "baseComment",
+              "displayName": "baseComment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "9fe10152-a982-4b7e-8acd-b1e12dfaf049",
+      "name": "InsertOutput",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2448,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "35e19e78-2cc6-4272-b5a1-3bfe848eae00",
+              "name": "modelCount",
+              "value": "={{($('StartCount').item.json.modelCount >= 5)\n  ? 0\n  : $('StartCount').item.json.modelCount + 1}}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "1b50c94c-3be2-476c-a7e9-0740a61d8157",
+      "name": "AddCount",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2672,
+        288
+      ],
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "11e3f3ec-9603-4cf6-92b4-4f61d35c34ea",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        784,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "path": "api/v1/:endpoint",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "691bc503-6af4-462e-b9cb-1ac8cd0a65ad",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        112,
+        4976
+      ],
+      "webhookId": "9b0c38c4-a3e7-4000-8a3b-985071c2de60"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.params.endpoint }}",
+                    "rightValue": "music",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "4f52aa1c-380d-49fa-9280-f2f10adeebe4"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "6f352274-621c-439a-b2a2-20b3da1006d1",
+                    "leftValue": "={{ $json.params.endpoint }}",
+                    "rightValue": "idea",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "e743f78c-8ed2-4a28-ab89-b2d94bbe8ab6",
+                    "leftValue": "={{ $json.params.endpoint }}",
+                    "rightValue": "topic",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "af529519-936a-41ca-8805-e53d211f611e",
+                    "leftValue": "={{ $json.params.endpoint }}",
+                    "rightValue": "type",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "4d210085-f0d5-4b3f-ae91-c290f5bcce7a",
+      "name": "Switch",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        336,
+        4944
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "2VboObzBJxJrCrvX",
+          "mode": "list",
+          "cachedResultName": "musicTrend",
+          "cachedResultUrl": "/projects/z3aRqLJR30d0wZqJ/datatables/2VboObzBJxJrCrvX"
+        },
+        "orderBy": true,
+        "orderByColumn": "likeAmount"
+      },
+      "id": "a747b04f-20b7-428f-8836-4f6b20e16757",
+      "name": "getMusic",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        560,
+        4688
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const seen = new Set();\nconst rows = $input.all()\n  .map(function (item) { return item.json; })\n  .filter(function (t) { return t && typeof t === \"object\"; })\n  .filter(function (t) {\n    const key = String(t.name || \"\").trim().toLowerCase();\n    if (!key) return true;\n    if (seen.has(key)) return false;\n    seen.add(key);\n    return true;\n  })\n  .slice(0, 5);\n\nreturn rows.map(function (t) {\n  return {\n    json: {\n      id: t.id,\n      name: t.name,\n      likeAmount: t.likeAmount,\n      musicUrl: t.musicUrl\n    }\n  };\n});"
+      },
+      "id": "f6e5d7e8-82c6-48c3-9437-29c3dada049c",
+      "name": "sendMusicList",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        784,
+        4688
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "id": "e651e125-eb6a-4d69-adfa-f943a02dc844",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1008,
+        4976
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "WxEpXeGlZJwC9oUc",
+          "mode": "list",
+          "cachedResultName": "contentIdeas",
+          "cachedResultUrl": "/projects/z3aRqLJR30d0wZqJ/datatables/WxEpXeGlZJwC9oUc"
+        },
+        "returnAll": true
+      },
+      "id": "127263e5-6a57-48a9-a1a8-6730ed206437",
+      "name": "getIdeas",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        560,
+        4880
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconst grouped = {};\n\nfor (const item of items) {\n  const { id, createdAt, updatedAt, ...rest } = item.json;\n  const type = rest.contentType;\n\n  if (!grouped[type]) {\n    grouped[type] = [];\n  }\n\n  grouped[type].push(rest);\n}\n\nreturn Object.entries(grouped).map(([contentType, posts]) => ({\n  json: {\n    contentType,\n    posts\n  }\n}));"
+      },
+      "id": "dc6f4186-0b1e-4e7e-9cfe-440c6a534c4c",
+      "name": "sendIdeaList",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        784,
+        4880
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "fZeXvIZ5PYsK7Lmt",
+          "mode": "list",
+          "cachedResultName": "trendItems",
+          "cachedResultUrl": "/projects/z3aRqLJR30d0wZqJ/datatables/fZeXvIZ5PYsK7Lmt"
+        },
+        "returnAll": true
+      },
+      "id": "306bca6b-bd23-4c84-9ae5-3f6f58dd4b2c",
+      "name": "getContentType",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        560,
+        5072
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all().map(i => i.json);\n\n// Group by contentType, then by timeStamp\nconst grouped = {};\nfor (const item of items) {\n  if (!grouped[item.contentType]) grouped[item.contentType] = [];\n  grouped[item.contentType].push(item);\n}\n\n// Sort each contentType's entries by timeStamp ascending\nfor (const type in grouped) {\n  grouped[type].sort((a, b) => new Date(a.timeStamp) - new Date(b.timeStamp));\n}\n\nconst calcAvg = (item, field) => item[field] / item.postAmount;\nconst delta = (base, current) => base === 0 ? null : +((( current - base) / base) * 100).toFixed(2);\n\nconst result = {};\n\nfor (const [contentType, entries] of Object.entries(grouped)) {\n  const base = entries[0];\n  const baseAvgLike    = calcAvg(base, 'likeAmount');\n  const baseAvgComment = calcAvg(base, 'commentAmount');\n  const baseAvgView    = calcAvg(base, 'viewAmount');\n\n  // Combine all entries after the first\n  const rest = entries.slice(1);\n  if (rest.length === 0) continue;\n\n  const combinedLike    = rest.reduce((s, e) => s + e.likeAmount, 0);\n  const combinedComment = rest.reduce((s, e) => s + e.commentAmount, 0);\n  const combinedView    = rest.reduce((s, e) => s + e.viewAmount, 0);\n  const combinedPosts   = rest.reduce((s, e) => s + e.postAmount, 0);\n\n  const currentAvgLike    = combinedLike    / combinedPosts;\n  const currentAvgComment = combinedComment / combinedPosts;\n  const currentAvgView    = combinedView    / combinedPosts;\n\n  result[contentType] = {\n    baseTimeStamp:    base.timeStamp,\n    comparedTo:       rest.map(e => e.timeStamp),\n    avgLikeDelta:    delta(baseAvgLike,    currentAvgLike),\n    avgCommentDelta: delta(baseAvgComment, currentAvgComment),\n    avgViewDelta:    delta(baseAvgView,    currentAvgView),\n  };\n}\n\nreturn [{ json: result }];"
+      },
+      "id": "5176f168-33e4-424a-b0dc-628277bec635",
+      "name": "sendContentStats",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        784,
+        5072
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "uwt4R3VuUZkJ4khJ",
+          "mode": "list",
+          "cachedResultName": "postTypeTrend",
+          "cachedResultUrl": "/projects/z3aRqLJR30d0wZqJ/datatables/uwt4R3VuUZkJ4khJ"
+        },
+        "returnAll": true
+      },
+      "id": "1b7c04e9-997a-41be-9cab-8171ff716e56",
+      "name": "getPostType",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        560,
+        5264
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return $input.all().map(item => {\n  const { id, createdAt, updatedAt, ...rest } = item.json;\n  return { json: rest };\n});"
+      },
+      "id": "34a8e823-b887-41b7-8606-a1d3c8d57728",
+      "name": "sendTypeStats",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        784,
+        5264
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 13
+            }
+          ]
+        }
+      },
+      "id": "94993556-052c-4df1-8acf-c33062c6b420",
+      "name": "Daily",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        112,
+        4448
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "k85yIaifd7CNm6XP",
+          "mode": "list",
+          "cachedResultName": "trendData",
+          "cachedResultUrl": "/projects/z3aRqLJR30d0wZqJ/datatables/k85yIaifd7CNm6XP"
+        },
+        "returnAll": true
+      },
+      "id": "ea06487c-430b-4b4f-a097-c5f8d1866609",
+      "name": "GetOutputs",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        336,
+        4448
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\n// Parse each row\nconst rows = items.map(item => {\n  const d = item.json;\n  return {\n    contentType: d.contentType,\n    topics: typeof d.topics === 'string'\n      ? d.topics.split(',').map(t => t.trim()).filter(Boolean)\n      : (Array.isArray(d.topics) ? d.topics : []),\n  };\n});\n\n// Group by contentType\nconst byType = {};\nfor (const row of rows) {\n  if (!byType[row.contentType]) byType[row.contentType] = [];\n  byType[row.contentType].push(row);\n}\n\n// Fisher-Yates shuffle\nfunction shuffle(arr) {\n  const a = [...arr];\n  for (let i = a.length - 1; i > 0; i--) {\n    const j = Math.floor(Math.random() * (i + 1));\n    [a[i], a[j]] = [a[j], a[i]];\n  }\n  return a;\n}\n\nconst results = [];\n\nfor (const [contentType, typeRows] of Object.entries(byType)) {\n  // Collect unique topics within this contentType\n  const allTopics = [...new Set(typeRows.flatMap(row => row.topics))];\n\n  // Need at least 1 topic; sets may have fewer than 3 if pool is small\n  if (allTopics.length === 0) continue;\n\n  const setSize = Math.min(3, allTopics.length);\n  const usedSets = new Set();\n  const maxAttempts = 200;\n  let attempts = 0;\n  let setsBuilt = 0;\n\n  while (setsBuilt < 5 && attempts < maxAttempts) {\n    attempts++;\n    const shuffled = shuffle(allTopics);\n    const set = shuffled.slice(0, setSize);\n    const key = [...set].sort().join('|');\n\n    if (usedSets.has(key)) continue;\n    usedSets.add(key);\n\n    results.push({\n      json: {\n        contentType,\n        topics: set\n      }\n    });\n\n    setsBuilt++;\n  }\n}\n\nreturn results;"
+      },
+      "id": "251c82a5-1eff-4fdf-8221-33ce856a8f8f",
+      "name": "SetMaker",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        560,
+        4448
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "deleteRows",
+        "dataTableId": {
+          "__rl": true,
+          "value": "WxEpXeGlZJwC9oUc",
+          "mode": "list",
+          "cachedResultName": "contentIdeas",
+          "cachedResultUrl": "/projects/z3aRqLJR30d0wZqJ/datatables/WxEpXeGlZJwC9oUc"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "createdAt",
+              "condition": "lt",
+              "keyValue": "={{ new Date(Date.now() - 20*60*60*1000) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "75dd3f12-e2da-49df-8342-16134cba0530",
+      "name": "deleteIdeas",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1008,
+        4448
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8f3eacc5-781b-4cbf-8fdc-1841fc082f09",
+              "name": "modelCount",
+              "value": "={{ $if($('Count+1').isExecuted, $('Count+1').first().json.modelCount, 0)}}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "94e2b93b-fd8d-4fd2-9d8c-c2304713993b",
+      "name": "StartCounting",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1008,
+        4256
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=contentType: {{ $('SetMaker').item.json.contentType }}\ntopics: {{ $('SetMaker').item.json.topics.join(', ') }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=Kamu adalah generator ide konten media sosial untuk audiens Indonesia.\n\n## Bahasa\n- `contentIdea` WAJIB dalam Bahasa Indonesia, apa pun bahasa contentType, topik, atau hasil tool.\n- Terjemahkan/adaptasi istilah asing ke Bahasa Indonesia; istilah serapan yang lazim di medsos (\"hook\", \"feed\", \"viral\", \"throwback\") boleh dibiarkan.\n- Kalimatnya harus terdengar seperti orang Indonesia ngobrol di medsos, bukan terjemahan kaku.\n\n## Ide konten\n- Tepat 2 kalimat, satu paragraf, tanpa baris baru.\n- Kalimat 1 mendeskripsikan wujud kontennya, bukan menamai idenya. Mulai dengan frasa deskriptif yang menyebut bentuk karyanya lalu subjeknya, misalnya \"video pendek yang ...\", \"foto yang ...\", \"carousel yang ...\", \"tangkapan layar yang ...\", \"video POV yang ...\".\n- Kalimat 2 menjelaskan hook atau sudut pandang yang bikin orang berhenti scroll.\n- Wajib berakar pada keseharian, budaya, atau konteks Indonesia (tempat, kebiasaan, musim, harga, ritual, cara orang lokal ngomong).\n- Pilih bentuk karya yang paling masuk akal untuk contentType yang diminta.\n- Ambil sudut tidak terduga. Hindari angle yang terlalu obvious.\n- Dilarang membuka dengan: \"Konten ini\", \"Ide ini\", \"Kontennya\", \"Postingan ini\", \"Sebuah konten\", atau menyebut nama topiknya di awal kalimat.\n- Dilarang memakai frasa generik: \"temukan\", \"eksplorasi\", \"yuk kenali\", \"tahukah kamu\", \"simak\", \"ikuti\".\n- Dilarang bernada brief, instruksi, atau caption template. Tulis seperti orang yang punya pendapat.\n- Dilarang menyebut angka hasil tool, nama tool, atau kata \"data\" di dalam ide.\n\n## Data & estimasi\n- Selalu panggil PostsDataSearch dulu, pakai contentType dan topik dari input.\n- Pakai hasilnya sebagai kalibrasi `estimatedLike`, bukan sebagai isi ide.\n- Rentang tier: viral ≥ 200000, high-performing ≥ 20000, moderately engaging ≥ 2000, low-engagement < 2000.\n- Ambil sikap highball: `estimatedLike` = batas atas rentang tier pembanding yang paling mirip, bukan nilai tengahnya dan bukan nilai terendahnya.\n- Kalau pembanding tersebar di beberapa tier, pakai tier tertinggi yang masih punya minimal satu pembanding mirip.\n- Kalau ide punya sudut yang jelas lebih tajam dari semua pembanding, naikkan satu tier.\n- Plafon: jangan lewat 1,5x like tertinggi dari pembanding mirip, supaya angkanya tetap masuk akal.\n- Kalau tidak ada hasil relevan atau tool gagal: pakai estimasi optimistis untuk contentType itu di media sosial Indonesia, jangan estimasi konservatif.\n- Hindari mengangkat topik yang di data konsisten low-engagement kalau masih ada sudut lain dari input yang bisa dipakai.\n\n## Output\nKeluarkan HANYA JSON valid. Tanpa markdown, backticks, komentar, atau teks lain. Tanpa `\\n` di dalam string. Nama key persis:\n\n{\n  \"contentIdea\": \"<2 kalimat dalam Bahasa Indonesia>\",\n  \"estimatedLike\": <integer>\n}"
+        }
+      },
+      "id": "fff9509f-906f-4447-9000-bae64f290d80",
+      "name": "IdeaMaker",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1904,
+        4256
+      ]
+    },
+    {
+      "parameters": {
+        "numberInputs": 6,
+        "rules": {
+          "rule": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "323bb4a6-effa-4f5a-b151-3267531b5d5c",
+                    "leftValue": "={{ $json.modelCount }}",
+                    "rightValue": 0,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "modelIndex": 2,
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "4f66c1a1-56dc-468f-950e-5b123f1f5468",
+                    "leftValue": "={{ $json.modelCount }}",
+                    "rightValue": 1,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "modelIndex": 3,
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "c9780802-e5f9-41c5-88fe-446531bfb268",
+                    "leftValue": "={{ $json.modelCount }}",
+                    "rightValue": 2,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "modelIndex": 4,
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "45f404a4-74fd-4370-b7df-679e66890415",
+                    "leftValue": "={{ $json.modelCount }}",
+                    "rightValue": 3,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "modelIndex": 5,
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "d071ac0d-7b67-41cf-86f3-988a9a9fd83a",
+                    "leftValue": "={{ $json.modelCount }}",
+                    "rightValue": 4,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "modelIndex": 6,
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "577c1b24-29f1-4e58-b4d1-dc766908f9fb",
+                    "leftValue": "={{ $json.modelCount }}",
+                    "rightValue": 5,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        }
+      },
+      "id": "66a90be7-0221-4a16-a364-d5707f774628",
+      "name": "ModelSelector",
+      "type": "@n8n/n8n-nodes-langchain.modelSelector",
+      "typeVersion": 1,
+      "position": [
+        1440,
+        4480
+      ]
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.5-flash-lite",
+        "options": {
+          "temperature": 1
+        }
+      },
+      "id": "194cec5e-27c5-47f3-a6b5-d11360805d7b",
+      "name": "4000-1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1248,
+        4688
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "jEnH3mYFOPxtuloU",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.5-flash-lite",
+        "options": {
+          "temperature": 1
+        }
+      },
+      "id": "f1aa5fb3-30dd-4c64-8a3c-33b0213c48fd",
+      "name": "5000-1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1376,
+        4688
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "dvZxQMhCUNGRl6f6",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.5-flash-lite",
+        "options": {
+          "temperature": 1
+        }
+      },
+      "id": "d003543c-8b09-4121-8428-7abba1fd75f0",
+      "name": "979-1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1504,
+        4688
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "q8UJT1p8UGcNlHuN",
+          "name": "Google Gemini(PaLM) Api account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.5-flash-lite",
+        "options": {
+          "temperature": 1
+        }
+      },
+      "id": "fec2220d-e259-40f1-9019-8fd185a5ea20",
+      "name": "618-1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1632,
+        4688
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "jBld1AsVLA370ZKi",
+          "name": "Google Gemini(PaLM) Api account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.5-flash-lite",
+        "options": {
+          "temperature": 1
+        }
+      },
+      "id": "eb30ad13-ed0d-4148-8d19-b32644e9d8ee",
+      "name": "SC",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1760,
+        4688
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "2P1lRWxM698cc6Dd",
+          "name": "Google Gemini(PaLM) Api account 5"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.5-flash-lite",
+        "options": {
+          "temperature": 1
+        }
+      },
+      "id": "7996010a-14d0-45ce-8785-b645f49172d6",
+      "name": "SC619",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1920,
+        4688
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "RP957CwZaNJkMa5k",
+          "name": "Google Gemini(PaLM) Api account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Search Katchup's historical social media performance data. Each result is one real post with:\n- performance tier: viral, high-performing, moderately engaging, or low-engagement\n- content type (e.g. politics, lifestyle, humor, education, food, news, culture)\n- sentiment: positive, negative, neutral\n- topics\n- exact engagement: likes, views, comments\n\nUse before writing any content idea or estimatedLike, so the estimate is grounded in comparable real posts instead of guessed.\n\nCall with the content type and topics you plan to use, and match on tier plus content type/topic together — e.g. \"viral humor\", \"high-performing food content\" — not on raw numbers, since the tier words carry the performance signal.\n\nReturns comparable past posts. Quote their exact like/view/comment counts when explaining an estimate. If comparable posts cluster in low-engagement, choose different topics or content type instead.",
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "topK": 5,
+        "options": {
+          "queryName": "match_documents"
+        }
+      },
+      "id": "1c59e788-d72f-4b6c-a70f-ddaf5b4b7740",
+      "name": "PostDataSearch",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        1968,
+        4480
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "Tqkhgc9I7U3Is0Ml",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "embed-multilingual-v3.0"
+      },
+      "id": "0ef38ea4-c609-4601-b57c-782f1933ff30",
+      "name": "Embeddings_Cohere",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsCohere",
+      "typeVersion": 1,
+      "position": [
+        2048,
+        4688
+      ],
+      "credentials": {
+        "cohereApi": {
+          "id": "JkQ0B0ZTN2yjpl4T",
+          "name": "Cohere account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"required\": [\"contentIdea\", \"estimatedLike\"],\n  \"additionalProperties\": false,\n  \"properties\": {\n    \"contentIdea\": {\n      \"type\": \"string\",\n      \"description\": \"Exactly 2 sentences: what the content is, then the hook or angle.\"\n    },\n    \"estimatedLike\": {\n      \"type\": \"integer\",\n      \"minimum\": 0,\n      \"description\": \"Estimated like count as a whole number.\"\n    }\n  }\n}",
+        "autoFix": true
+      },
+      "id": "31930337-2897-4a28-bb03-df31db640b73",
+      "name": "StructuredOutputParser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        2256,
+        4480
+      ]
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "WxEpXeGlZJwC9oUc",
+          "mode": "list",
+          "cachedResultName": "contentIdeas",
+          "cachedResultUrl": "/projects/z3aRqLJR30d0wZqJ/datatables/WxEpXeGlZJwC9oUc"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "topics": "={{ $('SetMaker').item.json.topics.join(',') }}",
+            "contentType": "={{ $('SetMaker').item.json.contentType }}",
+            "estimatedLike": "={{ $('IdeaMaker').item.json.output.estimatedLike}}",
+            "contentIdea": "={{ $('IdeaMaker').item.json.output.contentIdea}}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "contentType",
+              "displayName": "contentType",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "contentIdea",
+              "displayName": "contentIdea",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "estimatedLike",
+              "displayName": "estimatedLike",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "topics",
+              "displayName": "topics",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "bf10231d-9af2-4200-b6bb-9e4b81bc64f2",
+      "name": "InsertIdeas",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2624,
+        4256
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "35e19e78-2cc6-4272-b5a1-3bfe848eae00",
+              "name": "modelCount",
+              "value": "={{($('StartCounting').item.json.modelCount >= 5)\n  ? 0\n  : $('StartCounting').item.json.modelCount + 1}}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "642e5547-9d03-4a7e-b2a2-416dcbe12980",
+      "name": "Count+1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2848,
+        4432
+      ],
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "c947890c-3f98-4652-91da-334a004189a6",
+      "name": "Loops",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        784,
+        4448
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "api/v1/chat",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "a3154e67-1b21-4b8b-989a-31b35626029a",
+      "name": "Send",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        112,
+        2256
+      ],
+      "webhookId": "73dfb64b-965d-4231-a51b-250fdca13675"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "d617e1c1-0b4f-43c9-9832-a42f1653a32e",
+              "leftValue": "={{ $json.body.text }}",
+              "rightValue": "/",
+              "operator": {
+                "type": "string",
+                "operation": "startsWith"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "76091af6-5efc-4c45-a7f4-6a7ba39f0dfd",
+      "name": "IfSlash",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        784,
+        2256
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "a1",
+                    "leftValue": "={{ $json.body.text.toLowerCase().trim().split(/\\s+/)[0] }}",
+                    "rightValue": "/hi",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "a2",
+                    "leftValue": "={{ $json.body.text.toLowerCase().trim().split(/\\s+/)[0] }}",
+                    "rightValue": "/stop",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "a3",
+                    "leftValue": "={{ $json.body.text.toLowerCase().trim().split(/\\s+/)[0] }}",
+                    "rightValue": "/help",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "a4",
+                    "leftValue": "={{ $json.body.text.toLowerCase().trim().split(/\\s+/)[0] }}",
+                    "rightValue": "/katchup",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "a5",
+                    "leftValue": "={{ $json.body.text.toLowerCase().trim().split(/\\s+/)[0] }}",
+                    "rightValue": "/status",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "a6",
+                    "leftValue": "={{ $json.body.text.toLowerCase().trim().split(/\\s+/)[0] }}",
+                    "rightValue": "/idea",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "NoMatch"
+        }
+      },
+      "id": "6ea3fe1f-c737-4cf8-9ece-b3cab84d711b",
+      "name": "Commands",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        1008,
+        1120
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "fnVDBDXq2HwLhAav",
+          "mode": "list",
+          "cachedResultName": "katchupUsers",
+          "cachedResultUrl": "/projects/z3aRqLJR30d0wZqJ/datatables/fnVDBDXq2HwLhAav"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "from",
+              "keyValue": "={{ $json.body.from }}"
+            }
+          ]
+        }
+      },
+      "id": "08ced35e-6f56-4ea7-98a3-433735555d33",
+      "name": "getUser",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1456,
+        2048
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "73154d62-4679-4fea-ad4c-6d0cbffd28c5",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "number",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "70ac065a-34a2-410e-84fc-1416b53bbfcf",
+      "name": "IfUserExist",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1680,
+        2048
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "c6536bfe-5575-4116-aea8-de3a3eed0214",
+              "leftValue": "={{ $json.chatCredit }}",
+              "rightValue": 1,
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "6c308cdc-35b3-4981-aa7d-291399e08229",
+      "name": "IfLimit",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1904,
+        1984
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const now = new Date();\nconst times = [0, 6, 12, 18];\n\nconst current = now.getHours() * 60 + now.getMinutes();\n\nconst closest = times\n  .map(h => ({\n    h,\n    diff: ((h * 60 - current) + 1440) % 1440 || 1440\n  }))\n  .sort((a, b) => a.diff - b.diff)[0];\n\nconst hours = Math.floor(closest.diff / 60);\nconst minutes = closest.diff % 60;\n\nconst wait = hours\n  ? (hours + \"h\" + (minutes ? \" \" + minutes + \"m\" : \"\"))\n  : (minutes + \"m\");\n\nreturn [{\n  json: {\n    reply: \"Kredit chat habis. Coba lagi dalam \" + wait + \".\\n\\nKetik /help untuk lihat perintah.\"\n  }\n}];"
+      },
+      "id": "d00e6ebf-3c9c-4129-852d-026e01ec59b4",
+      "name": "/katchup false",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3184,
+        2384
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "4dc6676b-28c6-4716-97df-593d9a0779a8",
+      "name": "Reply",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        4128,
+        2176
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "fnVDBDXq2HwLhAav",
+          "mode": "list",
+          "cachedResultName": "katchupUsers",
+          "cachedResultUrl": "/projects/z3aRqLJR30d0wZqJ/datatables/fnVDBDXq2HwLhAav"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "from",
+              "keyValue": "={{ $('Send').item.json.body.from }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "firstChat": "={{ $('Send').item.json.body.text.replace(/^\\/(hi|katchup)\\s*/i, \"\").trim() }}",
+            "status": "active",
+            "session": "={{ ($json.session || 0) + 1 }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "from",
+              "displayName": "from",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "chatCredit",
+              "displayName": "chatCredit",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "firstChat",
+              "displayName": "firstChat",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "session",
+              "displayName": "session",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "a6a93e39-4f5b-4d1d-aecd-b1a2b326e4bd",
+      "name": "updateSession",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2240,
+        1984
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Send').item.json.body.text.replace(/^\\/(hi|katchup)\\s*/i, '').trim() || 'Halo!' }}",
+        "needsFallback": true,
+        "options": {
+          "systemMessage": "You are Ketchy, the AI assistant for Katchup — a content analytics dashboard that helps creators discover content ideas and understand category trends.\n\nYou are reached through WhatsApp. Users may write in Indonesian, English, or mixed \"Bahasa gaul\" — always reply in the same language and tone the user used, defaulting to Indonesian if unclear.\n\n## Your knowledge\nYou have access to a tool (PostsDataSearching) containing 114 real social media content examples, each with:\n- contentType (politics, lifestyle, humor, education, food, news, culture)\n- sentiment (positive, negative, neutral)\n- topics/tags\n- engagement metrics (likes, views, comments)\n\nUse this tool whenever the user asks about:\n- Trending content or topics\n- Which content type performs best\n- Sentiment patterns around a topic\n- Examples of high-performing content in a category\n- Content ideas or inspiration based on what's working\n\nIf the user's question isn't related to content trends, ideas, or the Katchup dashboard, answer normally from your own knowledge — don't force a tool call.\n\n## How to answer\n- Keep replies concise and conversational — this is WhatsApp, not a report. Avoid long bullet-point dumps unless the user asks for a list.\n- When you cite data from the tool, speak naturally (e.g. \"Konten humor soal hewan lucu biasanya dapat engagement tinggi\") rather than dumping raw JSON or metadata.\n- If the tool returns no relevant results, say so honestly instead of guessing or inventing numbers.\n- Don't mention \"vector search,\" \"embeddings,\" or internal tool names to the user — just answer as Ketchy.\n\n## Boundaries\n- Don't make up engagement numbers or content examples not found in the tool results.\n- If asked something outside your scope (e.g. personal advice unrelated to content), politely redirect to what you can help with: content ideas and trend analysis."
+        }
+      },
+      "id": "5259f83a-d004-462b-9c07-c708d50f2337",
+      "name": "FirstRun",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        3040,
+        1776
+      ]
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.5-flash-lite",
+        "options": {}
+      },
+      "id": "c466f64e-a605-442c-bacf-86fc26255f38",
+      "name": "SC-618",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        2928,
+        2000
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "jEnH3mYFOPxtuloU",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.5-flash-lite",
+        "options": {}
+      },
+      "id": "f16e5ca8-be9e-465b-a85c-22ed2c0e0273",
+      "name": "SC-979",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        3056,
+        2000
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "jEnH3mYFOPxtuloU",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('SessionContext').first().json.sessionKey }}"
+      },
+      "id": "0f767445-d9ab-43bf-8adc-336d5be1787c",
+      "name": "Simple Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        3184,
+        2000
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Search Katchup's historical social media performance data. Each result is one real post with:\n- performance tier: viral, high-performing, moderately engaging, or low-engagement\n- content type (e.g. politics, lifestyle, humor, education, food, news, culture)\n- sentiment: positive, negative, neutral\n- topics\n- exact engagement: likes, views, comments\n\nUse before writing any content idea or estimatedLike, so the estimate is grounded in comparable real posts instead of guessed.\n\nCall with the content type and topics you plan to use, and match on tier plus content type/topic together — e.g. \"viral humor\", \"high-performing food content\" — not on raw numbers, since the tier words carry the performance signal.\n\nReturns comparable past posts. Quote their exact like/view/comment counts when explaining an estimate. If comparable posts cluster in low-engagement, choose different topics or content type instead.",
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "topK": 5,
+        "options": {
+          "queryName": "match_documents"
+        }
+      },
+      "id": "16ffe5cc-febf-4770-bc3a-9cb461119739",
+      "name": "PostsDataSearching",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        3312,
+        2000
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "Tqkhgc9I7U3Is0Ml",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "embed-multilingual-v3.0"
+      },
+      "id": "fc3b58b4-c82f-4a7c-a852-96fad61220ad",
+      "name": "EmbeddingsCohere",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsCohere",
+      "typeVersion": 1,
+      "position": [
+        3392,
+        2208
+      ],
+      "credentials": {
+        "cohereApi": {
+          "id": "JkQ0B0ZTN2yjpl4T",
+          "name": "Cohere account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "fnVDBDXq2HwLhAav",
+          "mode": "list",
+          "cachedResultName": "katchupUsers",
+          "cachedResultUrl": "/projects/z3aRqLJR30d0wZqJ/datatables/fnVDBDXq2HwLhAav"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "from",
+              "keyValue": "={{ $('Send').item.json.body.from }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "chatCredit": "={{ $('updateSession').isExecuted ? Math.max(0, $('updateSession').item.json.chatCredit - 1) : 10 }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "from",
+              "displayName": "from",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "chatCredit",
+              "displayName": "chatCredit",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "firstChat",
+              "displayName": "firstChat",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "session",
+              "displayName": "session",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "0b32c848-88d5-49f4-82c6-3ab78b89972e",
+      "name": "updateCreditLimit",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        3680,
+        1984
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const output = $(\"FirstRun\").first().json.output;\nreturn [{ json: { reply: \"Sesi aktif.\\n\\n\" + output + \"\\n\\nKetik /help untuk lihat perintah, /stop untuk akhiri sesi.\" } }];"
+      },
+      "id": "d500986a-7f05-405e-bafd-ef32ac6bab58",
+      "name": "/katchup true",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3904,
+        1984
+      ]
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "fnVDBDXq2HwLhAav",
+          "mode": "list",
+          "cachedResultName": "katchupUsers",
+          "cachedResultUrl": "/projects/z3aRqLJR30d0wZqJ/datatables/fnVDBDXq2HwLhAav"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "from": "={{ $('Send').item.json.body.from }}",
+            "chatCredit": 10,
+            "firstChat": "={{ $('Send').item.json.body.text.replace(/^\\/(hi|katchup)\\s*/i, \"\").trim() }}",
+            "status": "active",
+            "session": 1
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "from",
+              "displayName": "from",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "chatCredit",
+              "displayName": "chatCredit",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "firstChat",
+              "displayName": "firstChat",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "session",
+              "displayName": "session",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "cb728c7a-f1ba-4ae5-8478-64ded31d81ff",
+      "name": "InsertSession",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2640,
+        2528
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "fnVDBDXq2HwLhAav",
+          "mode": "list",
+          "cachedResultName": "katchupUsers",
+          "cachedResultUrl": "/projects/z3aRqLJR30d0wZqJ/datatables/fnVDBDXq2HwLhAav"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "from",
+              "keyValue": "={{ $json.body.from }}"
+            }
+          ]
+        }
+      },
+      "id": "864fe2b3-abd9-4d37-8ac5-eee9c126fdab",
+      "name": "getUsers",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1680,
+        3232
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "c64b1341-1ecc-4257-93da-8ab478561524",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "number",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "0650cbf4-8747-4022-ac30-3fcaabb59565",
+      "name": "ifUserExist",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1904,
+        3232
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Send').first().json.body.text }}",
+        "needsFallback": true,
+        "options": {
+          "systemMessage": "=Today's date is {{ $now.format('yyyy-MM-dd') }}.\n\nYou are Ketchy, the AI assistant for Katchup — a content analytics dashboard that helps creators discover content ideas and understand category trends.\n\nYou are reached through WhatsApp. Users may write in Indonesian, English, or mixed \"Bahasa gaul\" — always reply in the same language and tone the user used, defaulting to Indonesian if unclear.\n\n## Your tools\nYou have two tools:\n\n1. PostsDataSearch — 114 real social media content examples from Katchup's dataset. Each result has:\n- contentType (politics, lifestyle, humor, education, food, news, culture)\n- sentiment (positive, negative, neutral)\n- topics/tags\n- engagement metrics (likes, views, comments)\n\nUse it whenever the user asks about:\n- Trending content or topics\n- Which content type performs best\n- Sentiment patterns around a topic\n- Examples of high-performing content in a category\n- Content ideas or inspiration based on what's working\n\n2. TavilySearch — live web search. Use it when the question needs current information that Katchup's dataset cannot provide:\n- Recent news or events\n- Current Instagram/TikTok trends, challenges, or formats\n- Facts or claims you need to verify\n- The user explicitly asks you to search the web\n\nPrefer PostsDataSearch for questions about Katchup's historical performance or its content categories. Use TavilySearch when recency or outside context matters. Don't use TavilySearch for questions PostsDataSearch can answer.\n\nIf the user's question isn't related to content trends, ideas, current events, or the Katchup dashboard, answer normally from your own knowledge — don't force a tool call.\n\n## How to answer\n- Keep replies concise and conversational — this is WhatsApp, not a report. Avoid long bullet-point dumps unless the user asks for a list.\n- When you cite Katchup data, speak naturally (e.g. \"Konten humor soal hewan lucu biasanya dapat engagement tinggi\") rather than dumping raw JSON or metadata.\n- When you use TavilySearch, distinguish live web findings from Katchup data. Always end with a short `Sumber:` list containing 1-3 URLs from the Tavily results you relied on, and don't present web results as Katchup's own dataset.\n- If a tool returns no relevant results, say so honestly instead of guessing or inventing numbers.\n- Don't mention \"vector search,\" \"embeddings,\" tool names, or internal implementation details to the user — just answer as Ketchy.\n\n- If TavilySearch fails or returns nothing useful, say you couldn't verify it live, then answer from PostsDataSearch or your own knowledge - never invent sources.\n\n## Boundaries\n- Don't make up engagement numbers or content examples not found in tool results.\n- Don't invent URLs, articles, or web findings that TavilySearch didn't return. Never cite or alter a URL that TavilySearch did not return.\n- If asked something outside your scope (e.g. personal advice unrelated to content), politely redirect to what you can help with: content ideas, trend analysis, and current content news."
+        }
+      },
+      "id": "30a01af0-5093-4546-bc30-6146b2f7ef9f",
+      "name": "ChatAgent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        3088,
+        3232
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.5-flash-lite",
+        "options": {}
+      },
+      "id": "65606e6e-5dd6-46a3-9fb8-619b1e5546b2",
+      "name": "SC620",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        2928,
+        3456
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "jEnH3mYFOPxtuloU",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.5-flash-lite",
+        "options": {}
+      },
+      "id": "4b4564de-4f95-4f25-94c5-c78a4c314c8c",
+      "name": "SC980",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        3056,
+        3456
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "jEnH3mYFOPxtuloU",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Search Katchup's historical social media performance data. Each result is one real post with:\n- performance tier: viral, high-performing, moderately engaging, or low-engagement\n- content type (e.g. politics, lifestyle, humor, education, food, news, culture)\n- sentiment: positive, negative, neutral\n- topics\n- exact engagement: likes, views, comments\n\nUse before writing any content idea or estimatedLike, so the estimate is grounded in comparable real posts instead of guessed.\n\nCall with the content type and topics you plan to use, and match on tier plus content type/topic together — e.g. \"viral humor\", \"high-performing food content\" — not on raw numbers, since the tier words carry the performance signal.\n\nReturns comparable past posts. Quote their exact like/view/comment counts when explaining an estimate. If comparable posts cluster in low-engagement, choose different topics or content type instead.",
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "topK": 5,
+        "options": {
+          "queryName": "match_documents"
+        }
+      },
+      "id": "b1954555-f800-4a28-be83-87d81067a112",
+      "name": "PostsDataSearch",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        3184,
+        3456
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "Tqkhgc9I7U3Is0Ml",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "embed-multilingual-v3.0"
+      },
+      "id": "dc3d909b-bdc1-45b3-bb33-4e1aabe41a9b",
+      "name": "Embeddings-Cohere",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsCohere",
+      "typeVersion": 1,
+      "position": [
+        3264,
+        3664
+      ],
+      "credentials": {
+        "cohereApi": {
+          "id": "JkQ0B0ZTN2yjpl4T",
+          "name": "Cohere account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "fnVDBDXq2HwLhAav",
+          "mode": "list",
+          "cachedResultName": "katchupUsers",
+          "cachedResultUrl": "/projects/z3aRqLJR30d0wZqJ/datatables/fnVDBDXq2HwLhAav"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "from",
+              "keyValue": "={{ $('Send').first().json.body.from }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "chatCredit": "={{ $('ChatAgent').first().json.output ? $('getUsers').first().json.chatCredit - 1 : $('getUsers').first().json.chatCredit }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "from",
+              "displayName": "from",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "chatCredit",
+              "displayName": "chatCredit",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "firstChat",
+              "displayName": "firstChat",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "10b565b0-2a2b-4643-8ab8-79943deae6a6",
+      "name": "updateLimit",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        3680,
+        3136
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const output = $(\"ChatAgent\").first().json.output;\nlet reply = String(output || \"\");\n\nlet sources = [];\ntry {\n  const results = $(\"TavilySearch\").all().flatMap(item => (item.json && item.json.results) || []);\n  const seen = new Set();\n  for (const item of results) {\n    const url = String(item && item.url || \"\").trim();\n    if (!url || seen.has(url)) continue;\n    seen.add(url);\n    sources.push(url);\n    if (sources.length >= 3) break;\n  }\n} catch (e) {}\n\nconst missing = sources.filter(url => !reply.includes(url));\nif (missing.length) {\n  reply += \"\\n\\nSumber:\\n\" + missing.map(url => \"- \" + url).join(\"\\n\");\n}\n\nreturn [{ json: { reply } }];"
+      },
+      "id": "9704a5c9-0da7-48ca-b8f3-7e459df719bb",
+      "name": "SuccessChat",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3904,
+        3136
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 */6 * * *"
+            }
+          ]
+        }
+      },
+      "id": "336a8b4b-c896-4d10-88e1-4618eaa29675",
+      "name": "Every4Hour",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        112,
+        5488
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "fnVDBDXq2HwLhAav",
+          "mode": "list",
+          "cachedResultName": "katchupUsers",
+          "cachedResultUrl": "/projects/z3aRqLJR30d0wZqJ/datatables/fnVDBDXq2HwLhAav"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "from",
+              "condition": "isNotEmpty"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "chatCredit": 10
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "from",
+              "displayName": "from",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "chatCredit",
+              "displayName": "chatCredit",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "firstChat",
+              "displayName": "firstChat",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "ac34d9dc-a4b5-4ac2-b017-356c92d1ca23",
+      "name": "giveCredit",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        336,
+        5488
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const lines = [\n  \"Halo! Aku Ketchy.\",\n  \"\",\n  \"Perintah yang tersedia:\",\n  \"/hi - mulai sesi chat\",\n  \"/stop - akhiri sesi\",\n  \"/status - lihat sesi dan kredit\",\n  \"/idea <topik> - 3 ide konten dari topik\",\n  \"/help - tampilkan bantuan ini\",\n  \"\",\n  \"Kredit chat 10, di-refresh tiap 6 jam. Di luar sesi, kirim /hi dulu ya.\"\n];\nreturn [{ json: { reply: lines.join(\"\\n\") } }];"
+      },
+      "id": "9cd7dc37-25b9-4d9d-9581-3014efce8200",
+      "name": "HelpText",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3904,
+        544
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "fnVDBDXq2HwLhAav",
+          "mode": "list",
+          "cachedResultName": "katchupUsers",
+          "cachedResultUrl": "/projects/z3aRqLJR30d0wZqJ/datatables/fnVDBDXq2HwLhAav"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "from",
+              "keyValue": "={{ $('Send').item.json.body.from }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "stopped"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "222345d7-cfd2-49e3-b9c1-65f8f41dc5a9",
+      "name": "setStopped",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        3680,
+        2672
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const row = $input.first().json;\nif (!row.id) {\n  return [{ json: { reply: \"Belum ada sesi aktif. Kirim /hi untuk mulai, /help untuk lihat perintah.\" } }];\n}\nreturn [{ json: { reply: \"Sesi dihentikan. Kredit chat tetap tersimpan.\\n\\nKirim /hi untuk mulai lagi, /help untuk lihat perintah.\" } }];"
+      },
+      "id": "35aba9bb-3cfd-4100-840c-57936b45c2eb",
+      "name": "StopReply",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3904,
+        2672
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "b1",
+              "leftValue": "={{ $json.status || '' }}",
+              "rightValue": "stopped",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "a0e41c80-3f8a-40c4-a600-cebb8a4811a1",
+      "name": "IfStopped",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2240,
+        3056
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { reply: \"Sesi kamu sedang berhenti. Kirim /hi untuk mulai lagi, atau /help untuk lihat perintah.\" } }];"
+      },
+      "id": "c1d3a3d9-fac5-40ce-9e52-efb3c1c95f28",
+      "name": "StartPrompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3904,
+        2864
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { reply: \"Sesi belum aktif. Kirim /hi untuk mulai chat, /help untuk lihat perintah.\" } }];"
+      },
+      "id": "c03ac134-609a-423b-912e-f977b477cc3b",
+      "name": "NoSession",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3904,
+        3600
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.chatCredit }}",
+              "rightValue": 1,
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "b6bd8780-398d-4e0a-b00c-0d85b2fbce5b",
+      "name": "IfCredit",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2640,
+        3184
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "fnVDBDXq2HwLhAav",
+          "mode": "list",
+          "cachedResultName": "katchupUsers",
+          "cachedResultUrl": "/projects/z3aRqLJR30d0wZqJ/datatables/fnVDBDXq2HwLhAav"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "from",
+              "keyValue": "={{ $json.body.from }}"
+            }
+          ]
+        }
+      },
+      "id": "ba30d02d-c22e-4cf8-a72d-fd0b76216b2e",
+      "name": "LoadUser",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        336,
+        2256
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const user = $input.first().json || {};\nconst send = $(\"Send\").item.json;\nconst text = String(send.body.text || \"\").trim();\nconst isStart = /^\\/(hi|katchup)(\\s|$)/i.test(text);\nconst session = (user.session || 0) + (isStart ? 1 : 0);\nreturn [{ json: { ...send, sessionKey: send.body.from + \"-\" + session, isStart } }];"
+      },
+      "id": "c8692d76-64f9-4766-b6cd-a51b0a65619d",
+      "name": "SessionContext",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        560,
+        2256
+      ]
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Search the live web with Tavily for current news, recent trends, and facts outside Katchup's internal post dataset. Returns ranked web results with snippets. Use when the user asks about recent events, wants current context, or when internal post data cannot answer the question. Do not use it for questions about Katchup's own historical post performance.",
+        "query": "={{ $fromAI('query', 'Specific web search query: keywords, names, or a direct question', 'string') }}",
+        "options": {
+          "max_results": 5
+        }
+      },
+      "id": "156f1732-b6b6-4b30-bead-0750ecc96f62",
+      "name": "TavilySearch",
+      "type": "@tavily/n8n-nodes-tavily.tavilyTool",
+      "typeVersion": 2.1,
+      "position": [
+        3472,
+        3456
+      ],
+      "credentials": {
+        "tavilyApi": {
+          "id": "2cr7gYrHelXvtb6w",
+          "name": "Tavily account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { reply: \"Perintah tidak dikenal. Ketik /help untuk lihat daftar perintah.\" } }];"
+      },
+      "id": "5c5d6e5e-b948-4a07-bddb-78437e71aaf5",
+      "name": "UnknownCommand",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3904,
+        736
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "mode": "delete",
+        "deleteMode": "all"
+      },
+      "id": "5387c370-fc87-4d2b-a45e-1b53b5e22bd4",
+      "name": "ClearOldChatMemory",
+      "type": "@n8n/n8n-nodes-langchain.memoryManager",
+      "typeVersion": 1.1,
+      "position": [
+        2576,
+        1984
+      ]
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('getUser').first().json.from + '-' + ($('getUser').first().json.session || 0) }}"
+      },
+      "id": "ecdff59e-3fe0-4176-948d-b4851c931f7c",
+      "name": "OldSessionMemory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        2656,
+        2208
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const row = $('LoadUser').first().json || {};\n\nif (row.id === undefined || row.id === null) {\n  return [{ json: { reply: \"Belum ada sesi. Kirim /hi untuk mulai, /help untuk lihat perintah.\" } }];\n}\n\nconst session = Number(row.session);\nconst credit = Number(row.chatCredit);\nconst status = String(row.status || '').toLowerCase();\n\nconst sessionText = Number.isFinite(session) && session > 0 ? '#' + session : 'belum ada';\nconst statusLabel = status === 'active' ? 'aktif' : status === 'stopped' ? 'berhenti' : 'belum aktif';\nconst creditText = (Number.isFinite(credit) ? Math.max(0, credit) : 0) + '/10';\n\nconst lines = [\n  'Status Ketchy',\n  '',\n  'Sesi: ' + sessionText + ' (' + statusLabel + ')',\n  'Kredit chat: ' + creditText,\n  '',\n  'Ketik /hi untuk sesi baru, /help untuk perintah.'\n];\n\nreturn [{ json: { reply: lines.join('\\n') } }];"
+      },
+      "id": "8becbe6f-1872-4fd5-bbd7-8ef8f053491b",
+      "name": "StatusReply",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3904,
+        928
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "b4f34fed-2dfe-4087-b670-836086a6197d",
+              "leftValue": "={{ $('LoadUser').item.json.id }}",
+              "rightValue": "@g.us",
+              "operator": {
+                "type": "number",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        112,
+        3824
+      ],
+      "id": "10ae5284-f958-447b-aea6-845c4e049ae9",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "jsCode": "const row = $('LoadUser').first().json || {};\nconst text = String($('Send').first().json.body.text || '').trim();\nconst topic = text.replace(/^\\/idea\\b/i, '').trim().slice(0, 200);\n\nconst fail = (reply) => [{ json: { ok: false, reply } }];\n\nif (row.id === undefined || row.id === null) return fail('Sesi belum aktif. Kirim /hi dulu untuk mulai.');\nif (String(row.status || '').toLowerCase() !== 'active') return fail('Sesi belum aktif. Kirim /hi dulu untuk mulai.');\nconst credit = Number(row.chatCredit);\nif (!Number.isFinite(credit) || credit < 1) return fail('Kredit chat habis. Kredit di-refresh tiap 6 jam.');\nif (!topic) return fail('Tulis topiknya ya. Contoh: /idea kuliner rumahan');\n\nreturn [{ json: { ok: true, topic } }];"
+      },
+      "id": "2a016494-49c5-4de1-9c4c-b2959e8f69f7",
+      "name": "IdeaCmd",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1232,
+        1376
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "ig1",
+              "leftValue": "={{ $json.ok }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "344d265d-eefd-4c3f-b03f-0bd707f8a31d",
+      "name": "IdeaGate",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1456,
+        1376
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "k85yIaifd7CNm6XP",
+          "mode": "list",
+          "cachedResultName": "trendData"
+        },
+        "returnAll": true
+      },
+      "id": "d3415366-b498-48f1-aa88-5989761ae616",
+      "name": "IdeaTrend",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1680,
+        1280
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const topic = $('IdeaCmd').first().json.topic;\nconst rows = $input.all().map(i => i.json).filter(r => r && r.contentType);\n\nconst byType = {};\nfor (const r of rows) {\n  const type = String(r.contentType || '').toLowerCase();\n  if (!type) continue;\n  const bucket = byType[type] || (byType[type] = { likes: [], topics: new Set() });\n  const like = Number(r.baseLike);\n  if (Number.isFinite(like) && like > 0) bucket.likes.push(like);\n  String(r.topics || '').split(',').map(t => t.trim()).filter(Boolean).forEach(t => bucket.topics.add(t));\n}\n\nconst caps = {};\nconst stats = Object.entries(byType).map(([type, b]) => {\n  const likes = [...b.likes].sort((a, c) => a - c);\n  const median = likes.length ? likes[Math.floor(likes.length / 2)] : 0;\n  const max = likes.length ? likes[likes.length - 1] : 0;\n  caps[type] = Math.min(Math.round(max * 1.5), Math.max(Math.round(median * 5), 25000));\n  return type + ': median likes ' + median + ', max likes ' + max + ', contoh topik: ' + [...b.topics].slice(0, 8).join(', ');\n}).join('\\n');\n\nconst prompt = 'Topik dari kreator: \"' + topic + '\"\\n\\n' +\n'Statistik data Katchup per kategori (dari 837 contoh post):\\n' + stats + '\\n\\n' +\n'Buat tepat 3 ide konten Instagram untuk topik itu, masing-masing dengan kategori Katchup yang paling cocok.\\n\\n' +\n'Aturan ide:\\n' +\n'- Bahasa Indonesia santai, seperti orang Indonesia ngobrol di medsos. Bukan terjemahan kaku.\\n' +\n'- Tepat 2 kalimat, satu paragraf, tanpa baris baru. Kalimat 1 mendeskripsikan wujud kontennya (mulai dengan \"video pendek yang...\", \"foto yang...\", \"carousel yang...\"), kalimat 2 menjelaskan hook atau sudut pandangnya.\\n' +\n'- Wajib berakar pada keseharian, budaya, atau konteks Indonesia. Ambil sudut tidak terduga.\\n' +\n'- Dilarang membuka dengan \"Konten ini\", \"Ide ini\", \"Kontennya\", atau menyebut nama topik di awal kalimat. Dilarang memakai \"temukan\", \"eksplorasi\", \"yuk kenali\", \"tahukah kamu\", \"simak\".\\n' +\n'- Jangan menyebut angka data, nama tool, atau kata \"data\" di dalam ide.\\n\\n' +\n'Aturan estimatedLike: pakai kategori yang dipilih, kalibrasi dari median dan max di atas. Ambil sikap highball (batas atas tier yang masuk akal), jangan lewat 1.5x max likes kategori itu.\\n\\n' +\n'Keluarkan HANYA JSON array berisi 3 object, tanpa markdown. Key: contentIdea, contentType, topics (3-5 tag dipisah koma), estimatedLike.';\n\nreturn [{ json: { prompt, caps } }];"
+      },
+      "id": "2a3f23bb-0d7f-4486-be98-df0ebce1aa3b",
+      "name": "IdeaPrompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1904,
+        1280
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.prompt }}",
+        "hasOutputParser": true,
+        "batching": {}
+      },
+      "id": "e399087f-a8e5-4452-b767-e1dd146185c7",
+      "name": "IdeaChain",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        2128,
+        1280
+      ]
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.5-flash-lite",
+        "options": {}
+      },
+      "id": "520f72e6-fc28-4b6d-89eb-5489301625f5",
+      "name": "IdeaModel",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        2208,
+        1712
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "jEnH3mYFOPxtuloU",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"array\",\n  \"minItems\": 3,\n  \"maxItems\": 3,\n  \"items\": {\n    \"type\": \"object\",\n    \"required\": [\n      \"contentIdea\",\n      \"contentType\",\n      \"topics\",\n      \"estimatedLike\"\n    ],\n    \"additionalProperties\": false,\n    \"properties\": {\n      \"contentIdea\": {\n        \"type\": \"string\"\n      },\n      \"contentType\": {\n        \"type\": \"string\",\n        \"enum\": [\n          \"education\",\n          \"lifestyle\",\n          \"news\",\n          \"politics\",\n          \"humor\",\n          \"culture\",\n          \"food\"\n        ]\n      },\n      \"topics\": {\n        \"type\": \"string\"\n      },\n      \"estimatedLike\": {\n        \"type\": \"integer\",\n        \"minimum\": 0\n      }\n    }\n  }\n}",
+        "autoFix": true
+      },
+      "id": "3475a479-f71f-4015-9d4f-13cc3bf11976",
+      "name": "IdeaParser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        2208,
+        1504
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const parsed = $json.output ?? $json;\nconst list = Array.isArray(parsed) ? parsed : (Array.isArray(parsed && parsed.ideas) ? parsed.ideas : []);\nif (!list.length) throw new Error('IdeaChain returned no ideas');\n\nconst ctx = $('IdeaCmd').first().json;\nconst from = $('Send').first().json.body.from;\nconst allowed = ['education', 'lifestyle', 'news', 'politics', 'humor', 'culture', 'food'];\nconst caps = ($('IdeaPrompt').first().json.caps) || {};\n\nreturn list.slice(0, 3).map((idea) => ({\n  json: {\n    from,\n    topic: ctx.topic,\n    contentIdea: String(idea.contentIdea || '').trim(),\n    contentType: allowed.includes(idea.contentType) ? idea.contentType : 'lifestyle',\n    topics: String(idea.topics || '').trim(),\n    estimatedLike: Math.min(\n      Math.max(0, Math.round(Number(idea.estimatedLike) || 0)),\n      Number.isFinite(Number(caps[idea.contentType])) ? Number(caps[idea.contentType]) : 1000000\n    )\n  }\n}));"
+      },
+      "id": "7774c82e-b9a9-4db3-92ec-b37707d7f9f1",
+      "name": "IdeaFormat",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2640,
+        1280
+      ]
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "hLjFTvSJZ1mkesqW",
+          "mode": "list",
+          "cachedResultName": "chatIdeas"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "from",
+              "displayName": "from",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "topic",
+              "displayName": "topic",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "contentIdea",
+              "displayName": "contentIdea",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "contentType",
+              "displayName": "contentType",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "topics",
+              "displayName": "topics",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "estimatedLike",
+              "displayName": "estimatedLike",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "value": {
+            "from": "={{ $json.from }}",
+            "topic": "={{ $json.topic }}",
+            "contentIdea": "={{ $json.contentIdea }}",
+            "contentType": "={{ $json.contentType }}",
+            "topics": "={{ $json.topics }}",
+            "estimatedLike": "={{ $json.estimatedLike }}"
+          }
+        },
+        "options": {}
+      },
+      "id": "f0202ee9-5cf7-4f87-93ac-0a385839e8b1",
+      "name": "IdeaInsert",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        3184,
+        1280
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "fnVDBDXq2HwLhAav",
+          "mode": "list",
+          "cachedResultName": "katchupUsers"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "from",
+              "keyValue": "={{ $('Send').first().json.body.from }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "from",
+              "displayName": "from",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "chatCredit",
+              "displayName": "chatCredit",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "value": {
+            "chatCredit": "={{ $('LoadUser').first().json.chatCredit - 1 }}"
+          }
+        },
+        "options": {}
+      },
+      "id": "9c53908b-43d0-4ae7-88eb-adbcf575669c",
+      "name": "IdeaCharge",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        3680,
+        1280
+      ],
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const ideas = $('IdeaFormat').all().map(i => i.json);\nconst topic = $('IdeaCmd').first().json.topic;\nconst lines = ['3 ide konten buat \"' + topic + '\":', ''];\n\nideas.forEach((idea, idx) => {\n  lines.push((idx + 1) + '. ' + idea.contentIdea);\n  lines.push('   ' + idea.contentType + ' - est. ' + Number(idea.estimatedLike).toLocaleString('id-ID') + ' likes');\n  lines.push('');\n});\n\nlines.push('Ide disimpan di riwayat Ketchy kamu.');\nlines.push('Ketik /idea <topik> buat ide lain, /status buat cek kredit.');\nreturn [{ json: { reply: lines.join('\\n') } }];"
+      },
+      "id": "34fdddd8-e2da-493d-acbe-29b5c03ed01d",
+      "name": "IdeaReply",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3904,
+        1280
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { reply: \"Maaf, Ketchy lagi gagal mikir. Coba kirim ulang sebentar lagi - kredit kamu tidak terpotong.\" } }];"
+      },
+      "id": "6fb82040-b243-4f38-996d-022f3fed51e7",
+      "name": "AgentFailed",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3904,
+        3328
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { reply: String($json.reply || '') } }];"
+      },
+      "id": "e1e877b0-e35a-4028-8295-c7edd733c77f",
+      "name": "IdeaUsage",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3904,
+        1632
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "618": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Model Selector",
+            "type": "ai_languageModel",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "979": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Model Selector",
+            "type": "ai_languageModel",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "4000": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Model Selector",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "5000": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Model Selector",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Weekly": {
+      "main": [
+        [
+          {
+            "node": "Scraper",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scraper": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Insert Posts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WeeklyAfterScrape": {
+      "main": [
+        [
+          {
+            "node": "GetPosts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetPosts": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "deletePost": {
+      "main": [
+        [
+          {
+            "node": "deleteOutput",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "deleteOutput": {
+      "main": [
+        [
+          {
+            "node": "deleteTypes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "deleteTypes": {
+      "main": [
+        [
+          {
+            "node": "deleteMusic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "deleteMusic": {
+      "main": [
+        [
+          {
+            "node": "deleteStats",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "deleteStats": {
+      "main": [
+        [
+          {
+            "node": "GetMusic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetMusic": {
+      "main": [
+        [
+          {
+            "node": "InsertMusic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "InsertMusic": {
+      "main": [
+        [
+          {
+            "node": "GetVideo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetVideo": {
+      "main": [
+        [
+          {
+            "node": "GetPost",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetPost": {
+      "main": [
+        [
+          {
+            "node": "ProcessDiff",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ProcessDiff": {
+      "main": [
+        [
+          {
+            "node": "InsertStats",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "InsertStats": {
+      "main": [
+        [
+          {
+            "node": "GetOutput",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetOutput": {
+      "main": [
+        [
+          {
+            "node": "CollectEngagement",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CollectEngagement": {
+      "main": [
+        [
+          {
+            "node": "InsertEngagement",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "InsertEngagement": {
+      "main": [
+        [
+          {
+            "node": "returnOutput",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "returnOutput": {
+      "main": [
+        [
+          {
+            "node": "dataMaker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "dataMaker": {
+      "main": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Cohere": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "StartCount": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "SplitOutput",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Model Selector": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SC979": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Model Selector",
+            "type": "ai_languageModel",
+            "index": 4
+          }
+        ]
+      ]
+    },
+    "SC618": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Model Selector",
+            "type": "ai_languageModel",
+            "index": 5
+          },
+          {
+            "node": "Structured Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SplitOutput": {
+      "main": [
+        [
+          {
+            "node": "InsertOutput",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "InsertOutput": {
+      "main": [
+        [
+          {
+            "node": "AddCount",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AddCount": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "deletePost",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "StartCount",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "getMusic",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "getIdeas",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "getContentType",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "getPostType",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "getMusic": {
+      "main": [
+        [
+          {
+            "node": "sendMusicList",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "sendMusicList": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "getIdeas": {
+      "main": [
+        [
+          {
+            "node": "sendIdeaList",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "sendIdeaList": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "getContentType": {
+      "main": [
+        [
+          {
+            "node": "sendContentStats",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "sendContentStats": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "getPostType": {
+      "main": [
+        [
+          {
+            "node": "sendTypeStats",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "sendTypeStats": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily": {
+      "main": [
+        [
+          {
+            "node": "GetOutputs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetOutputs": {
+      "main": [
+        [
+          {
+            "node": "SetMaker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SetMaker": {
+      "main": [
+        [
+          {
+            "node": "Loops",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "StartCounting": {
+      "main": [
+        [
+          {
+            "node": "IdeaMaker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IdeaMaker": {
+      "main": [
+        [
+          {
+            "node": "InsertIdeas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ModelSelector": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "IdeaMaker",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "4000-1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "ModelSelector",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "5000-1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "ModelSelector",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "979-1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "ModelSelector",
+            "type": "ai_languageModel",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "618-1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "ModelSelector",
+            "type": "ai_languageModel",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "SC": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "ModelSelector",
+            "type": "ai_languageModel",
+            "index": 4
+          }
+        ]
+      ]
+    },
+    "SC619": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "ModelSelector",
+            "type": "ai_languageModel",
+            "index": 5
+          },
+          {
+            "node": "StructuredOutputParser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PostDataSearch": {
+      "ai_tool": [
+        [
+          {
+            "node": "IdeaMaker",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings_Cohere": {
+      "ai_embedding": [
+        [
+          {
+            "node": "PostDataSearch",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "StructuredOutputParser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "IdeaMaker",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "InsertIdeas": {
+      "main": [
+        [
+          {
+            "node": "Count+1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Count+1": {
+      "main": [
+        [
+          {
+            "node": "Loops",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loops": {
+      "main": [
+        [
+          {
+            "node": "deleteIdeas",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "StartCounting",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IfSlash": {
+      "main": [
+        [
+          {
+            "node": "Commands",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "getUsers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Commands": {
+      "main": [
+        [
+          {
+            "node": "getUser",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "setStopped",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HelpText",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "getUser",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "StatusReply",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "IdeaCmd",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "UnknownCommand",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "getUser": {
+      "main": [
+        [
+          {
+            "node": "IfUserExist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IfUserExist": {
+      "main": [
+        [
+          {
+            "node": "IfLimit",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "InsertSession",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IfLimit": {
+      "main": [
+        [
+          {
+            "node": "/katchup false",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "updateSession",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "/katchup false": {
+      "main": [
+        [
+          {
+            "node": "Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FirstRun": {
+      "main": [
+        [
+          {
+            "node": "updateCreditLimit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SC-618": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "FirstRun",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SC-979": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "FirstRun",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "FirstRun",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "ChatAgent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PostsDataSearching": {
+      "ai_tool": [
+        [
+          {
+            "node": "FirstRun",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "EmbeddingsCohere": {
+      "ai_embedding": [
+        [
+          {
+            "node": "PostsDataSearching",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "updateCreditLimit": {
+      "main": [
+        [
+          {
+            "node": "/katchup true",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "/katchup true": {
+      "main": [
+        [
+          {
+            "node": "Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "InsertSession": {
+      "main": [
+        [
+          {
+            "node": "FirstRun",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "getUsers": {
+      "main": [
+        [
+          {
+            "node": "ifUserExist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ChatAgent": {
+      "main": [
+        [
+          {
+            "node": "updateLimit",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AgentFailed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SC620": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "ChatAgent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SC980": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "ChatAgent",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "PostsDataSearch": {
+      "ai_tool": [
+        [
+          {
+            "node": "ChatAgent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings-Cohere": {
+      "ai_embedding": [
+        [
+          {
+            "node": "PostsDataSearch",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "updateLimit": {
+      "main": [
+        [
+          {
+            "node": "SuccessChat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SuccessChat": {
+      "main": [
+        [
+          {
+            "node": "Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every4Hour": {
+      "main": [
+        [
+          {
+            "node": "giveCredit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ifUserExist": {
+      "main": [
+        [
+          {
+            "node": "IfStopped",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "NoSession",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IfStopped": {
+      "main": [
+        [
+          {
+            "node": "StartPrompt",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "IfCredit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "StartPrompt": {
+      "main": [
+        [
+          {
+            "node": "Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "setStopped": {
+      "main": [
+        [
+          {
+            "node": "StopReply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "StopReply": {
+      "main": [
+        [
+          {
+            "node": "Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HelpText": {
+      "main": [
+        [
+          {
+            "node": "Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NoSession": {
+      "main": [
+        [
+          {
+            "node": "Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IfCredit": {
+      "main": [
+        [
+          {
+            "node": "/katchup false",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "ChatAgent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send": {
+      "main": [
+        [
+          {
+            "node": "LoadUser",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LoadUser": {
+      "main": [
+        [
+          {
+            "node": "SessionContext",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SessionContext": {
+      "main": [
+        [
+          {
+            "node": "IfSlash",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TavilySearch": {
+      "ai_tool": [
+        [
+          {
+            "node": "ChatAgent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "UnknownCommand": {
+      "main": [
+        [
+          {
+            "node": "Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "updateSession": {
+      "main": [
+        [
+          {
+            "node": "ClearOldChatMemory",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ClearOldChatMemory": {
+      "main": [
+        [
+          {
+            "node": "FirstRun",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OldSessionMemory": {
+      "ai_memory": [
+        [
+          {
+            "node": "ClearOldChatMemory",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "StatusReply": {
+      "main": [
+        [
+          {
+            "node": "Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IdeaCmd": {
+      "main": [
+        [
+          {
+            "node": "IdeaGate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IdeaTrend": {
+      "main": [
+        [
+          {
+            "node": "IdeaPrompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IdeaPrompt": {
+      "main": [
+        [
+          {
+            "node": "IdeaChain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IdeaChain": {
+      "main": [
+        [
+          {
+            "node": "IdeaFormat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IdeaFormat": {
+      "main": [
+        [
+          {
+            "node": "IdeaInsert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IdeaInsert": {
+      "main": [
+        [
+          {
+            "node": "IdeaCharge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IdeaCharge": {
+      "main": [
+        [
+          {
+            "node": "IdeaReply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IdeaReply": {
+      "main": [
+        [
+          {
+            "node": "Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IdeaModel": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "IdeaChain",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "IdeaParser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IdeaParser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "IdeaChain",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AgentFailed": {
+      "main": [
+        [
+          {
+            "node": "Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IdeaGate": {
+      "main": [
+        [
+          {
+            "node": "IdeaTrend",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "IdeaUsage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IdeaUsage": {
+      "main": [
+        [
+          {
+            "node": "Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true
+  },
+  "versionId": "0b716a8d-9bf5-46b1-9cbb-536129668350",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp",
+    "instanceId": "380243a355b43c9586de25dcd612041814c81d8399f045e420376a411d0b55b3"
+  },
+  "nodeGroups": [],
+  "id": "Y6MqjOFRBGjPs4Nd",
+  "tags": [
+    {
+      "updatedAt": "2026-11-04T05:18:21.231Z",
+      "createdAt": "2026-11-04T05:18:21.231Z",
+      "id": "UdBkMcWV0Zxpfie9",
+      "name": "KATCHUP"
+    }
+  ]
+}
