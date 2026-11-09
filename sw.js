@@ -1,6 +1,6 @@
 /* Service worker for KATCHUP. The shell is a file tree (css/, js/, icons/), so every local asset is
    precached; the cache prefix keeps this app's storage separate from anything else the origin hosts. */
-const CACHE_NAME = 'katchup-v3';
+const CACHE_NAME = 'katchup-v4';
 /* prune scope: this app's older caches only. A shared origin keeps its siblings. */
 const CACHE_PREFIX = 'katchup-';
 
