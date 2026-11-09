@@ -64,7 +64,7 @@ Content-Type: application/json
 {"from":"62812...","text":"/idea","pushName":"Optional"}
 ```
 
-The four data endpoints read the shared tables. On a fresh import the tables are empty, so the endpoints return HTTP 200 with an empty payload until the first Monday scrape (or until rows are imported manually).
+The four data endpoints read the shared tables. The Azure instance linked above is populated with the source data, so the endpoints return real JSON. A fresh import starts with empty tables and returns HTTP 200 with an empty payload until the first Monday scrape (or until rows are imported manually).
 
 ## Import and deploy
 
@@ -81,7 +81,8 @@ The Azure instance linked above has already been imported, reconnected, and publ
 
 - Source workflow: 288 successful production runs before export.
 - Azure import: 127 nodes, 143 connections, 8 data tables, 0 new validation warnings, published.
-- Public API: all four GET endpoints returned HTTP 200.
+- Azure data: 1,393 real rows imported from the source instance — 381 posts, 837 trend rows, 91 engagement snapshots, 32 sounds, 14 format rows, 35 ideas, and 3 real chat ideas. Twelve `probe:` test rows were excluded.
+- Public API: all four GET endpoints returned HTTP 200 with real JSON.
 - Chat: `/help` and `/status` returned the expected text; `/hi` completed a full AI turn and returned a Ketchy reply. The test user was removed afterwards.
 - Data table audit: all 35 Data Table nodes resolve to the new tables; all 27 credential-bearing nodes have credentials attached.
 
@@ -91,7 +92,7 @@ The Azure instance linked above has already been imported, reconnected, and publ
 - Instagram music URLs expire after roughly four days. The UI handles a dead preview; the trend numbers remain valid.
 - AI generation and the Apify actor cost money. The scrape actor is capped at **$1.10 per run**.
 - The public data endpoints are intentionally unauthenticated. The chat endpoint identifies users by the WhatsApp `from` value; it is not a login system.
-- A fresh import starts with empty tables. There is no demo seed data in this repository.
+- A fresh import starts with empty tables. The live Azure instance is populated from the source, but the row data itself is not committed to this repository.
 - The checked-in PWA still points at the original n8n Cloud backend unless `js/config.js` is updated.
 
 ## Repository layout
