@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 
 # Sitemap ditambahkan begitu domain produksi tetap (loc di sitemap wajib absolut).
-Sitemap: https://qatchup.vercel.app/sitemap.xml
+Sitemap: https://katchup.pages.dev/sitemap.xml

@@ -2,7 +2,7 @@
 
 **Radar ide konten untuk kreator Indonesia.** Katchup turns a weekly Instagram trend scrape into readable numbers, format comparisons, viral sounds, and ready-to-use content ideas. No feed scrolling, no spreadsheet, no build step.
 
-Live site: **https://qatchup.vercel.app/** (yes, the domain starts with a `q`)
+Live site: **https://katchup.pages.dev/**
 
 n8n backend: **127-node workflow** — see [`n8n/README.md`](n8n/README.md) for the automation map, public API, and import notes.
 
@@ -445,7 +445,7 @@ Deploy the **`katchup/` directory**, not the workspace root. The workspace root 
 - Build command: **none**
 - Output directory: **`.`**
 - Static headers: `vercel.json`
-- Production: **https://qatchup.vercel.app/**
+- Production: **https://katchup.pages.dev/**
 
 `vercel.json` sets `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `X-Frame-Options: SAMEORIGIN`, and a restrictive `Permissions-Policy` (camera, microphone, and geolocation disabled).
 

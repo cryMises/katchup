@@ -2,7 +2,7 @@
 
 Katchup is a weekly Instagram trend radar for Indonesian creators. A vanilla PWA shows the trends; this n8n workflow is the backend that scrapes, normalises, embeds, and explains them. There is no sign-up and no server-side user profile.
 
-- PWA: <https://qatchup.vercel.app/>
+- PWA: <https://katchup.pages.dev/>
 - Live workflow (Azure n8n): <https://crymises.indonesiacentral.cloudapp.azure.com/workflow/0ZNdygLZw2IqStVI>
 - Workflow export: [`KATCHUP.json`](./KATCHUP.json)
 
