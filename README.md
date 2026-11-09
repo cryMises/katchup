@@ -225,7 +225,7 @@ Anything that is not a slash command is normal chat. Sending chat text without a
 - The system prompt includes the runtime date, so “this week” means the actual current week.
 - All replies are in the user's language and tone, defaulting to Indonesian WhatsApp style.
 
-Backend webhook: `POST https://katchup.app.n8n.cloud/webhook/api/v1/chat` with `{from, text}` → `{reply}`.
+Backend webhook: `POST https://crymises.indonesiacentral.cloudapp.azure.com/webhook/api/v1/chat` with `{from, text}` → `{reply}`.
 
 ### PWA and offline mode
 
@@ -346,7 +346,7 @@ The frontend expects four endpoints under `API_BASE`:
 | `/music` | `{ music: [{ id, name, likeAmount, musicUrl? }] }` |
 | `/topic` | `{ topic: [{ ...engagement deltas }] }` — only `topic[0]` is read |
 
-`API_BASE` is hardcoded at the top of `js/config.js` and points at the n8n Cloud webhook. There is no environment-file loader.
+`API_BASE` is hardcoded at the top of `js/config.js` and points at the Azure n8n webhook. There is no environment-file loader.
 
 `baseTimeStamp` and `comparedTo` are intentionally unused: no trustworthy scrape timestamp exists, so freshness is the fetch time.
 

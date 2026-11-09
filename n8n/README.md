@@ -6,6 +6,8 @@ Katchup is a weekly Instagram trend radar for Indonesian creators. A vanilla PWA
 - Live workflow (Azure n8n): <https://crymises.indonesiacentral.cloudapp.azure.com/workflow/0ZNdygLZw2IqStVI>
 - Workflow export: [`KATCHUP.json`](./KATCHUP.json)
 
+> The n8n editor link requires an account on this Azure instance. If you don't have one, open the export above and import it into any n8n instance, or use the tables below.
+
 ## What the workflow does
 
 1. **Weekly scrape** — every Monday at 11:00 WIB, Apify's Instagram hashtag scraper collects up to 20 posts for each of 20 Indonesian creator hashtags.
@@ -93,7 +95,7 @@ The Azure instance linked above has already been imported, reconnected, and publ
 - AI generation and the Apify actor cost money. The scrape actor is capped at **$1.10 per run**.
 - The public data endpoints are intentionally unauthenticated. The chat endpoint identifies users by the WhatsApp `from` value; it is not a login system.
 - A fresh import starts with empty tables. The live Azure instance is populated from the source, but the row data itself is not committed to this repository.
-- The checked-in PWA still points at the original n8n Cloud backend unless `js/config.js` is updated.
+- The checked-in PWA points at the Azure backend in `js/config.js`; a fresh import must update `API_BASE` to the new webhook base.
 
 ## Repository layout
 
