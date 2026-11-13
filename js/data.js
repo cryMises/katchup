@@ -1,9 +1,10 @@
 /* ================= DATA INGESTION ================= */
 async function fetchEndpoint(name) {
   let res;
-  const opts = { headers: { 'ngrok-skip-browser-warning': 'true', 'Accept': 'application/json' } };
+  // Accept-only headers: no custom header means the browser sends no preflight at all
+  const opts = { headers: { 'Accept': 'application/json' } };
   // a silent hang gets a deadline, otherwise the cached-payload fallback never gets a chance to fire
-  if (typeof AbortSignal !== 'undefined' && AbortSignal.timeout) opts.signal = AbortSignal.timeout(8000);
+  if (typeof AbortSignal !== 'undefined' && AbortSignal.timeout) opts.signal = AbortSignal.timeout(30000);
   try {
     res = await fetch(API_BASE + name, opts);
   } catch (e) {
@@ -117,9 +118,12 @@ function loadCachedData() {
 }
 
 async function loadApiData() {
-  const [music, topic, idea, type] = await Promise.all([
-    fetchEndpoint('music'), fetchEndpoint('topic'), fetchEndpoint('idea'), fetchEndpoint('type')
-  ]);
+  /* sequential on purpose: four parallel executions contend on n8n's single-writer SQLite
+     and the 2-vCPU / 1 GB box, so each one gets slower and the deadline still bites */
+  const music = await fetchEndpoint('music');
+  const topic = await fetchEndpoint('topic');
+  const idea = await fetchEndpoint('idea');
+  const type = await fetchEndpoint('type');
   /* a 200 with nothing in it is not healthy data: throw into the cache/error path instead of showing
      "RADAR: TERHUBUNG" over empty views, and leave the last good payload in place */
   const hasIdeas = Array.isArray(idea) && idea.some(function (c) {
