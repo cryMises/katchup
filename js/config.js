@@ -1,4 +1,4 @@
-const API_BASE = 'https://crymises.indonesiacentral.cloudapp.azure.com/webhook/206a41d7-4e11-4f83-8450-53e8dd140133/api/v1/';
+const API_BASE = 'https://crymises.indonesiacentral.cloudapp.azure.com/api/v1/';
 
 let API_DATA = { music: [], topic: [], idea: [], type: [] };
 let CATEGORY_LIST = [];

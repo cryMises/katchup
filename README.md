@@ -127,7 +127,7 @@ The header reads **“<KATEGORI> · DAFTAR IDE”**, with the note **“Urut dar
 - Rank 1 gets the holo **PALING VIRAL** seal. The rest draw from a shuffled 14-stamp deck: SIAP CONTEK, COCOK BUAT FYP, POTENSI RAME, BANYAK DICARI, JUDUL JITU, GAMPANG DIBIKIN, IDE SEGAR, AUDIENS NYANGKUT, TIMING PAS, WORTH DICOBA, PAS BUAT PEMULA, BISA MELEDAK, COCOK BUAT BRAND, BETAH DITONTON. Stamps do not repeat inside one view; the deck only reshuffles when the visible set changes.
 - Every ticket shows the quoted hook, **POTENSI LIKES**, up to four topic chips, the category, and three actions:
   - **SIMPAN / TERSIMPAN** — toggles the local saved list and announces state with `aria-pressed`.
-  - **KONSULTASI** — opens `wa.me/6281317778242` with `/hi Halo Ketchy, mau bahas ide konten ini: <hook>` prefilled.
+  - **KONSULTASI** — opens `wa.me/6285165811591` with `/hi Halo Ketchy, mau bahas ide konten ini: <hook>` prefilled.
   - **SALIN HOOK** — copies the hook with the Clipboard API and a legacy `textarea` fallback. The label flips to **TERSALIN** for 1.6 seconds, then restores from its snapshotted idle label (never from the temporary text). Success toast: **“Hook-nya udah nyangkut di clipboard.”**
 - If a topic filter has no matches, the empty state names the topic and offers HAPUS FILTER.
 - If no categories loaded at all, the carousel says to press **PERBARUI** to retry.
